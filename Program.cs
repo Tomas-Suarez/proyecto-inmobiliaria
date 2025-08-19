@@ -1,4 +1,12 @@
+using MySql.Data.MySqlClient;
+
 var builder = WebApplication.CreateBuilder(args);
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Registramos la conexión para inyección de dependencias
+builder.Services.AddTransient<MySqlConnection>(_ =>
+    new MySqlConnection(connectionString));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
