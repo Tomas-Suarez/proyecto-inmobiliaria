@@ -1,4 +1,7 @@
 using MySql.Data.MySqlClient;
+using proyecto_inmobiliaria.Repository;
+using proyecto_inmobiliaria.Services;
+using proyecto_inmobiliaria.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +10,14 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 // Registramos la conexión para inyección de dependencias
 builder.Services.AddTransient<MySqlConnection>(_ =>
     new MySqlConnection(connectionString));
+
+// Registramos repositorios, mappers y servicios
+builder.Services.AddScoped<IPropietarioRepository>(sp =>
+    new PropietarioRepository(connectionString!));
+
+builder.Services.AddScoped<PropietarioMapper>();
+
+builder.Services.AddScoped<IPropietarioService, PropietarioService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

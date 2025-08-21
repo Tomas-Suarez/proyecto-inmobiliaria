@@ -28,8 +28,8 @@ namespace proyecto_inmobiliaria.Repository
                     {
                         // Insertamos la persona
                         string queryPersona = @"INSERT INTO Persona
-                                            (nombre, apellido, documento, telefono, email, direccion, baja)
-                                            VALUES (@nombre, @apellido, @documento, @telefono, @email, @direccion, @baja);";
+                                            (nombre, apellido, documento, telefono, email, direccion)
+                                            VALUES (@nombre, @apellido, @documento, @telefono, @email, @direccion);";
 
                         using (MySqlCommand command = new MySqlCommand(queryPersona, connection, transaction))
                         {
@@ -39,8 +39,6 @@ namespace proyecto_inmobiliaria.Repository
                             command.Parameters.AddWithValue("@telefono", inquilino.Telefono);
                             command.Parameters.AddWithValue("@email", inquilino.Email);
                             command.Parameters.AddWithValue("@direccion", inquilino.Direccion);
-                            command.Parameters.AddWithValue("@baja", inquilino.Baja);
-
                             command.ExecuteNonQuery();
                             idPersona = (int)command.LastInsertedId;
                         }
@@ -151,7 +149,6 @@ namespace proyecto_inmobiliaria.Repository
                                                         telefono = @telefono,
                                                         email = @email,
                                                         direccion = @direccion,
-                                                        baja = @baja
                                                     WHERE id_persona = @idPersona";
                         using (var command = new MySqlCommand(queryUpdatePersona, connection, transaction))
                         {
@@ -161,7 +158,6 @@ namespace proyecto_inmobiliaria.Repository
                             command.Parameters.AddWithValue("@telefono", inquilino.Telefono);
                             command.Parameters.AddWithValue("@email", inquilino.Email);
                             command.Parameters.AddWithValue("@direccion", inquilino.Direccion);
-                            command.Parameters.AddWithValue("@baja", inquilino.Baja);
                             command.Parameters.AddWithValue("@idPersona", idPersona);
 
                             filasAfectadas = command.ExecuteNonQuery();

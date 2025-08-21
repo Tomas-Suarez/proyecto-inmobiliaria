@@ -14,6 +14,5 @@ public abstract class Persona
     public string? Email { get; set; }
 
     public string? Direccion { get; set; }
-    
-    public bool Baja { get; set; }
+
 }

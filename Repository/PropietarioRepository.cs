@@ -16,7 +16,7 @@ namespace proyecto_inmobiliaria.Repository
             _connectionString = connectionString;
         }
 
-        public int Alta(Propietario propietario)
+        public Propietario Alta(Propietario propietario)
         {
             int idPropietario = -1;
             int idPersona = -1;
@@ -30,8 +30,8 @@ namespace proyecto_inmobiliaria.Repository
 
                         // Insertamos la persona
                         string queryPersona = @"INSERT INTO Persona
-                                            (nombre, apellido, documento, telefono, email, direccion, baja)
-                                            VALUES (@nombre, @apellido, @documento, @telefono, @email, @direccion, @baja);";
+                                            (nombre, apellido, documento, telefono, email, direccion)
+                                            VALUES (@nombre, @apellido, @documento, @telefono, @email, @direccion);";
 
 
                         using (MySqlCommand command = new MySqlCommand(queryPersona, connection, transaction))
@@ -42,7 +42,6 @@ namespace proyecto_inmobiliaria.Repository
                             command.Parameters.AddWithValue("@telefono", propietario.Telefono);
                             command.Parameters.AddWithValue("@email", propietario.Email);
                             command.Parameters.AddWithValue("@direccion", propietario.Direccion);
-                            command.Parameters.AddWithValue("@baja", propietario.Baja);
 
                             command.ExecuteNonQuery();
                             idPersona = (int)command.LastInsertedId;
@@ -60,6 +59,10 @@ namespace proyecto_inmobiliaria.Repository
                             idPropietario = (int)command.LastInsertedId;
                         }
                         transaction.Commit();
+
+                        propietario.IdPropietario = idPropietario;
+
+                        return propietario;
                     }
                     catch
                     {
@@ -68,7 +71,6 @@ namespace proyecto_inmobiliaria.Repository
                     }
                 }
             }
-            return idPropietario;
         }
 
         public int Baja(int idPropietario)
@@ -121,10 +123,8 @@ namespace proyecto_inmobiliaria.Repository
             return filasAfectadas;
         }
 
-        public int Modificar(Propietario propietario)
+        public Propietario Modificar(Propietario propietario)
         {
-            int filasAfectadas = 0;
-
             using (var connection = new MySqlConnection(_connectionString))
             {
                 connection.Open();
@@ -155,8 +155,7 @@ namespace proyecto_inmobiliaria.Repository
                                                         documento = @documento,
                                                         telefono = @telefono,
                                                         email = @email,
-                                                        direccion = @direccion,
-                                                        baja = @baja
+                                                        direccion = @direccion
                                                     WHERE id_persona = @idPersona";
                         using (var command = new MySqlCommand(queryUpdatePersona, connection, transaction))
                         {
@@ -166,12 +165,13 @@ namespace proyecto_inmobiliaria.Repository
                             command.Parameters.AddWithValue("@telefono", propietario.Telefono);
                             command.Parameters.AddWithValue("@email", propietario.Email);
                             command.Parameters.AddWithValue("@direccion", propietario.Direccion);
-                            command.Parameters.AddWithValue("@baja", propietario.Baja);
                             command.Parameters.AddWithValue("idPersona", idPersona);
 
-                            filasAfectadas = command.ExecuteNonQuery();
+                            command.ExecuteNonQuery();
                         }
                         transaction.Commit();
+
+                        return propietario;
                     }
                     catch
                     {
@@ -180,9 +180,94 @@ namespace proyecto_inmobiliaria.Repository
                     }
                 }
             }
+        }
 
-            return filasAfectadas;
+        public Propietario ObtenerPorId(int idPropietario)
+        {
+            using (var connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
 
+                string queryGetPersona = @"SELECT p.nombre,
+                                            p.apellido,
+                                            p.documento,
+                                            p.telefono,
+                                            p.email,
+                                            p.direccion,
+                                            pr.id_propietario
+                                        FROM persona p
+                                        JOIN propietario pr ON p.id_persona = pr.id_persona
+                                        WHERE pr.id_propietario = @idPropietario;";
+                using (var command = new MySqlCommand(queryGetPersona, connection))
+                {
+                    command.Parameters.AddWithValue("@idPropietario", idPropietario);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new Propietario
+                            {
+                                IdPropietario = reader.GetInt32(reader.GetOrdinal("id_propietario")),
+                                Nombre = reader.GetString(reader.GetOrdinal("nombre")),
+                                Apellido = reader.GetString(reader.GetOrdinal("apellido")),
+                                Documento = reader.GetString(reader.GetOrdinal("documento")),
+                                Telefono = reader.GetString(reader.GetOrdinal("telefono")),
+                                Email = reader.GetString(reader.GetOrdinal("email")),
+                                Direccion = reader.GetString(reader.GetOrdinal("direccion")),
+                            };
+                        }
+                        else
+                        {
+                            throw new NotFoundException(NO_SE_ENCONTRO_PROPIETARIO_POR_ID + idPropietario);
+                        }
+                    }
+                }
+            }
+        }
+
+        public IList<Propietario> ObtenerTodos()
+        {
+            IList<Propietario> propietarios = new List<Propietario>();
+            using (var connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string queryGetAllPropietarios = @"SELECT p.nombre,
+                                                    p.apellido,
+                                                    p.documento,
+                                                    p.telefono,
+                                                    p.email,
+                                                    p.direccion,
+                                                    pr.id_propietario
+                                                FROM persona p
+                                                INNER JOIN propietario pr ON p.id_persona = pr.id_persona";
+
+                using (var command = new MySqlCommand(queryGetAllPropietarios, connection))
+                {
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Propietario propietario = new Propietario
+                        {
+                            IdPropietario = reader.GetInt32(reader.GetOrdinal("id_propietario")),
+                            Nombre = reader.GetString(reader.GetOrdinal("nombre")),
+                            Apellido = reader.GetString(reader.GetOrdinal("apellido")),
+                            Documento = reader.GetString(reader.GetOrdinal("documento")),
+                            Telefono = reader.GetString(reader.GetOrdinal("telefono")),
+                            Email = reader.GetString(reader.GetOrdinal("email")),
+                            Direccion = reader.GetString(reader.GetOrdinal("direccion")),
+                        };
+                        propietarios.Add(propietario);
+                    }
+                }
+            }
+            return propietarios;
+        }
+
+        public IList<Propietario> ObtenerLista(int paginaNro = 1, int tamPagina = 10)
+        {
+            throw new NotImplementedException();
         }
     }
 }
