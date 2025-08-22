@@ -1,0 +1,15 @@
+@{
+    ViewData["Title"] = "Error";
+    var status = ViewData["Status"];
+    var message = ViewData["Message"];
+}
+
+<div class="container text-center mt-5">
+    <h1>Error @status</h1>
+    <p>@message</p>
+
+    <img src="https://http.cat/@status" alt="Error @status" class="img-fluid" style="max-width:400px;">
+    <br>
+
+    <a href="/" class="btn btn-primary mt-3">Volver al inicio</a>
+</div>

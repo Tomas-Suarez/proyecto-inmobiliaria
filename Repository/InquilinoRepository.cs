@@ -1,6 +1,7 @@
 using Exceptions;
 using MySql.Data.MySqlClient;
 using proyecto_inmobiliaria.Models;
+using proyecto_inmobiliaria.Exceptions;
 
 using static proyecto_inmobiliaria.Constants.InquilinoConstants;
 

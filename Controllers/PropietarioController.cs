@@ -17,16 +17,8 @@ namespace proyecto_inmobiliaria.Controllers
 
         public IActionResult Index()
         {
-            try
-            {
-                IList<PropietarioResponseDTO> propietarios = service.TodosLosPropietarios();
-                return View(propietarios);
-            }
-            catch (Exception ex) //TODO: crear un exception handler, para eviatr el try catch
-            {
-                ViewBag.Error = ex.Message;
-                return View(new List<PropietarioResponseDTO>());
-            }
+            IList<PropietarioResponseDTO> propietarios = service.TodosLosPropietarios();
+            return View(propietarios);
         }
 
         [HttpGet]
@@ -44,43 +36,26 @@ namespace proyecto_inmobiliaria.Controllers
             {
                 return View("formCrearModificar", dto);
             }
-
-            try
-            {
-                service.AltaPropietario(dto);
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                ViewBag.Error = ex.Message;
-                return View("formCrearModificar", dto);
-            }
+            service.AltaPropietario(dto);
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
         public IActionResult Modificar(int IdPropietario)
         {
-            try
-            {
-                var propietario = service.ObtenerPorId(IdPropietario);
+            var propietario = service.ObtenerPorId(IdPropietario);
 
-                var dto = new PropietarioRequestDTO(
-                    IdPropietario,
-                    propietario.Nombre!,
-                    propietario.Apellido!,
-                    propietario.Documento!,
-                    propietario.Telefono!,
-                    propietario.Email!,
-                    propietario.Direccion!
-                );
+            var dto = new PropietarioRequestDTO(
+                IdPropietario,
+                propietario.Nombre!,
+                propietario.Apellido!,
+                propietario.Documento!,
+                propietario.Telefono!,
+                propietario.Email!,
+                propietario.Direccion!
+            );
 
-                return View("formCrearModificar", dto);
-            }
-            catch (NotFoundException)
-            {
-                return NotFound();
-            }
+            return View("formCrearModificar", dto);
         }
 
         [HttpPost]
@@ -88,34 +63,19 @@ namespace proyecto_inmobiliaria.Controllers
         public IActionResult Modificar(PropietarioRequestDTO dto)
         {
             if (!ModelState.IsValid)
+            {
                 return View("formCrearModificar", dto);
+            }
+            service.ModificarPropietario(dto.IdPropietario, dto);
+            return RedirectToAction(nameof(Index));
 
-            try
-            {
-                service.ModificarPropietario(dto.IdPropietario, dto);
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                ViewBag.Error = ex.Message;
-                return View("formCrearModificar", dto);
-            }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Eliminar(int id)
         {
-            try
-            {
-                service.BajaPropietario(id);
-            }
-            catch (Exception ex)
-            {
-                ViewBag.Error = ex.Message;
-                return RedirectToAction(nameof(Index));
-            }
-
+            service.BajaPropietario(id);
             return RedirectToAction(nameof(Index));
         }
     }

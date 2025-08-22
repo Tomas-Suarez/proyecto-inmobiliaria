@@ -1,8 +1,10 @@
 namespace proyecto_inmobiliaria.Exceptions
 {
-    public class DeleteFailedException : Exception
+    public class DeleteFailedException : CustomException
     {
-        public int Status = 409;
-        public DeleteFailedException(string mensaje) : base(mensaje) { }
+        public DeleteFailedException(string message) 
+            : base(message, StatusCodes.Status409Conflict) 
+        { 
+        }
     }
 }

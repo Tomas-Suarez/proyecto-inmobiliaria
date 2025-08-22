@@ -1,8 +1,10 @@
-namespace Exceptions
+namespace proyecto_inmobiliaria.Exceptions
 {
-    public class NotFoundException : Exception
+    public class NotFoundException : CustomException
     {
-        public int Status = 404; 
-        public NotFoundException(string mensaje) : base(mensaje) { }
+        public NotFoundException(string message) 
+            : base(message, StatusCodes.Status404NotFound) 
+        { 
+        }
     }
 }
