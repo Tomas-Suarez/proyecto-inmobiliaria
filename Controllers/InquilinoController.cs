@@ -5,54 +5,54 @@ using proyecto_inmobiliaria.Services;
 
 namespace proyecto_inmobiliaria.Controllers
 {
-    public class PropietarioController : Controller
+    public class InquilinoController : Controller
     {
-        private readonly IPropietarioService service;
+        private readonly IInquilinoService service;
 
-        public PropietarioController(IPropietarioService service)
+        public InquilinoController(IInquilinoService service)
         {
             this.service = service;
         }
 
         public IActionResult Index()
         {
-            ViewData["ActivePage"] = "Propietario";
-            IList<PropietarioResponseDTO> propietarios = service.TodosLosPropietarios();
-            return View(propietarios);
+            ViewData["ActivePage"] = "Inquilino";
+            IList<InquilinoResponseDTO> inquilinos = service.TodosLosInquilinos();
+            return View(inquilinos);
         }
 
         [HttpGet]
         public IActionResult Crear(int id = 0)
         {
-            var dto = new PropietarioRequestDTO(id, "", "", "", "", "", "");
+            var dto = new InquilinoRequestDTO(id, "", "", "", "", "", "");
             return View("formCrearModificar", dto);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Crear(PropietarioRequestDTO dto)
+        public IActionResult Crear(InquilinoRequestDTO dto)
         {
             if (!ModelState.IsValid)
             {
                 return View("formCrearModificar", dto);
             }
-            service.AltaPropietario(dto);
+            service.AltaInquilino(dto);
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public IActionResult Modificar(int IdPropietario)
+        public IActionResult Modificar(int IdInquilino)
         {
-            var propietario = service.ObtenerPorId(IdPropietario);
+            var inquilino = service.ObtenerPorId(IdInquilino);
 
-            var dto = new PropietarioRequestDTO(
-                IdPropietario,
-                propietario.Nombre!,
-                propietario.Apellido!,
-                propietario.Documento!,
-                propietario.Telefono!,
-                propietario.Email!,
-                propietario.Direccion!
+            var dto = new InquilinoRequestDTO(
+                IdInquilino,
+                inquilino.Nombre!,
+                inquilino.Apellido!,
+                inquilino.Documento!,
+                inquilino.Telefono!,
+                inquilino.Email!,
+                inquilino.Direccion!
             );
 
             return View("formCrearModificar", dto);
@@ -60,13 +60,13 @@ namespace proyecto_inmobiliaria.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Modificar(PropietarioRequestDTO dto)
+        public IActionResult Modificar(InquilinoRequestDTO dto)
         {
             if (!ModelState.IsValid)
             {
                 return View("formCrearModificar", dto);
             }
-            service.ModificarPropietario(dto.IdPropietario, dto);
+            service.ModificarInquilino(dto.IdInquilino, dto);
             return RedirectToAction(nameof(Index));
 
         }
@@ -75,7 +75,7 @@ namespace proyecto_inmobiliaria.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Eliminar(int id)
         {
-            service.BajaPropietario(id);
+            service.BajaInquilino(id);
             return RedirectToAction(nameof(Index));
         }
     }

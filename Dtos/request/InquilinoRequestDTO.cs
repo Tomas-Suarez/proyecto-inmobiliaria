@@ -2,8 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace proyecto_inmobiliaria.Dtos.request
 {
-    public record PropietarioRequestDTO(
-        int IdPropietario,
+    public record InquilinoRequestDTO(
+        int IdInquilino,
         [Required] string Nombre,
         [Required] string Apellido,
         [Required] string Documento,

@@ -11,11 +11,20 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddTransient<MySqlConnection>(_ =>
     new MySqlConnection(connectionString));
 
+//Propietario
 builder.Services.AddScoped<IPropietarioRepository>(sp =>
     new PropietarioRepository(connectionString!));
 
 builder.Services.AddScoped<PropietarioMapper>();
 builder.Services.AddScoped<IPropietarioService, PropietarioService>();
+
+//Inquilino
+builder.Services.AddScoped<IInquilinoRepository>(sp =>
+    new InquilinoRepository(connectionString!));
+
+builder.Services.AddScoped<InquilinoMapper>();
+builder.Services.AddScoped<IInquilinoService, InquilinoService>();
+
 
 builder.Services.AddControllersWithViews()
     .AddSessionStateTempDataProvider();

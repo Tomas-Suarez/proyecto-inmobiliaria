@@ -1,8 +1,8 @@
-using Exceptions;
 using proyecto_inmobiliaria.Dtos.request;
 using proyecto_inmobiliaria.Dtos.response;
 using proyecto_inmobiliaria.Exceptions;
 using proyecto_inmobiliaria.Mappers;
+using proyecto_inmobiliaria.Models;
 using proyecto_inmobiliaria.Repository;
 using static proyecto_inmobiliaria.Constants.PropietarioConstants;
 
@@ -58,12 +58,7 @@ namespace proyecto_inmobiliaria.Services
 
         public IList<PropietarioResponseDTO> TodosLosPropietarios()
         {
-            var propietarios = _repository.ObtenerTodos();
-
-            if (propietarios == null || propietarios.Count == 0)
-            {
-                throw new NotFoundException(NO_SE_ENCONTRO_NINGUN_PROPIETARIO);
-            }
+            var propietarios = _repository.ObtenerTodos() ?? new List<Propietario>();
 
             return propietarios
                 .Select(p => _mapper.ToDto(p))

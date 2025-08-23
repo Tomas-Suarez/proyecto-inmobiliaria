@@ -1,0 +1,58 @@
+@model IEnumerable<proyecto_inmobiliaria.Dtos.response.InquilinoResponseDTO>
+
+@{
+    ViewData["Title"] = "Inquilino";
+}
+
+<h1>
+    Inquilinos
+    <div class="btn-group float-right">
+        <a class="btn btn-primary" asp-action="Crear" title="Crear">
+            <i class="fa-solid fa-plus"></i> Crear
+        </a>
+    </div>
+</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>IdInquilino</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Documento</th>
+            <th>Telefono</th>
+            <th>Email</th>
+            <th>Direccion</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var inquilino in Model)
+        {
+            <tr>
+                <td>@inquilino.IdInquilino</td>
+                <td>@inquilino.Nombre</td>
+                <td>@inquilino.Apellido</td>
+                <td>@inquilino.Documento</td>
+                <td>@inquilino.Telefono</td>
+                <td>@inquilino.Email</td>
+                <td>@inquilino.Direccion</td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <a class="btn btn-primary" asp-action="Modificar" asp-route-IdInquilino="@inquilino.IdInquilino" title="Editar">
+                            <i class="fa-solid fa-pen"></i> Editar
+                        </a>
+
+                        <form asp-action="Eliminar" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@inquilino.IdInquilino" />
+                            <button type="submit" class="btn btn-danger" title="Eliminar"
+                                    onclick="return confirm('¿Seguro que querés eliminar de forma PERMANENTE este inquilino?');">
+                                <i class="fa-solid fa-trash-can"></i> Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

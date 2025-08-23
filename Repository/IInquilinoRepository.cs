@@ -4,8 +4,12 @@ namespace proyecto_inmobiliaria.Repository
 {
     public interface IInquilinoRepository
     {
-        int Alta(Inquilino inquilino);
-        int Modificar(Inquilino inquilino);
+        Inquilino Alta(Inquilino Inquilino);
+        Inquilino Modificar(Inquilino Inquilino);
         int Baja(int idInquilino);
+        Inquilino ObtenerPorId(int idInquilino);
+        IList<Inquilino> ObtenerTodos();
+        IList<Inquilino> ObtenerLista(int paginaNro, int tamPagina);
+
     }
 }

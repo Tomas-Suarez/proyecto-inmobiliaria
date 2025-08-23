@@ -1,9 +1,9 @@
-using Exceptions;
 using MySql.Data.MySqlClient;
 using proyecto_inmobiliaria.Models;
 using proyecto_inmobiliaria.Exceptions;
 
 using static proyecto_inmobiliaria.Constants.InquilinoConstants;
+
 
 namespace proyecto_inmobiliaria.Repository
 {
@@ -16,7 +16,7 @@ namespace proyecto_inmobiliaria.Repository
             _connectionString = connectionString;
         }
 
-        public int Alta(Inquilino inquilino)
+        public Inquilino Alta(Inquilino Inquilino)
         {
             int idInquilino = -1;
             int idPersona = -1;
@@ -27,24 +27,27 @@ namespace proyecto_inmobiliaria.Repository
                 {
                     try
                     {
+
                         // Insertamos la persona
                         string queryPersona = @"INSERT INTO Persona
                                             (nombre, apellido, documento, telefono, email, direccion)
                                             VALUES (@nombre, @apellido, @documento, @telefono, @email, @direccion);";
 
+
                         using (MySqlCommand command = new MySqlCommand(queryPersona, connection, transaction))
                         {
-                            command.Parameters.AddWithValue("@nombre", inquilino.Nombre);
-                            command.Parameters.AddWithValue("@apellido", inquilino.Apellido);
-                            command.Parameters.AddWithValue("@documento", inquilino.Documento);
-                            command.Parameters.AddWithValue("@telefono", inquilino.Telefono);
-                            command.Parameters.AddWithValue("@email", inquilino.Email);
-                            command.Parameters.AddWithValue("@direccion", inquilino.Direccion);
+                            command.Parameters.AddWithValue("@nombre", Inquilino.Nombre);
+                            command.Parameters.AddWithValue("@apellido", Inquilino.Apellido);
+                            command.Parameters.AddWithValue("@documento", Inquilino.Documento);
+                            command.Parameters.AddWithValue("@telefono", Inquilino.Telefono);
+                            command.Parameters.AddWithValue("@email", Inquilino.Email);
+                            command.Parameters.AddWithValue("@direccion", Inquilino.Direccion);
+
                             command.ExecuteNonQuery();
                             idPersona = (int)command.LastInsertedId;
                         }
 
-                        // Insertamos el inquilino con el (id persona)
+                        // Insertamos el Inquilino con el (id persona)
                         string queryInquilino = @"INSERT INTO Inquilino(id_Persona)
                                                 VALUE (@idPersona);";
 
@@ -56,15 +59,18 @@ namespace proyecto_inmobiliaria.Repository
                             idInquilino = (int)command.LastInsertedId;
                         }
                         transaction.Commit();
+
+                        Inquilino.IdInquilino = idInquilino;
+
+                        return Inquilino;
                     }
                     catch
                     {
                         transaction.Rollback();
-                        throw; // TODO: agregar excepcion personalizada MySQL?
+                        throw; // TODO: Agregar excepcion personalizada mysql??
                     }
                 }
             }
-            return idInquilino;
         }
 
         public int Baja(int idInquilino)
@@ -78,8 +84,8 @@ namespace proyecto_inmobiliaria.Repository
                 {
                     try
                     {
-                        string queryGetPersona = @"SELECT id_persona FROM inquilino 
-                                                WHERE id_inquilino = @idInquilino;";
+                        string queryGetPersona = @"SELECT id_persona from Inquilino 
+                                                where id_Inquilino = @idInquilino;";
                         int idPersona;
 
                         using (var command = new MySqlCommand(queryGetPersona, connection, transaction))
@@ -96,7 +102,7 @@ namespace proyecto_inmobiliaria.Repository
                         }
 
                         string queryDeletePersona = @"DELETE FROM persona 
-                                                    WHERE id_persona = @idPersona";
+                                                    where id_persona = @idPersona";
                         using (var command = new MySqlCommand(queryDeletePersona, connection, transaction))
                         {
                             command.Parameters.AddWithValue("@idPersona", idPersona);
@@ -104,11 +110,12 @@ namespace proyecto_inmobiliaria.Repository
                         }
 
                         transaction.Commit();
+
                     }
                     catch
                     {
                         transaction.Rollback();
-                        throw;
+                        throw;  //
                     }
                 }
             }
@@ -116,10 +123,8 @@ namespace proyecto_inmobiliaria.Repository
             return filasAfectadas;
         }
 
-        public int Modificar(Inquilino inquilino)
+        public Inquilino Modificar(Inquilino Inquilino)
         {
-            int filasAfectadas = 0;
-
             using (var connection = new MySqlConnection(_connectionString))
             {
                 connection.Open();
@@ -127,53 +132,143 @@ namespace proyecto_inmobiliaria.Repository
                 {
                     try
                     {
-                        string queryGetPersona = @"SELECT id_persona FROM inquilino 
-                                                WHERE id_inquilino = @idInquilino;";
+                        string queryGetPersona = @"SELECT id_persona from Inquilino 
+                                                where id_Inquilino = @idInquilino;";
                         int idPersona;
 
                         using (var command = new MySqlCommand(queryGetPersona, connection, transaction))
                         {
-                            command.Parameters.AddWithValue("@idInquilino", inquilino.IdInquilino);
+                            command.Parameters.AddWithValue("@idInquilino", Inquilino.IdInquilino);
                             var resultado = command.ExecuteScalar();
 
                             if (resultado == null)
                             {
-                                throw new NotFoundException(NO_SE_ENCONTRO_INQUILINO_POR_ID + inquilino.IdInquilino);
+                                throw new NotFoundException(NO_SE_ENCONTRO_INQUILINO_POR_ID + Inquilino.IdInquilino);
                             }
                             idPersona = Convert.ToInt32(resultado);
+
                         }
 
                         string queryUpdatePersona = @"UPDATE persona 
-                                                    SET nombre = @nombre,
+                                                    set nombre = @nombre,
                                                         apellido = @apellido,
                                                         documento = @documento,
                                                         telefono = @telefono,
                                                         email = @email,
-                                                        direccion = @direccion,
+                                                        direccion = @direccion
                                                     WHERE id_persona = @idPersona";
                         using (var command = new MySqlCommand(queryUpdatePersona, connection, transaction))
                         {
-                            command.Parameters.AddWithValue("@nombre", inquilino.Nombre);
-                            command.Parameters.AddWithValue("@apellido", inquilino.Apellido);
-                            command.Parameters.AddWithValue("@documento", inquilino.Documento);
-                            command.Parameters.AddWithValue("@telefono", inquilino.Telefono);
-                            command.Parameters.AddWithValue("@email", inquilino.Email);
-                            command.Parameters.AddWithValue("@direccion", inquilino.Direccion);
-                            command.Parameters.AddWithValue("@idPersona", idPersona);
+                            command.Parameters.AddWithValue("@nombre", Inquilino.Nombre);
+                            command.Parameters.AddWithValue("@apellido", Inquilino.Apellido);
+                            command.Parameters.AddWithValue("@documento", Inquilino.Documento);
+                            command.Parameters.AddWithValue("@telefono", Inquilino.Telefono);
+                            command.Parameters.AddWithValue("@email", Inquilino.Email);
+                            command.Parameters.AddWithValue("@direccion", Inquilino.Direccion);
+                            command.Parameters.AddWithValue("idPersona", idPersona);
 
-                            filasAfectadas = command.ExecuteNonQuery();
+                            command.ExecuteNonQuery();
                         }
                         transaction.Commit();
+
+                        return Inquilino;
                     }
                     catch
                     {
                         transaction.Rollback();
-                        throw;
+                        throw; //
                     }
                 }
             }
+        }
 
-            return filasAfectadas;
+        public Inquilino ObtenerPorId(int idInquilino)
+        {
+            using (var connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string queryGetPersona = @"SELECT p.nombre,
+                                            p.apellido,
+                                            p.documento,
+                                            p.telefono,
+                                            p.email,
+                                            p.direccion,
+                                            pr.id_Inquilino
+                                        FROM persona p
+                                        JOIN Inquilino pr ON p.id_persona = pr.id_persona
+                                        WHERE pr.id_Inquilino = @idInquilino;";
+                using (var command = new MySqlCommand(queryGetPersona, connection))
+                {
+                    command.Parameters.AddWithValue("@idInquilino", idInquilino);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new Inquilino
+                            {
+                                IdInquilino = reader.GetInt32(reader.GetOrdinal("id_Inquilino")),
+                                Nombre = reader.GetString(reader.GetOrdinal("nombre")),
+                                Apellido = reader.GetString(reader.GetOrdinal("apellido")),
+                                Documento = reader.GetString(reader.GetOrdinal("documento")),
+                                Telefono = reader.GetString(reader.GetOrdinal("telefono")),
+                                Email = reader.GetString(reader.GetOrdinal("email")),
+                                Direccion = reader.GetString(reader.GetOrdinal("direccion")),
+                            };
+                        }
+                        else
+                        {
+                            throw new NotFoundException(NO_SE_ENCONTRO_INQUILINO_POR_ID + idInquilino);
+                        }
+                    }
+                }
+            }
+        }
+
+        public IList<Inquilino> ObtenerTodos()
+        {
+            IList<Inquilino> Inquilinos = new List<Inquilino>();
+            using (var connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string queryGetAllInquilinos = @"SELECT p.nombre,
+                                                    p.apellido,
+                                                    p.documento,
+                                                    p.telefono,
+                                                    p.email,
+                                                    p.direccion,
+                                                    pr.id_Inquilino
+                                                FROM persona p
+                                                INNER JOIN Inquilino pr ON p.id_persona = pr.id_persona";
+
+                using (var command = new MySqlCommand(queryGetAllInquilinos, connection))
+                {
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Inquilino Inquilino = new Inquilino
+                        {
+                            IdInquilino = reader.GetInt32(reader.GetOrdinal("id_Inquilino")),
+                            Nombre = reader.GetString(reader.GetOrdinal("nombre")),
+                            Apellido = reader.GetString(reader.GetOrdinal("apellido")),
+                            Documento = reader.GetString(reader.GetOrdinal("documento")),
+                            Telefono = reader.GetString(reader.GetOrdinal("telefono")),
+                            Email = reader.GetString(reader.GetOrdinal("email")),
+                            Direccion = reader.GetString(reader.GetOrdinal("direccion")),
+                        };
+                        Inquilinos.Add(Inquilino);
+                    }
+                }
+            }
+            return Inquilinos;
+        }
+
+        public IList<Inquilino> ObtenerLista(int paginaNro = 1, int tamPagina = 10)
+        {
+            throw new NotImplementedException();
         }
     }
 }
+
