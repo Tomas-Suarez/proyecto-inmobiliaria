@@ -13,7 +13,6 @@ namespace proyecto_inmobiliaria.Exceptions
 
             httpContext.Response.StatusCode = statusCode;
 
-            // Usamos TempData para que sobreviva al Redirect
             var tempDataFactory = httpContext.RequestServices.GetRequiredService<ITempDataDictionaryFactory>();
             var tempData = tempDataFactory.GetTempData(httpContext);
 

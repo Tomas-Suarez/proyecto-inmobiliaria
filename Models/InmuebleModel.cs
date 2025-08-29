@@ -3,11 +3,11 @@ namespace proyecto_inmobiliaria.Models
     public class Inmueble
     {
         public int IdInmueble { get; set; }
-        public EstadoInmueble? EstadoInmueble { get; set; }
-        public TipoInmueble? TipoInmueble { get; set; }
-        public Propietario? Propietario { get; set; }
+        public int IdEstadoInmueble { get; set; }
+        public int IdTipoInmueble { get; set; }
+        public int IdPropietario { get; set; }
         public string? Direccion { get; set; }
         public int CantidadAmbientes { get; set; }
-        public double SuperficieM2 { get; set; }
+        public decimal SuperficieM2 { get; set; }
     }
 }
