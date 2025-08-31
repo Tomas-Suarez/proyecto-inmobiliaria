@@ -63,6 +63,15 @@ namespace proyecto_inmobiliaria.Repository.imp
             return filasAfectadas;
         }
 
+        public int CantidadTotal()
+        {
+            using var connection = new MySqlConnection(_connectionString);
+            connection.Open();
+            string query = "SELECT COUNT(*) FROM Inmueble;";
+            using var command = new MySqlCommand(query, connection);
+            return Convert.ToInt32(command.ExecuteScalar());
+        }
+
         public Inmueble Modificar(Inmueble inmueble)
         {
             using (var connection = new MySqlConnection(_connectionString))
@@ -102,16 +111,18 @@ namespace proyecto_inmobiliaria.Repository.imp
                 connection.Open();
 
                 string query = @"SELECT i.id_Inmueble, 
-                                t.nombre AS TipoInmueble, 
-                                CONCAT(p.nombre, ' ', p.apellido) AS NombreCompletoPropietario, 
-                                i.direccion, 
-                                i.cantidad_Ambientes, 
-                                i.superficie_M2
-                         FROM Inmueble i
-                         JOIN Tipo_Inmueble t ON i.id_Tipo_Inmueble = t.id_Tipo_Inmueble
-                         JOIN Propietario pr ON i.id_Propietario = pr.id_Propietario
-                         JOIN Persona p ON pr.id_Persona = p.id_Persona
-                         LIMIT @PageSize OFFSET @Offset;";
+                                    t.nombre AS TipoInmueble, 
+                                    e.descripcion AS EstadoInmueble,
+                                    CONCAT(p.nombre, ' ', p.apellido) AS NombreCompletoPropietario, 
+                                    i.direccion, 
+                                    i.cantidad_Ambientes, 
+                                    i.superficie_M2
+                                FROM Inmueble i
+                                JOIN Tipo_Inmueble t ON i.id_Tipo_Inmueble = t.id_Tipo_Inmueble
+                                JOIN Estado_Inmueble e ON i.id_Estado_Inmueble = e.id_Estado_Inmueble
+                                JOIN Propietario pr ON i.id_Propietario = pr.id_Propietario
+                                JOIN Persona p ON pr.id_Persona = p.id_Persona
+                                LIMIT @PageSize OFFSET @Offset;";
 
                 using (var command = new MySqlCommand(query, connection))
                 {
@@ -127,6 +138,7 @@ namespace proyecto_inmobiliaria.Repository.imp
                             var dto = new InmuebleResponseDTO(
                                 reader.GetInt32("id_Inmueble"),
                                 reader.GetString("TipoInmueble"),
+                                reader.GetString("EstadoInmueble"),
                                 reader.GetString("NombreCompletoPropietario"),
                                 reader.GetString("direccion"),
                                 reader.GetInt32("cantidad_Ambientes"),
@@ -149,15 +161,17 @@ namespace proyecto_inmobiliaria.Repository.imp
 
                 string query = @"SELECT i.id_Inmueble, 
                                     t.nombre AS TipoInmueble, 
+                                    e.descripcion AS EstadoInmueble,
                                     CONCAT(p.nombre, ' ', p.apellido) AS NombreCompletoPropietario, 
                                     i.direccion, 
                                     i.cantidad_Ambientes, 
                                     i.superficie_M2
                                 FROM Inmueble i
                                 JOIN Tipo_Inmueble t ON i.id_Tipo_Inmueble = t.id_Tipo_Inmueble
+                                JOIN Estado_Inmueble e ON i.id_Estado_Inmueble = e.id_Estado_Inmueble
                                 JOIN Propietario pr ON i.id_Propietario = pr.id_Propietario
                                 JOIN Persona p ON pr.id_Persona = p.id_Persona
-                                 WHERE i.id_Inmueble = @idInmueble;";
+                                WHERE i.id_Inmueble = @idInmueble;";
                 using (var command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@idInmueble", idInmueble);
@@ -169,6 +183,7 @@ namespace proyecto_inmobiliaria.Repository.imp
                             return new InmuebleResponseDTO(
                                 reader.GetInt32("id_Inmueble"),
                                 reader.GetString("TipoInmueble"),
+                                reader.GetString("EstadoInmueble"),
                                 reader.GetString("NombreCompletoPropietario"),
                                 reader.GetString("direccion"),
                                 reader.GetInt32("cantidad_Ambientes"),
@@ -181,6 +196,50 @@ namespace proyecto_inmobiliaria.Repository.imp
                         }
                     }
 
+                }
+            }
+        }
+
+        public Inmueble ObtenerPorIdRequest(int idInmueble)
+        {
+            using (var connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = @"SELECT i.id_inmueble,
+                                i.id_estado_inmueble,
+                                i.id_tipo_inmueble,
+                                i.id_propietario,
+                                i.direccion,
+                                i.cantidad_ambientes,
+                                i.superficie_m2
+                         FROM Inmueble i
+                         WHERE i.id_inmueble = @idInmueble;";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@idInmueble", idInmueble);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new Inmueble
+                            {
+                                IdInmueble = reader.GetInt32("id_inmueble"),
+                                IdEstadoInmueble = reader.GetInt32("id_estado_inmueble"),
+                                IdTipoInmueble = reader.GetInt32("id_tipo_inmueble"),
+                                IdPropietario = reader.GetInt32("id_propietario"),
+                                Direccion = reader.GetString("direccion"),
+                                CantidadAmbientes = reader.GetInt32("cantidad_ambientes"),
+                                SuperficieM2 = reader.GetDecimal("superficie_m2")
+                            };
+                        }
+                        else
+                        {
+                            throw new NotFoundException(NO_SE_ENCONTRO_INMUEBLE_POR_ID + idInmueble);
+                        }
+                    }
                 }
             }
         }

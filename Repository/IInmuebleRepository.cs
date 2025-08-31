@@ -9,7 +9,8 @@ namespace proyecto_inmobiliaria.Repository
         Inmueble Modificar(Inmueble inmueble);
         int Baja(int idInmueble);
         InmuebleResponseDTO ObtenerPorId(int idInmueble);
+        Inmueble ObtenerPorIdRequest(int idInmueble);
         IList<InmuebleResponseDTO> ObtenerLista(int paginaNro, int tamPagina);
-
+        int CantidadTotal();
     }
 }

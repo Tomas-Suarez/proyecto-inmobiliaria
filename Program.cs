@@ -1,6 +1,8 @@
 using MySql.Data.MySqlClient;
 using proyecto_inmobiliaria.Repository;
+using proyecto_inmobiliaria.Repository.imp;
 using proyecto_inmobiliaria.Services;
+using proyecto_inmobiliaria.Services.imp;
 using proyecto_inmobiliaria.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +26,23 @@ builder.Services.AddScoped<IInquilinoRepository>(sp =>
 
 builder.Services.AddScoped<InquilinoMapper>();
 builder.Services.AddScoped<IInquilinoService, InquilinoService>();
+
+// Inmueble
+builder.Services.AddScoped<IInmuebleRepository>(sp =>
+    new InmuebleRepository(connectionString!));
+
+builder.Services.AddScoped<InmuebleMapper>();
+builder.Services.AddScoped<IInmuebleService, InmuebleService>();
+
+// EstadoInmueble
+builder.Services.AddScoped<IEstadoInmuebleRepository>(sp =>
+    new EstadoInmuebleRepository(connectionString!));
+
+// TipoInmueble
+builder.Services.AddScoped<ITipoInmuebleRepository>(sp =>
+    new TipoInmuebleRepository(connectionString!));
+
+
 
 
 builder.Services.AddControllersWithViews()

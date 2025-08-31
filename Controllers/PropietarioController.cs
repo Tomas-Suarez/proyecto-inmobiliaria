@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using proyecto_inmobiliaria.Dtos.request;
 using proyecto_inmobiliaria.Dtos.response;
+using proyecto_inmobiliaria.Exceptions;
 using proyecto_inmobiliaria.Services;
 
 namespace proyecto_inmobiliaria.Controllers
@@ -77,6 +78,21 @@ namespace proyecto_inmobiliaria.Controllers
         {
             service.BajaPropietario(id);
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public IActionResult BuscarPorDocumento(string documento)
+        {
+            try
+            {
+                var propietario = service.BuscarPorDocumento(documento);
+                return Json(new { success = true, data = propietario });
+
+            }
+            catch (NotFoundException)
+            {
+                return Ok(new { success = false, message = "No se encontró propietario con ese documento." });
+            }
         }
     }
 }

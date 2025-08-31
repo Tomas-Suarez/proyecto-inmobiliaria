@@ -1,0 +1,94 @@
+@model proyecto_inmobiliaria.Dtos.request.InmuebleRequestDTO
+
+@{
+    bool crearInmueble = Model.IdInmueble == 0;
+    ViewData["Title"] = crearInmueble ? "Crear Inmueble" : "Editar Inmueble";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="@(crearInmueble ? "Crear" : "Modificar")" method="post">
+    <input type="hidden" asp-for="IdInmueble" />
+
+    <div class="form-group">
+        <label asp-for="IdTipoInmueble" class="control-label">Tipo</label>
+        <select asp-for="IdTipoInmueble" class="form-control" asp-items="ViewBag.TiposInmueble">
+            <option value="">-- Seleccionar Tipo --</option>
+        </select>
+        <span asp-validation-for="IdTipoInmueble" class="text-danger"></span>
+    </div>
+
+    @if (!crearInmueble)
+    {
+        <div class="form-group">
+            <label asp-for="IdEstadoInmueble" class="control-label">Estado</label>
+            <select asp-for="IdEstadoInmueble" class="form-control" asp-items="ViewBag.EstadosInmueble">
+                <option value="">-- Seleccionar Estado --</option>
+            </select>
+            <span asp-validation-for="IdEstadoInmueble" class="text-danger"></span>
+        </div>
+    }
+    @if (crearInmueble){
+    <div class="form-group">
+        <label>Documento Propietario</label>
+        <div class="input-group">
+            <input type="text" id="docPropietario" class="form-control" placeholder="Ingrese documento..." />
+            <button type="button" id="btnBuscar" class="btn btn-outline-primary">Buscar</button>
+        </div>
+        <span class="text-danger" id="errorPropietario"></span>
+    </div>
+    }
+
+    <div id="propietarioInfo" style="display:none; margin-top:10px;" class="alert alert-info">
+        <p><strong>Propietario encontrado:</strong> <span id="nombrePropietario"></span></p>
+        <input type="hidden" asp-for="IdPropietario" id="idPropietario" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Direccion" class="control-label"></label>
+        <input asp-for="Direccion" class="form-control" />
+        <span asp-validation-for="Direccion" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CantidadAmbientes" class="control-label"></label>
+        <input asp-for="CantidadAmbientes" class="form-control" type="number" min="1" />
+        <span asp-validation-for="CantidadAmbientes" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="SuperficieM2" class="control-label"></label>
+        <input asp-for="SuperficieM2" class="form-control" type="number" step="0.01" min="0" />
+        <span asp-validation-for="SuperficieM2" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    <script>
+        document.getElementById("btnBuscar").addEventListener("click", function () {
+            var documento = document.getElementById("docPropietario").value;
+
+            fetch(`/Propietario/BuscarPorDocumento?documento=${documento}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.success) {
+                        document.getElementById("propietarioInfo").style.display = "block";
+                        document.getElementById("nombrePropietario").innerText = data.data.nombre;
+                        document.getElementById("idPropietario").value = data.data.idPropietario;
+                        document.getElementById("errorPropietario").innerText = "";
+                    } else {
+                        document.getElementById("propietarioInfo").style.display = "none";
+                        document.getElementById("errorPropietario").innerText = data.message;
+                    }
+                })
+                .catch(err => {
+                    document.getElementById("propietarioInfo").style.display = "none";
+                    document.getElementById("errorPropietario").innerText = "Error al buscar propietario.";
+                });
+        });
+    </script>
+}

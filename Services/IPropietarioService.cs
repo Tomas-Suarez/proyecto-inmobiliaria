@@ -12,5 +12,8 @@ namespace proyecto_inmobiliaria.Services
         IList<PropietarioResponseDTO> TodosLosPropietarios();
 
         PropietarioResponseDTO ObtenerPorId(int PropietarioId);
+
+        PropietarioResponseDTO BuscarPorDocumento(string documento);
+
     }
 }

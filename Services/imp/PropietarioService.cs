@@ -30,8 +30,7 @@ namespace proyecto_inmobiliaria.Services
 
         public void BajaPropietario(int PropietarioId)
         {
-            _ = _repository.ObtenerPorId(PropietarioId)
-                                ?? throw new NotFoundException(NO_SE_ENCONTRO_PROPIETARIO_POR_ID + PropietarioId);
+            _ = ObtenerPorId(PropietarioId);
 
             int filasAfectadas = _repository.Baja(PropietarioId);
 
@@ -44,8 +43,7 @@ namespace proyecto_inmobiliaria.Services
 
         public PropietarioResponseDTO ModificarPropietario(int PropietarioId, PropietarioRequestDTO dto)
         {
-            _ = _repository.ObtenerPorId(PropietarioId)
-                                ?? throw new NotFoundException(NO_SE_ENCONTRO_PROPIETARIO_POR_ID + PropietarioId);
+            _ = ObtenerPorId(PropietarioId);
 
             var propietario = _mapper.ToEntity(dto);
 
@@ -69,6 +67,14 @@ namespace proyecto_inmobiliaria.Services
         {
             var propietario = _repository.ObtenerPorId(propietarioId)
                                 ?? throw new NotFoundException(NO_SE_ENCONTRO_PROPIETARIO_POR_ID + propietarioId);
+
+            return _mapper.ToDto(propietario);
+        }
+
+        public PropietarioResponseDTO BuscarPorDocumento(string documento)
+        {
+            var propietario = _repository.BuscarPorDocumento(documento)
+                                ?? throw new NotFoundException(NO_SE_ENCONTRO_PROPIETARIO_POR_DOCUMENTO);
 
             return _mapper.ToDto(propietario);
         }

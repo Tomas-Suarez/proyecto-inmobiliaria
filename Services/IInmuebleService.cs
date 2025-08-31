@@ -1,0 +1,17 @@
+using proyecto_inmobiliaria.Dtos.request;
+using proyecto_inmobiliaria.Dtos.response;
+
+namespace proyecto_inmobiliaria.Services
+{
+    public interface IInmuebleService
+    {
+        InmuebleResponseDTO AltaInmueble(InmuebleRequestDTO dto);
+        InmuebleResponseDTO ModificarInmueble(int InmuebleId, InmuebleRequestDTO dto);
+        void BajaInmueble(int InmuebleId);
+        IList<InmuebleResponseDTO> TodosLosInmueblesPaginados(int paginaNro, int tamPagina);
+        InmuebleResponseDTO ObtenerPorId(int InmuebleId);
+        int CantidadTotalInmuebles();
+        InmuebleRequestDTO ObtenerRequestPorId(int inmuebleId);
+
+    }
+}

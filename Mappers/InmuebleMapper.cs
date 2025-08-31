@@ -13,6 +13,7 @@ namespace proyecto_inmobiliaria.Mappers
             {
                 IdInmueble = dto.IdInmueble,
                 IdTipoInmueble = dto.IdTipoInmueble,
+                IdEstadoInmueble = dto.IdEstadoInmueble,
                 IdPropietario = dto.IdPropietario,
                 Direccion = dto.Direccion,
                 CantidadAmbientes = dto.CantidadAmbientes,
@@ -20,11 +21,12 @@ namespace proyecto_inmobiliaria.Mappers
             };
         }
 
-        public InmuebleResponseDTO ToDto(Inmueble entity, string tipoInmueble, string nombreCompletoPropietario)
+        public InmuebleResponseDTO ToDto(Inmueble entity, string tipoInmueble, string estadoInmueble, string nombreCompletoPropietario)
         {
             return new InmuebleResponseDTO(
                 entity.IdInmueble,
                 tipoInmueble,
+                estadoInmueble,
                 nombreCompletoPropietario,
                 entity.Direccion!,
                 entity.CantidadAmbientes,
