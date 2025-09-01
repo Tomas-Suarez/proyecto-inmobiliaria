@@ -13,24 +13,21 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddTransient<MySqlConnection>(_ =>
     new MySqlConnection(connectionString));
 
-//Propietario
+// Propietario
 builder.Services.AddScoped<IPropietarioRepository>(sp =>
     new PropietarioRepository(connectionString!));
-
 builder.Services.AddScoped<PropietarioMapper>();
 builder.Services.AddScoped<IPropietarioService, PropietarioService>();
 
-//Inquilino
+// Inquilino
 builder.Services.AddScoped<IInquilinoRepository>(sp =>
     new InquilinoRepository(connectionString!));
-
 builder.Services.AddScoped<InquilinoMapper>();
 builder.Services.AddScoped<IInquilinoService, InquilinoService>();
 
 // Inmueble
 builder.Services.AddScoped<IInmuebleRepository>(sp =>
     new InmuebleRepository(connectionString!));
-
 builder.Services.AddScoped<InmuebleMapper>();
 builder.Services.AddScoped<IInmuebleService, InmuebleService>();
 
@@ -42,8 +39,11 @@ builder.Services.AddScoped<IEstadoInmuebleRepository>(sp =>
 builder.Services.AddScoped<ITipoInmuebleRepository>(sp =>
     new TipoInmuebleRepository(connectionString!));
 
-
-
+// Contrato
+builder.Services.AddScoped<IContratoRepository>(sp =>
+    new ContratoRepository(connectionString!));
+builder.Services.AddScoped<ContratoMapper>();
+builder.Services.AddScoped<IContratoService, ContratoService>();
 
 builder.Services.AddControllersWithViews()
     .AddSessionStateTempDataProvider();
@@ -64,7 +64,6 @@ app.UseSession();
 app.UseAuthorization();
 
 app.UseExceptionHandler("/Error");
-
 app.UseStatusCodePagesWithReExecute("/Error", "?statusCode={0}");
 
 app.MapStaticAssets();

@@ -12,6 +12,6 @@ namespace proyecto_inmobiliaria.Services
         InmuebleResponseDTO ObtenerPorId(int InmuebleId);
         int CantidadTotalInmuebles();
         InmuebleRequestDTO ObtenerRequestPorId(int inmuebleId);
-
+        IList<InmuebleResponseDTO> BuscarPorDireccion(string direccion);
     }
 }

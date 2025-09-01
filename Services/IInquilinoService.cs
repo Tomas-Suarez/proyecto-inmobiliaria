@@ -8,9 +8,9 @@ namespace proyecto_inmobiliaria.Services
         InquilinoResponseDTO AltaInquilino(InquilinoRequestDTO dto);
         InquilinoResponseDTO ModificarInquilino(int InquilinoId, InquilinoRequestDTO dto);
         void BajaInquilino(int InquilinoId);
-
         IList<InquilinoResponseDTO> TodosLosInquilinos();
-
         InquilinoResponseDTO ObtenerPorId(int InquilinoId);
+        InquilinoResponseDTO BuscarPorDocumento(string documento);
+
     }
 }

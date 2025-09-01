@@ -83,5 +83,9 @@ namespace proyecto_inmobiliaria.Services.imp
             );
         }
 
+        public IList<InmuebleResponseDTO> BuscarPorDireccion(string direccion)
+        {
+            return _repository.ObtenerDireccionFiltro(direccion);
+        }
     }
 }

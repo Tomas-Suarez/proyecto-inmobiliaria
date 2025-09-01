@@ -89,6 +89,13 @@ namespace proyecto_inmobiliaria.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpGet]
+        public JsonResult FiltrarPorDireccion(string direccion)
+        {
+            var inmuebles = _service.BuscarPorDireccion(direccion);
+            return Json(inmuebles);
+        }
+
         private void CargarLista()
         {
             var estados = _estadoRepo.ObtenerEstadoInmueble();

@@ -12,5 +12,6 @@ namespace proyecto_inmobiliaria.Repository
         Inmueble ObtenerPorIdRequest(int idInmueble);
         IList<InmuebleResponseDTO> ObtenerLista(int paginaNro, int tamPagina);
         int CantidadTotal();
+        IList<InmuebleResponseDTO> ObtenerDireccionFiltro(string direccion);
     }
 }

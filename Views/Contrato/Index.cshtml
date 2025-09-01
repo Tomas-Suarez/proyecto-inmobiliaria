@@ -1,0 +1,81 @@
+@model IEnumerable<proyecto_inmobiliaria.Dtos.response.ContratoResponseDTO>
+
+@{
+    ViewData["Title"] = "Contrato";
+    int paginaActual = ViewData["PaginaActual"] != null ? (int)ViewData["PaginaActual"]! : 1;
+    int totalPaginas = ViewData["TotalPaginas"] != null ? (int)ViewData["TotalPaginas"]! : 1;
+}
+
+<h1>
+    Contratos
+    <div class="btn-group float-right">
+        <a class="btn btn-primary" asp-action="Crear" title="Crear">
+            <i class="fa-solid fa-plus"></i> Crear
+        </a>
+    </div>
+</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Direccion</th>
+            <th>Tipo inmueble</th>
+            <th>Nombre inquilino</th>
+            <th>Monto</th>
+            <th>Fecha inicial</th>
+            <th>Fecha fin</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var contrato in Model)
+        {
+            <tr>
+                <td>@contrato.IdContrato</td>
+                <td>@contrato.DireccionInmueble</td>
+                <td>@contrato.TipoInmueble</td>
+                <td>@contrato.NombreCompletoInquilino</td>
+                <td>@contrato.Monto</td>
+                <td>@contrato.FechaDesde.ToString("dd/MM/yyyy")</td>
+                <td>@contrato.FechaHasta.ToString("dd/MM/yyyy")</td>
+                <td>@contrato.EstadoContrato</td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <a class="btn btn-primary" asp-action="Modificar" asp-route-IdContrato="@contrato.IdContrato" title="Editar">
+                            <i class="fa-solid fa-pen"></i> Editar
+                        </a>
+
+                        <form asp-action="Eliminar" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@contrato.IdContrato" />
+                            <button type="submit" class="btn btn-danger" title="Eliminar"
+                                    onclick="return confirm('¿Seguro que querés eliminar de forma PERMANENTE este contrato?');">
+                                <i class="fa-solid fa-trash-can"></i> Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<nav aria-label="Paginación">
+    <ul class="pagination justify-content-center">
+        <li class="page-item @(paginaActual == 1 ? "disabled" : "")">
+            <a class="page-link" asp-action="Index" asp-route-paginaNro="@(paginaActual - 1)">Anterior</a>
+        </li>
+
+        @for (int i = 1; i <= totalPaginas; i++)
+        {
+            <li class="page-item @(i == paginaActual ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-paginaNro="@i">@i</a>
+            </li>
+        }
+
+        <li class="page-item @(paginaActual == totalPaginas ? "disabled" : "")">
+            <a class="page-link" asp-action="Index" asp-route-paginaNro="@(paginaActual + 1)">Siguiente</a>
+        </li>
+    </ul>
+</nav>

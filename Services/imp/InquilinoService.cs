@@ -72,5 +72,13 @@ namespace proyecto_inmobiliaria.Services
 
             return _mapper.ToDto(inquilino);
         }
+
+        public InquilinoResponseDTO BuscarPorDocumento(string documento)
+        {
+            var inquilino = _repository.BuscarPorDocumento(documento)
+                                ?? throw new NotFoundException(NO_SE_ENCONTRO_INQUILINO_POR_DOCUMENTO);
+
+            return _mapper.ToDto(inquilino);
+        }
     }
 }

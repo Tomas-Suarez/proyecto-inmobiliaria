@@ -269,6 +269,51 @@ namespace proyecto_inmobiliaria.Repository
         {
             throw new NotImplementedException();
         }
+
+        public Inquilino BuscarPorDocumento(string documento)
+        {
+            using (var connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = @"SELECT p.nombre,
+                                p.apellido,
+                                p.documento,
+                                p.telefono,
+                                p.email,
+                                p.direccion,
+                                iq.id_inquilino
+                           FROM persona p
+                           JOIN inquilino iq ON p.id_persona = iq.id_persona
+                          WHERE p.documento = @documento;";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@documento", documento);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new Inquilino
+                            {
+                                IdInquilino = reader.GetInt32(reader.GetOrdinal("id_inquilino")),
+                                Nombre = reader.GetString(reader.GetOrdinal("nombre")),
+                                Apellido = reader.GetString(reader.GetOrdinal("apellido")),
+                                Documento = reader.GetString(reader.GetOrdinal("documento")),
+                                Telefono = reader.GetString(reader.GetOrdinal("telefono")),
+                                Email = reader.GetString(reader.GetOrdinal("email")),
+                                Direccion = reader.GetString(reader.GetOrdinal("direccion")),
+                            };
+                        }
+                        else
+                        {
+                            throw new NotFoundException(NO_SE_ENCONTRO_INQUILINO_POR_DOCUMENTO);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
