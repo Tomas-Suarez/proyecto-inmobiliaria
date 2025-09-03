@@ -13,5 +13,6 @@ namespace proyecto_inmobiliaria.Services
         int CantidadTotalInmuebles();
         InmuebleRequestDTO ObtenerRequestPorId(int inmuebleId);
         IList<InmuebleResponseDTO> BuscarPorDireccion(string direccion);
+        void CambiarEstado(int idInmueble, int nuevoEstado);
     }
 }

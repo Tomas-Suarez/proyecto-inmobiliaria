@@ -1,0 +1,48 @@
+@model proyecto_inmobiliaria.Dtos.response.ContratoResponseDTO
+
+@{
+    ViewData["Title"] = "Detalles del Contrato";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="card mt-3">
+    <div class="card-header bg-warning text-dark">
+        Información del Contrato
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">ID Contrato</dt>
+            <dd class="col-sm-9">@Model.IdContrato</dd>
+
+            <dt class="col-sm-3">Dirección Inmueble</dt>
+            <dd class="col-sm-9">@Model.DireccionInmueble</dd>
+
+            <dt class="col-sm-3">Tipo de Inmueble</dt>
+            <dd class="col-sm-9">@Model.TipoInmueble</dd>
+
+            <dt class="col-sm-3">Inquilino</dt>
+            <dd class="col-sm-9">@Model.NombreCompletoInquilino</dd>
+
+            <dt class="col-sm-3">Monto</dt>
+            <dd class="col-sm-9">@Model.Monto.ToString("C")</dd>
+
+            <dt class="col-sm-3">Fecha Desde</dt>
+            <dd class="col-sm-9">@Model.FechaDesde.ToString("dd/MM/yyyy")</dd>
+
+            <dt class="col-sm-3">Fecha Hasta</dt>
+            <dd class="col-sm-9">@Model.FechaHasta.ToString("dd/MM/yyyy")</dd>
+
+            <dt class="col-sm-3">Estado del Contrato</dt>
+            <dd class="col-sm-9">@Model.EstadoContrato</dd>
+        </dl>
+    </div>
+    <div class="card-footer">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fa-solid fa-arrow-left"></i> Volver
+        </a>
+        <a asp-action="Modificar" asp-route-IdContrato="@Model.IdContrato" class="btn btn-primary">
+            <i class="fa-solid fa-pen"></i> Editar
+        </a>
+    </div>
+</div>

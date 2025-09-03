@@ -11,18 +11,25 @@
     <input type="hidden" asp-for="IdContrato" />
     @if (crearContrato)
     {
-    <div class="form-group">
-        <label for="filtroDireccion">Filtrar por dirección</label>
-        <input type="text" id="filtroDireccion" class="form-control" placeholder="Ingrese dirección..." />
-    </div>
+        <div class="form-group">
+            <label for="filtroDireccion">Filtrar por dirección</label>
+            <input type="text" id="filtroDireccion" class="form-control" placeholder="Ingrese dirección..." />
+        </div>
 
-    <div class="form-group">
-        <label asp-for="IdInmueble" class="control-label">Inmueble</label>
-        <select id="selectInmueble" asp-for="IdInmueble" class="form-control" asp-items="ViewBag.Inmuebles">
-            <option value="">-- Seleccionar Inmueble --</option>
-        </select>
-        <span asp-validation-for="IdInmueble" class="text-danger"></span>
-    </div>
+        <div class="form-group">
+            <label asp-for="IdInmueble" class="control-label">Inmueble</label>
+            <select id="selectInmueble" asp-for="IdInmueble" class="form-control" asp-items="ViewBag.Inmuebles">
+                @if (ViewBag.Inmuebles != null && ViewBag.Inmuebles.Count > 0)
+                {
+                    <option value="@ViewBag.Inmuebles[0].Value" selected>@ViewBag.Inmuebles[0].Text</option>
+                    @for (int i = 1; i < ViewBag.Inmuebles.Count; i++)
+                    {
+                        <option value="@ViewBag.Inmuebles[i].Value">@ViewBag.Inmuebles[i].Text</option>
+                    }
+                }
+            </select>
+            <span asp-validation-for="IdInmueble" class="text-danger"></span>
+        </div>
 
 
         <div class="form-group">
@@ -48,13 +55,19 @@
 
     <div class="form-group">
         <label asp-for="FechaDesde" class="control-label"></label>
-        <input asp-for="FechaDesde" class="form-control" type="date" />
+        <input asp-for="FechaDesde" class="form-control" type="date" readonly
+            value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+        <small class="form-text text-muted">El contrato comenzará a partir de hoy.</small>
         <span asp-validation-for="FechaDesde" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label asp-for="FechaHasta" class="control-label"></label>
-        <input asp-for="FechaHasta" class="form-control" type="date" />
+        <input asp-for="FechaHasta" class="form-control" type="date"
+            min="@DateTime.Today.AddDays(30).ToString("yyyy-MM-dd")" />
+        <small class="form-text text-muted">
+            La fecha de finalización debe ser al menos 30 días después del inicio.
+        </small>
         <span asp-validation-for="FechaHasta" class="text-danger"></span>
     </div>
 
@@ -64,8 +77,19 @@
 
 @section Scripts {
     <script>
+        const form = document.querySelector("form");
+        const idInquilinoInput = document.getElementById("idInquilino");
+        const errorInquilino = document.getElementById("errorInquilino");
+
+        form.addEventListener("submit", function (e) {
+            if (!idInquilinoInput.value) {
+                e.preventDefault();
+                errorInquilino.innerText = "Debe buscar y seleccionar un inquilino antes de guardar.";
+            }
+        });
+
         // Filtro por dirección
-        document.getElementById("filtroDireccion")?.addEventListener("input", function() {
+        document.getElementById("filtroDireccion")?.addEventListener("input", function () {
             var filtro = this.value;
 
             fetch(`/Inmueble/FiltrarPorDireccion?direccion=${encodeURIComponent(filtro)}`)
@@ -74,7 +98,7 @@
                     var select = document.getElementById("selectInmueble");
                     select.innerHTML = '<option value="">-- Seleccionar Inmueble --</option>';
 
-                    data.forEach(function(inmueble) {
+                    data.forEach(function (inmueble) {
                         var option = document.createElement("option");
                         option.value = inmueble.idInmueble;
                         option.text = inmueble.direccion;
@@ -94,16 +118,18 @@
                     if (data.success) {
                         document.getElementById("inquilinoInfo").style.display = "block";
                         document.getElementById("nombreInquilino").innerText = data.data.nombre;
-                        document.getElementById("idInquilino").value = data.data.idInquilino;
-                        document.getElementById("errorInquilino").innerText = "";
+                        idInquilinoInput.value = data.data.idInquilino;
+                        errorInquilino.innerText = "";
                     } else {
                         document.getElementById("inquilinoInfo").style.display = "none";
-                        document.getElementById("errorInquilino").innerText = data.message;
+                        idInquilinoInput.value = "";
+                        errorInquilino.innerText = data.message;
                     }
                 })
                 .catch(err => {
                     document.getElementById("inquilinoInfo").style.display = "none";
-                    document.getElementById("errorInquilino").innerText = "Error al buscar inquilino.";
+                    idInquilinoInput.value = "";
+                    errorInquilino.innerText = "Error al buscar inquilino.";
                 });
         });
     </script>

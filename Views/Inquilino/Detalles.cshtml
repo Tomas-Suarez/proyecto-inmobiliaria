@@ -1,0 +1,45 @@
+@model proyecto_inmobiliaria.Dtos.response.InquilinoResponseDTO
+
+@{
+    ViewData["Title"] = "Detalles del Inquilino";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="card mt-3">
+    <div class="card-header bg-warning text-dark">
+        Información del Inquilino
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">ID Inquilino</dt>
+            <dd class="col-sm-9">@Model.IdInquilino</dd>
+
+            <dt class="col-sm-3">Nombre</dt>
+            <dd class="col-sm-9">@Model.Nombre</dd>
+
+            <dt class="col-sm-3">Apellido</dt>
+            <dd class="col-sm-9">@Model.Apellido</dd>
+
+            <dt class="col-sm-3">Documento</dt>
+            <dd class="col-sm-9">@Model.Documento</dd>
+
+            <dt class="col-sm-3">Teléfono</dt>
+            <dd class="col-sm-9">@Model.Telefono</dd>
+
+            <dt class="col-sm-3">Email</dt>
+            <dd class="col-sm-9">@Model.Email</dd>
+
+            <dt class="col-sm-3">Dirección</dt>
+            <dd class="col-sm-9">@Model.Direccion</dd>
+        </dl>
+    </div>
+    <div class="card-footer">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fa-solid fa-arrow-left"></i> Volver
+        </a>
+        <a asp-action="Modificar" asp-route-IdInquilino="@Model.IdInquilino" class="btn btn-primary">
+            <i class="fa-solid fa-pen"></i> Editar
+        </a>
+    </div>
+</div>

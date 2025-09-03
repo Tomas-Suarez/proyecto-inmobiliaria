@@ -9,6 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
+// TODO: ¿Usar reflexion para no repetir tanto codigo?
+// Todas las interfaces comienzan con I{nombre}...
+
+// TODO: Usar IConfig
+
 // Inyección de dependencias
 builder.Services.AddTransient<MySqlConnection>(_ =>
     new MySqlConnection(connectionString));

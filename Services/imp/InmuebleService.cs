@@ -87,5 +87,10 @@ namespace proyecto_inmobiliaria.Services.imp
         {
             return _repository.ObtenerDireccionFiltro(direccion);
         }
+
+        public void CambiarEstado(int idInmueble, int nuevoEstado)
+        {
+            _repository.ModificarEstadoInmueble(idInmueble, nuevoEstado);
+        }
     }
 }

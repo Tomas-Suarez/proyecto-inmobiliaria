@@ -102,6 +102,27 @@ namespace proyecto_inmobiliaria.Repository.imp
             return inmueble;
         }
 
+        public void ModificarEstadoInmueble(int idInmueble, int estadoInmueble)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+            connection.Open();
+
+            string query = @"UPDATE Inmueble
+                     SET id_estado_inmueble = @estado
+                     WHERE id_inmueble = @idInmueble;";
+
+            using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@estado", estadoInmueble);
+            command.Parameters.AddWithValue("@idInmueble", idInmueble);
+
+            int filasAfectadas = command.ExecuteNonQuery();
+
+            if (filasAfectadas == 0)
+            {
+                throw new NotFoundException(NO_SE_ENCONTRO_INMUEBLE_POR_ID + idInmueble);
+            }
+        }
+
         public IList<InmuebleResponseDTO> ObtenerDireccionFiltro(string direccion)
         {
             var inmuebles = new List<InmuebleResponseDTO>();
@@ -124,6 +145,7 @@ namespace proyecto_inmobiliaria.Repository.imp
             JOIN Propietario pr ON i.id_Propietario = pr.id_Propietario
             JOIN Persona p ON pr.id_Persona = p.id_Persona
             WHERE i.direccion LIKE CONCAT('%', @direccion, '%')
+              AND i.id_Estado_Inmueble = 1
             ORDER BY i.direccion;";
 
                 using (var command = new MySqlCommand(query, connection))

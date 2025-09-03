@@ -1,3 +1,5 @@
+CREATE DATABASE  IF NOT EXISTS `inmobiliaria` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `inmobiliaria`;
 -- MySQL dump 10.13  Distrib 8.0.41, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: inmobiliaria
@@ -34,7 +36,7 @@ CREATE TABLE `contrato` (
   KEY `fk_contrato_inmueble` (`id_inmueble`),
   CONSTRAINT `fk_contrato_inmueble` FOREIGN KEY (`id_inmueble`) REFERENCES `inmueble` (`id_inmueble`) ON DELETE CASCADE,
   CONSTRAINT `fk_contrato_inquilino` FOREIGN KEY (`id_inquilino`) REFERENCES `inquilino` (`id_inquilino`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -43,6 +45,7 @@ CREATE TABLE `contrato` (
 
 LOCK TABLES `contrato` WRITE;
 /*!40000 ALTER TABLE `contrato` DISABLE KEYS */;
+INSERT INTO `contrato` VALUES (1,2,14,50.00,'2025-09-16','2025-09-27'),(3,2,14,600000.00,'2025-09-02','2025-10-11'),(5,2,15,70000.00,'2025-09-02','2025-09-20'),(6,2,16,9000.00,'2025-09-02','2025-10-11'),(7,2,17,70.00,'2025-09-02','2025-10-10'),(9,2,23,70.00,'2025-09-02','2025-10-22');
 /*!40000 ALTER TABLE `contrato` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -57,7 +60,7 @@ CREATE TABLE `estado_inmueble` (
   `id_estado_inmueble` int NOT NULL AUTO_INCREMENT,
   `descripcion` varchar(100) NOT NULL,
   PRIMARY KEY (`id_estado_inmueble`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -66,6 +69,7 @@ CREATE TABLE `estado_inmueble` (
 
 LOCK TABLES `estado_inmueble` WRITE;
 /*!40000 ALTER TABLE `estado_inmueble` DISABLE KEYS */;
+INSERT INTO `estado_inmueble` VALUES (1,'Disponible'),(2,'Alquilado'),(3,'En Mantenimiento'),(4,'Reservado');
 /*!40000 ALTER TABLE `estado_inmueble` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -114,7 +118,7 @@ CREATE TABLE `inmueble` (
   CONSTRAINT `fk_inmueble_estado` FOREIGN KEY (`id_estado_inmueble`) REFERENCES `estado_inmueble` (`id_estado_inmueble`) ON DELETE CASCADE,
   CONSTRAINT `fk_inmueble_propietario` FOREIGN KEY (`id_propietario`) REFERENCES `propietario` (`id_propietario`) ON DELETE CASCADE,
   CONSTRAINT `fk_inmueble_tipo` FOREIGN KEY (`id_tipo_inmueble`) REFERENCES `tipo_inmueble` (`id_tipo_inmueble`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -123,6 +127,7 @@ CREATE TABLE `inmueble` (
 
 LOCK TABLES `inmueble` WRITE;
 /*!40000 ALTER TABLE `inmueble` DISABLE KEYS */;
+INSERT INTO `inmueble` VALUES (14,2,2,6,'Barrio no se',20,110.00),(15,2,3,6,'Santa Rosa 21',2,2.00),(16,2,3,6,'Una direccion',6,6.00),(17,2,2,6,'San Martin 81',30,4000.00),(23,2,1,6,'Av falsa',5,123.00),(24,1,1,6,'Av falsa 83',2,1.00);
 /*!40000 ALTER TABLE `inmueble` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -139,7 +144,7 @@ CREATE TABLE `inquilino` (
   PRIMARY KEY (`id_inquilino`),
   KEY `fk_inquilino_persona` (`id_persona`),
   CONSTRAINT `fk_inquilino_persona` FOREIGN KEY (`id_persona`) REFERENCES `persona` (`id_persona`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -148,6 +153,7 @@ CREATE TABLE `inquilino` (
 
 LOCK TABLES `inquilino` WRITE;
 /*!40000 ALTER TABLE `inquilino` DISABLE KEYS */;
+INSERT INTO `inquilino` VALUES (2,9);
 /*!40000 ALTER TABLE `inquilino` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -225,7 +231,7 @@ CREATE TABLE `persona` (
   `baja` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id_persona`),
   UNIQUE KEY `documento` (`documento`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -234,6 +240,7 @@ CREATE TABLE `persona` (
 
 LOCK TABLES `persona` WRITE;
 /*!40000 ALTER TABLE `persona` DISABLE KEYS */;
+INSERT INTO `persona` VALUES (6,'Agustina','Lana','33432444','2112321312312','QWEQWEQ@ASSAD.CO','mi cas',0),(9,'Tomas','Suarez','44642599','222222222222','traafdsasdf@gmail.com','mi casa',0),(10,'Carlos','Sanchez','2222222','222222','traafdsasdf@gmail.com','mi direccion',0);
 /*!40000 ALTER TABLE `persona` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -250,7 +257,7 @@ CREATE TABLE `propietario` (
   PRIMARY KEY (`id_propietario`),
   KEY `fk_propietario_persona` (`id_persona`),
   CONSTRAINT `fk_propietario_persona` FOREIGN KEY (`id_persona`) REFERENCES `persona` (`id_persona`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -259,6 +266,7 @@ CREATE TABLE `propietario` (
 
 LOCK TABLES `propietario` WRITE;
 /*!40000 ALTER TABLE `propietario` DISABLE KEYS */;
+INSERT INTO `propietario` VALUES (6,6),(7,10);
 /*!40000 ALTER TABLE `propietario` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -296,7 +304,7 @@ CREATE TABLE `tipo_inmueble` (
   `id_tipo_inmueble` int NOT NULL AUTO_INCREMENT,
   `nombre` varchar(100) NOT NULL,
   PRIMARY KEY (`id_tipo_inmueble`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -305,6 +313,7 @@ CREATE TABLE `tipo_inmueble` (
 
 LOCK TABLES `tipo_inmueble` WRITE;
 /*!40000 ALTER TABLE `tipo_inmueble` DISABLE KEYS */;
+INSERT INTO `tipo_inmueble` VALUES (1,'Casa'),(2,'Departamento'),(3,'Terreno');
 /*!40000 ALTER TABLE `tipo_inmueble` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -348,4 +357,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-17 18:01:16
+-- Dump completed on 2025-09-02 21:57:41

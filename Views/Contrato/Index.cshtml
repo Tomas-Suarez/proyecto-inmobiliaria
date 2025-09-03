@@ -19,7 +19,6 @@
     <thead>
         <tr>
             <th>Id</th>
-            <th>Direccion</th>
             <th>Tipo inmueble</th>
             <th>Nombre inquilino</th>
             <th>Monto</th>
@@ -34,7 +33,6 @@
         {
             <tr>
                 <td>@contrato.IdContrato</td>
-                <td>@contrato.DireccionInmueble</td>
                 <td>@contrato.TipoInmueble</td>
                 <td>@contrato.NombreCompletoInquilino</td>
                 <td>@contrato.Monto</td>
@@ -54,6 +52,15 @@
                                 <i class="fa-solid fa-trash-can"></i> Eliminar
                             </button>
                         </form>
+
+                        <a class="btn btn-warning" asp-action="Detalles" asp-route-IdContrato="@contrato.IdContrato" title="Ver detalles">
+                            <i class="fa-solid fa-eye"></i> Detalles
+                        </a>
+
+                        <a class="btn btn-info" asp-action="Pago" asp-route-IdContrato="@contrato.IdContrato" title="Registrar Pago">
+                            <i class="fa-solid fa-eye"></i> Registrar Pago
+                        </a>
+
                     </div>
                 </td>
             </tr>

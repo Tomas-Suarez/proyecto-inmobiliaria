@@ -53,6 +53,7 @@ namespace proyecto_inmobiliaria.Controllers
         {
             if (!ModelState.IsValid)
             {
+                CargarLista();
                 return View("formCrearModificar", dto);
             }
             _service.AltaInmueble(dto);
@@ -74,6 +75,7 @@ namespace proyecto_inmobiliaria.Controllers
         {
             if (!ModelState.IsValid)
             {
+                CargarLista();
                 return View("formCrearModificar", dto);
             }
 
@@ -103,6 +105,14 @@ namespace proyecto_inmobiliaria.Controllers
 
             var tipos = _tipoRepo.ObtenerTipoInmueble();
             ViewBag.TiposInmueble = new SelectList(tipos, "IdTipoInmueble", "Nombre");
+        }
+
+        [HttpGet]
+        public IActionResult Detalles(int IdInmueble)
+        {
+            var dto = _service.ObtenerPorId(IdInmueble);
+
+            return View(dto);
         }
     }
 }

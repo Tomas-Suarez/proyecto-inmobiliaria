@@ -5,6 +5,7 @@ using proyecto_inmobiliaria.Mappers;
 using proyecto_inmobiliaria.Repository.imp;
 
 using static proyecto_inmobiliaria.Constants.ContratoConstants;
+using static proyecto_inmobiliaria.Constants.InmuebleConstants;
 
 namespace proyecto_inmobiliaria.Services.imp
 {
@@ -15,15 +16,21 @@ namespace proyecto_inmobiliaria.Services.imp
 
         private readonly ContratoMapper _mapper;
 
-        public ContratoService(IContratoRepository repository, ContratoMapper mapper)
+        private readonly IInmuebleService _inmuebleService;
+
+        public ContratoService(IContratoRepository repository, ContratoMapper mapper, IInmuebleService inmuebleService)
         {
             _repository = repository;
             _mapper = mapper;
+            _inmuebleService = inmuebleService;
         }
         public ContratoResponseDTO AltaContrato(ContratoRequestDTO dto)
         {
             var contrato = _mapper.ToEntity(dto);
+            contrato.FechaDesde = DateTime.Today;
             contrato = _repository.Alta(contrato);
+
+            _inmuebleService.CambiarEstado(contrato.IdInmueble, INMUEBLE_ESTADO_ALQUILADO);
             return ObtenerPorId(contrato.IdContrato);
         }
 

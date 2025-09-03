@@ -21,8 +21,6 @@
             <th>Apellido</th>
             <th>Documento</th>
             <th>Telefono</th>
-            <th>Email</th>
-            <th>Direccion</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -35,8 +33,6 @@
                 <td>@propietario.Apellido</td>
                 <td>@propietario.Documento</td>
                 <td>@propietario.Telefono</td>
-                <td>@propietario.Email</td>
-                <td>@propietario.Direccion</td>
                 <td>
                     <div class="btn-group" role="group">
                         <a class="btn btn-primary" asp-action="Modificar" asp-route-IdPropietario="@propietario.IdPropietario" title="Editar">
@@ -50,6 +46,10 @@
                                 <i class="fa-solid fa-trash-can"></i> Eliminar
                             </button>
                         </form>
+
+                        <a class="btn btn-warning" asp-action="Detalles" asp-route-IdPropietario="@propietario.IdPropietario" title="Ver detalles">
+                            <i class="fa-solid fa-eye"></i> Detalles
+                        </a>
 
                         <a class="btn btn-secondary" asp-controller="Inmuebles" asp-action="PorPropietario" asp-route-id="@propietario.IdPropietario" title="Mis Propiedades">
                             <i class="fa-solid fa-building"></i> Mis propiedades

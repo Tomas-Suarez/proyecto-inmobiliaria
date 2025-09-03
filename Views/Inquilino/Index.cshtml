@@ -21,8 +21,6 @@
             <th>Apellido</th>
             <th>Documento</th>
             <th>Telefono</th>
-            <th>Email</th>
-            <th>Direccion</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -35,8 +33,6 @@
                 <td>@inquilino.Apellido</td>
                 <td>@inquilino.Documento</td>
                 <td>@inquilino.Telefono</td>
-                <td>@inquilino.Email</td>
-                <td>@inquilino.Direccion</td>
                 <td>
                     <div class="btn-group" role="group">
                         <a class="btn btn-primary" asp-action="Modificar" asp-route-IdInquilino="@inquilino.IdInquilino" title="Editar">
@@ -50,6 +46,11 @@
                                 <i class="fa-solid fa-trash-can"></i> Eliminar
                             </button>
                         </form>
+
+                        <a class="btn btn-warning" asp-action="Detalles" asp-route-IdInquilino="@inquilino.IdInquilino" title="Ver detalles">
+                            <i class="fa-solid fa-eye"></i> Detalles
+                        </a>
+
                     </div>
                 </td>
             </tr>

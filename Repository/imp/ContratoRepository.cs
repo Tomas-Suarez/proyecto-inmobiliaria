@@ -31,7 +31,7 @@ namespace proyecto_inmobiliaria.Repository.imp
                 {
                     command.Parameters.AddWithValue("@idInquilino", contrato.IdInquilino);
                     command.Parameters.AddWithValue("@idInmueble", contrato.IdInmueble);
-                    command.Parameters.AddWithValue("@monto", contrato.IdInquilino);
+                    command.Parameters.AddWithValue("@monto", contrato.Monto);
                     command.Parameters.AddWithValue("@fechaDesde", contrato.FechaDesde);
                     command.Parameters.AddWithValue("@fechaHasta", contrato.FechaHasta);
 
@@ -86,7 +86,7 @@ namespace proyecto_inmobiliaria.Repository.imp
                     command.Parameters.AddWithValue("@idContrato", contrato.IdContrato);
                     command.Parameters.AddWithValue("@idInquilino", contrato.IdInquilino);
                     command.Parameters.AddWithValue("@idInmueble", contrato.IdInmueble);
-                    command.Parameters.AddWithValue("@monto", contrato.IdInquilino);
+                    command.Parameters.AddWithValue("@monto", contrato.Monto);
                     command.Parameters.AddWithValue("@fechaDesde", contrato.FechaDesde);
                     command.Parameters.AddWithValue("@fechaHasta", contrato.FechaHasta);
 
@@ -172,7 +172,6 @@ namespace proyecto_inmobiliaria.Repository.imp
                             c.fecha_hasta AS FechaHasta,
                             CASE 
                                 WHEN CURDATE() BETWEEN c.fecha_desde AND c.fecha_hasta THEN 'Vigente'
-                                WHEN CURDATE() < c.fecha_desde THEN 'Futuro'
                                 ELSE 'Finalizado'
                             END AS EstadoContrato
                         FROM contrato c

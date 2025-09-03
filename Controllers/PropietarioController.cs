@@ -94,5 +94,14 @@ namespace proyecto_inmobiliaria.Controllers
                 return Ok(new { success = false, message = "No se encontró propietario con ese documento." });
             }
         }
+
+        [HttpGet]
+        public IActionResult Detalles(int IdPropietario)
+        {
+            var dto = service.ObtenerPorId(IdPropietario);
+
+            return View(dto);
+        } 
+
     }
 }

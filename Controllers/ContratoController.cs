@@ -74,5 +74,13 @@ namespace proyecto_inmobiliaria.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpGet]
+        public IActionResult Detalles(int IdContrato)
+        {
+            var dto = _service.ObtenerPorId(IdContrato);
+
+            return View(dto);
+        }
+
     }
 }

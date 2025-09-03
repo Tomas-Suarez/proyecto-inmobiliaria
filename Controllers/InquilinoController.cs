@@ -80,7 +80,7 @@ namespace proyecto_inmobiliaria.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-                [HttpGet]
+        [HttpGet]
         public IActionResult BuscarPorDocumento(string documento)
         {
             try
@@ -93,5 +93,13 @@ namespace proyecto_inmobiliaria.Controllers
                 return Ok(new { success = false, message = "No se encontró inquilino con ese documento." });
             }
         }
+        
+        [HttpGet]
+        public IActionResult Detalles(int IdInquilino)
+        {
+            var dto = service.ObtenerPorId(IdInquilino);
+
+            return View(dto);
+        } 
     }
 }

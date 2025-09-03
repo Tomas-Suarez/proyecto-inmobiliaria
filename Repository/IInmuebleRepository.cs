@@ -13,5 +13,7 @@ namespace proyecto_inmobiliaria.Repository
         IList<InmuebleResponseDTO> ObtenerLista(int paginaNro, int tamPagina);
         int CantidadTotal();
         IList<InmuebleResponseDTO> ObtenerDireccionFiltro(string direccion);
-    }
+
+        void ModificarEstadoInmueble(int idInmueble, int estadoInmueble);
+        }
 }

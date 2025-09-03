@@ -68,6 +68,17 @@
 
 @section Scripts {
     <script>
+        const form = document.querySelector("form");
+        const idPropietarioInput = document.getElementById("idPropietario");
+        const errorPropietario = document.getElementById("errorPropietario");
+
+        form.addEventListener("submit", function(e) {
+            if (!idPropietarioInput.value) {
+                e.preventDefault();
+                errorPropietario.innerText = "Debe buscar y seleccionar un propietario antes de guardar.";
+            }
+        });
+
         document.getElementById("btnBuscar").addEventListener("click", function () {
             var documento = document.getElementById("docPropietario").value;
 
@@ -78,17 +89,20 @@
                     if (data.success) {
                         document.getElementById("propietarioInfo").style.display = "block";
                         document.getElementById("nombrePropietario").innerText = data.data.nombre;
-                        document.getElementById("idPropietario").value = data.data.idPropietario;
-                        document.getElementById("errorPropietario").innerText = "";
+                        idPropietarioInput.value = data.data.idPropietario;
+                        errorPropietario.innerText = "";
                     } else {
                         document.getElementById("propietarioInfo").style.display = "none";
-                        document.getElementById("errorPropietario").innerText = data.message;
+                        idPropietarioInput.value = "";
+                        errorPropietario.innerText = data.message;
                     }
                 })
                 .catch(err => {
                     document.getElementById("propietarioInfo").style.display = "none";
-                    document.getElementById("errorPropietario").innerText = "Error al buscar propietario.";
+                    idPropietarioInput.value = "";
+                    errorPropietario.innerText = "Error al buscar propietario.";
                 });
         });
     </script>
 }
+
