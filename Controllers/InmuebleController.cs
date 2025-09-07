@@ -25,15 +25,21 @@ namespace proyecto_inmobiliaria.Controllers
             _propietarioRepo = propietarioRepo;
         }
 
-        public IActionResult Index(int paginaNro = 1, int tamPagina = 10)
+        public IActionResult Index(int paginaNro = 1, int tamPagina = 10, int? estado = null)
         {
             ViewData["ActivePage"] = "Inmueble";
 
-            var inmuebles = _service.TodosLosInmueblesPaginados(paginaNro, tamPagina);
-            int totalInmuebles = _service.CantidadTotalInmuebles();
+            var inmuebles = _service.TodosLosInmueblesPaginados(paginaNro, tamPagina, estado);
+            int totalInmuebles = _service.CantidadTotalInmuebles(estado);
             int totalPaginas = (int)Math.Ceiling((double)totalInmuebles / tamPagina);
 
+            ViewData["PaginaActual"] = paginaNro;
             ViewData["TotalPaginas"] = totalPaginas;
+            ViewData["EstadoSeleccionado"] = estado;
+
+            var estados = _estadoRepo.ObtenerEstadoInmueble();
+            ViewBag.EstadosInmueble = new SelectList(estados, "IdEstadoInmueble", "Descripcion", estado);
+
 
             return View(inmuebles);
         }

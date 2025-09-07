@@ -4,6 +4,8 @@
     ViewData["Title"] = "Inmueble";
     int paginaActual = ViewData["PaginaActual"] != null ? (int)ViewData["PaginaActual"]! : 1;
     int totalPaginas = ViewData["TotalPaginas"] != null ? (int)ViewData["TotalPaginas"]! : 1;
+    int? estadoSeleccionado = ViewData["EstadoSeleccionado"] as int?;
+
 }
 
 <h1>
@@ -14,6 +16,15 @@
         </a>
     </div>
 </h1>
+
+<form method="get" asp-action="Index" class="form-inline mb-3">
+    <label class="mr-2">Estado:</label>
+    <select name="estado" asp-items="ViewBag.EstadosInmueble" class="form-control mr-2">
+        <option value="">Todos</option>
+    </select>
+
+    <button type="submit" class="btn btn-secondary">Filtrar</button>
+</form>
 
 <table class="table table-striped">
     <thead>
@@ -67,18 +78,24 @@
 <nav aria-label="Paginación">
     <ul class="pagination justify-content-center">
         <li class="page-item @(paginaActual == 1 ? "disabled" : "")">
-            <a class="page-link" asp-action="Index" asp-route-paginaNro="@(paginaActual - 1)">Anterior</a>
+            <a class="page-link" asp-action="Index" 
+               asp-route-paginaNro="@(paginaActual - 1)" 
+               asp-route-estado="@estadoSeleccionado">Anterior</a>
         </li>
 
         @for (int i = 1; i <= totalPaginas; i++)
         {
             <li class="page-item @(i == paginaActual ? "active" : "")">
-                <a class="page-link" asp-action="Index" asp-route-paginaNro="@i">@i</a>
+                <a class="page-link" asp-action="Index" 
+                   asp-route-paginaNro="@i" 
+                   asp-route-estado="@estadoSeleccionado">@i</a>
             </li>
         }
 
         <li class="page-item @(paginaActual == totalPaginas ? "disabled" : "")">
-            <a class="page-link" asp-action="Index" asp-route-paginaNro="@(paginaActual + 1)">Siguiente</a>
+            <a class="page-link" asp-action="Index" 
+               asp-route-paginaNro="@(paginaActual + 1)" 
+               asp-route-estado="@estadoSeleccionado">Siguiente</a>
         </li>
     </ul>
 </nav>

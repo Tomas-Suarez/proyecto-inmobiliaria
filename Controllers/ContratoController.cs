@@ -62,7 +62,8 @@ namespace proyecto_inmobiliaria.Controllers
             {
                 return View("formCrearModificar", dto);
             }
-            _service.ModificarContrato(dto.IdContrato, dto);
+           var hola = _service.ModificarContrato(dto.IdContrato, dto);
+
             return RedirectToAction(nameof(Index));
         }
 

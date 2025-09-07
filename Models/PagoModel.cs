@@ -7,6 +7,5 @@ namespace proyecto_inmobiliaria.Models
         public string? Metodo_pago { get; set; }
         public DateTime FechaPago { get; set; }
         public decimal Monto { get; set; }
-
     }
 }

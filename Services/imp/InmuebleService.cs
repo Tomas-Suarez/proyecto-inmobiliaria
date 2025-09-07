@@ -39,9 +39,9 @@ namespace proyecto_inmobiliaria.Services.imp
             }
         }
 
-        public int CantidadTotalInmuebles()
+        public int CantidadTotalInmuebles(int? estado = null)
         {
-            return _repository.CantidadTotal();
+            return _repository.CantidadTotal(estado);
         }
 
         public InmuebleResponseDTO ModificarInmueble(int InmuebleId, InmuebleRequestDTO dto)
@@ -62,9 +62,9 @@ namespace proyecto_inmobiliaria.Services.imp
             return inmueble;
         }
 
-        public IList<InmuebleResponseDTO> TodosLosInmueblesPaginados(int paginaNro, int tamPagina)
+        public IList<InmuebleResponseDTO> TodosLosInmueblesPaginados(int paginaNro, int tamPagina, int? estado = null)
         {
-            return _repository.ObtenerLista(paginaNro, tamPagina);
+            return _repository.ObtenerLista(paginaNro, tamPagina, estado);
         }
 
         public InmuebleRequestDTO ObtenerRequestPorId(int inmuebleId)

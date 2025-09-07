@@ -20,18 +20,5 @@ namespace proyecto_inmobiliaria.Mappers
                 SuperficieM2 = dto.SuperficieM2
             };
         }
-
-        public InmuebleResponseDTO ToDto(Inmueble entity, string tipoInmueble, string estadoInmueble, string nombreCompletoPropietario)
-        {
-            return new InmuebleResponseDTO(
-                entity.IdInmueble,
-                tipoInmueble,
-                estadoInmueble,
-                nombreCompletoPropietario,
-                entity.Direccion!,
-                entity.CantidadAmbientes,
-                entity.SuperficieM2
-            );
-        }
     }
 }

@@ -10,10 +10,9 @@ namespace proyecto_inmobiliaria.Repository
         int Baja(int idInmueble);
         InmuebleResponseDTO ObtenerPorId(int idInmueble);
         Inmueble ObtenerPorIdRequest(int idInmueble);
-        IList<InmuebleResponseDTO> ObtenerLista(int paginaNro, int tamPagina);
-        int CantidadTotal();
+        IList<InmuebleResponseDTO> ObtenerLista(int paginaNro, int tamPagina, int? idEstado);
+        int CantidadTotal(int? estado);
         IList<InmuebleResponseDTO> ObtenerDireccionFiltro(string direccion);
-
         void ModificarEstadoInmueble(int idInmueble, int estadoInmueble);
-        }
+    }
 }

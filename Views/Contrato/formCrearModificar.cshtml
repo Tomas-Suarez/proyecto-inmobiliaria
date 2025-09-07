@@ -9,6 +9,7 @@
 
 <form asp-action="@(crearContrato ? "Crear" : "Modificar")" method="post">
     <input type="hidden" asp-for="IdContrato" />
+
     @if (crearContrato)
     {
         <div class="form-group">
@@ -31,7 +32,6 @@
             <span asp-validation-for="IdInmueble" class="text-danger"></span>
         </div>
 
-
         <div class="form-group">
             <label>Documento Inquilino</label>
             <div class="input-group">
@@ -46,6 +46,11 @@
             <input type="hidden" asp-for="IdInquilino" id="idInquilino" />
         </div>
     }
+    else
+    {
+        <!-- En edición, aseguramos que el hidden tenga el IdInquilino -->
+        <input type="hidden" asp-for="IdInquilino" id="idInquilino" value="@Model.IdInquilino" />
+    }
 
     <div class="form-group">
         <label asp-for="Monto" class="control-label"></label>
@@ -55,19 +60,24 @@
 
     <div class="form-group">
         <label asp-for="FechaDesde" class="control-label"></label>
-        <input asp-for="FechaDesde" class="form-control" type="date" readonly
-            value="@DateTime.Today.ToString("yyyy-MM-dd")" />
-        <small class="form-text text-muted">El contrato comenzará a partir de hoy.</small>
+        <input asp-for="FechaDesde" class="form-control" type="date" />
         <span asp-validation-for="FechaDesde" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label asp-for="FechaHasta" class="control-label"></label>
-        <input asp-for="FechaHasta" class="form-control" type="date"
-            min="@DateTime.Today.AddDays(30).ToString("yyyy-MM-dd")" />
-        <small class="form-text text-muted">
-            La fecha de finalización debe ser al menos 30 días después del inicio.
-        </small>
+        @if (crearContrato)
+        {
+            <input asp-for="FechaHasta" class="form-control" type="date"
+                   min="@DateTime.Today.AddDays(30).ToString("yyyy-MM-dd")" />
+            <small class="form-text text-muted">
+                La fecha de finalización debe ser al menos 30 días después del inicio.
+            </small>
+        }
+        else
+        {
+            <input asp-for="FechaHasta" class="form-control" type="date" />
+        }
         <span asp-validation-for="FechaHasta" class="text-danger"></span>
     </div>
 
@@ -77,29 +87,31 @@
 
 @section Scripts {
     <script>
+        const crearContrato = @crearContrato.ToString().ToLower() === "true";
+
         const form = document.querySelector("form");
         const idInquilinoInput = document.getElementById("idInquilino");
         const errorInquilino = document.getElementById("errorInquilino");
 
-        form.addEventListener("submit", function (e) {
-            if (!idInquilinoInput.value) {
-                e.preventDefault();
-                errorInquilino.innerText = "Debe buscar y seleccionar un inquilino antes de guardar.";
-            }
-        });
+        if (crearContrato) {
+            form.addEventListener("submit", function (e) {
+                if (!idInquilinoInput.value) {
+                    e.preventDefault();
+                    errorInquilino.innerText = "Debe buscar y seleccionar un inquilino antes de guardar.";
+                }
+            });
+        }
 
         // Filtro por dirección
         document.getElementById("filtroDireccion")?.addEventListener("input", function () {
-            var filtro = this.value;
-
+            const filtro = this.value;
             fetch(`/Inmueble/FiltrarPorDireccion?direccion=${encodeURIComponent(filtro)}`)
                 .then(response => response.json())
                 .then(data => {
-                    var select = document.getElementById("selectInmueble");
+                    const select = document.getElementById("selectInmueble");
                     select.innerHTML = '<option value="">-- Seleccionar Inmueble --</option>';
-
                     data.forEach(function (inmueble) {
-                        var option = document.createElement("option");
+                        const option = document.createElement("option");
                         option.value = inmueble.idInmueble;
                         option.text = inmueble.direccion;
                         select.appendChild(option);
@@ -110,8 +122,7 @@
 
         // Busqueda inquilino por documento
         document.getElementById("btnBuscar")?.addEventListener("click", function () {
-            var documento = document.getElementById("docInquilino").value;
-
+            const documento = document.getElementById("docInquilino").value;
             fetch(`/Inquilino/BuscarPorDocumento?documento=${documento}`)
                 .then(response => response.json())
                 .then(data => {
