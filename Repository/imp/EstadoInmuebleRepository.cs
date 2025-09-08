@@ -1,4 +1,5 @@
 using MySql.Data.MySqlClient;
+using proyecto_inmobiliaria.Config;
 using proyecto_inmobiliaria.Models;
 
 namespace proyecto_inmobiliaria.Repository.imp
@@ -7,9 +8,9 @@ namespace proyecto_inmobiliaria.Repository.imp
     {
         private readonly string _connectionString;
 
-        public EstadoInmuebleRepository(string connectionString)
+        public EstadoInmuebleRepository(IAppConfig config)
         {
-            _connectionString = connectionString;
+            _connectionString = config.ConnectionString;
         }
 
         public IList<EstadoInmueble> ObtenerEstadoInmueble()

@@ -3,6 +3,7 @@ using proyecto_inmobiliaria.Models;
 using proyecto_inmobiliaria.Exceptions;
 
 using static proyecto_inmobiliaria.Constants.InquilinoConstants;
+using proyecto_inmobiliaria.Config;
 
 
 namespace proyecto_inmobiliaria.Repository
@@ -11,9 +12,9 @@ namespace proyecto_inmobiliaria.Repository
     {
         private readonly string _connectionString;
 
-        public InquilinoRepository(string connectionString)
+        public InquilinoRepository(IAppConfig config)
         {
-            _connectionString = connectionString;
+            _connectionString = config.ConnectionString;
         }
 
         public Inquilino Alta(Inquilino Inquilino)

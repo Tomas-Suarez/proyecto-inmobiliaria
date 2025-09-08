@@ -3,6 +3,7 @@ using proyecto_inmobiliaria.Models;
 using proyecto_inmobiliaria.Exceptions;
 
 using static proyecto_inmobiliaria.Constants.PropietarioConstants;
+using proyecto_inmobiliaria.Config;
 
 
 namespace proyecto_inmobiliaria.Repository
@@ -11,9 +12,9 @@ namespace proyecto_inmobiliaria.Repository
     {
         private readonly string _connectionString;
 
-        public PropietarioRepository(string connectionString)
+        public PropietarioRepository(IAppConfig config)
         {
-            _connectionString = connectionString;
+            _connectionString = config.ConnectionString;
         }
 
         public Propietario Alta(Propietario propietario)

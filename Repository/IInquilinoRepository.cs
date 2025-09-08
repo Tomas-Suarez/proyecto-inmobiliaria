@@ -10,8 +10,6 @@ namespace proyecto_inmobiliaria.Repository
         Inquilino ObtenerPorId(int idInquilino);
         IList<Inquilino> ObtenerTodos();
         IList<Inquilino> ObtenerLista(int paginaNro, int tamPagina);
-
         Inquilino BuscarPorDocumento(string documento);
-
     }
 }

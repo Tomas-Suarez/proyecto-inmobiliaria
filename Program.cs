@@ -4,50 +4,36 @@ using proyecto_inmobiliaria.Repository.imp;
 using proyecto_inmobiliaria.Services;
 using proyecto_inmobiliaria.Services.imp;
 using proyecto_inmobiliaria.Mappers;
+using proyecto_inmobiliaria.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+/* TODO: ¿Usar reflexion para no repetir tanto codigo?
+Todas las interfaces comienzan con I{nombre}...
+*/
+builder.Services.AddSingleton<IAppConfig, AppConfig>();
 
-// TODO: ¿Usar reflexion para no repetir tanto codigo?
-// Todas las interfaces comienzan con I{nombre}...
+builder.Services.AddTransient<MySqlConnection>(sp =>
+    new MySqlConnection(sp.GetRequiredService<IAppConfig>().ConnectionString));
 
-// TODO: Usar IConfig
+//Repository
+builder.Services.AddScoped<IPropietarioRepository, PropietarioRepository>();
+builder.Services.AddScoped<IInquilinoRepository, InquilinoRepository>();
+builder.Services.AddScoped<IInmuebleRepository, InmuebleRepository>();
+builder.Services.AddScoped<IEstadoInmuebleRepository, EstadoInmuebleRepository>();
+builder.Services.AddScoped<ITipoInmuebleRepository, TipoInmuebleRepository>();
+builder.Services.AddScoped<IContratoRepository, ContratoRepository>();
 
-// Inyección de dependencias
-builder.Services.AddTransient<MySqlConnection>(_ =>
-    new MySqlConnection(connectionString));
+//Mapper
+builder.Services.AddSingleton<PropietarioMapper>();
+builder.Services.AddSingleton<InquilinoMapper>();
+builder.Services.AddSingleton<InmuebleMapper>();
+builder.Services.AddSingleton<ContratoMapper>();
 
-// Propietario
-builder.Services.AddScoped<IPropietarioRepository>(sp =>
-    new PropietarioRepository(connectionString!));
-builder.Services.AddScoped<PropietarioMapper>();
+//Service
 builder.Services.AddScoped<IPropietarioService, PropietarioService>();
-
-// Inquilino
-builder.Services.AddScoped<IInquilinoRepository>(sp =>
-    new InquilinoRepository(connectionString!));
-builder.Services.AddScoped<InquilinoMapper>();
 builder.Services.AddScoped<IInquilinoService, InquilinoService>();
-
-// Inmueble
-builder.Services.AddScoped<IInmuebleRepository>(sp =>
-    new InmuebleRepository(connectionString!));
-builder.Services.AddScoped<InmuebleMapper>();
 builder.Services.AddScoped<IInmuebleService, InmuebleService>();
-
-// EstadoInmueble
-builder.Services.AddScoped<IEstadoInmuebleRepository>(sp =>
-    new EstadoInmuebleRepository(connectionString!));
-
-// TipoInmueble
-builder.Services.AddScoped<ITipoInmuebleRepository>(sp =>
-    new TipoInmuebleRepository(connectionString!));
-
-// Contrato
-builder.Services.AddScoped<IContratoRepository>(sp =>
-    new ContratoRepository(connectionString!));
-builder.Services.AddScoped<ContratoMapper>();
 builder.Services.AddScoped<IContratoService, ContratoService>();
 
 builder.Services.AddControllersWithViews()
