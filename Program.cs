@@ -23,18 +23,24 @@ builder.Services.AddScoped<IInmuebleRepository, InmuebleRepository>();
 builder.Services.AddScoped<IEstadoInmuebleRepository, EstadoInmuebleRepository>();
 builder.Services.AddScoped<ITipoInmuebleRepository, TipoInmuebleRepository>();
 builder.Services.AddScoped<IContratoRepository, ContratoRepository>();
+builder.Services.AddScoped<IPagoRepository, PagoRepository>();
+
 
 //Mapper
 builder.Services.AddSingleton<PropietarioMapper>();
 builder.Services.AddSingleton<InquilinoMapper>();
 builder.Services.AddSingleton<InmuebleMapper>();
 builder.Services.AddSingleton<ContratoMapper>();
+builder.Services.AddSingleton<PagoMapper>();
+
 
 //Service
 builder.Services.AddScoped<IPropietarioService, PropietarioService>();
 builder.Services.AddScoped<IInquilinoService, InquilinoService>();
 builder.Services.AddScoped<IInmuebleService, InmuebleService>();
 builder.Services.AddScoped<IContratoService, ContratoService>();
+builder.Services.AddScoped<IPagoService, PagoService>();
+
 
 builder.Services.AddControllersWithViews()
     .AddSessionStateTempDataProvider();

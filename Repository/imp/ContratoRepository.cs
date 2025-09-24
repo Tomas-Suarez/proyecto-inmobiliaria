@@ -112,12 +112,7 @@ namespace proyecto_inmobiliaria.Repository.imp
                             CONCAT(pi.nombre, ' ', pi.apellido) AS NombreCompletoInquilino,
                             c.monto AS Monto,
                             c.fecha_desde AS FechaDesde,
-                            c.fecha_hasta AS FechaHasta,
-                            CASE 
-                                WHEN CURDATE() BETWEEN c.fecha_desde AND c.fecha_hasta THEN 'Vigente'
-                                WHEN CURDATE() < c.fecha_desde THEN 'Futuro'
-                                ELSE 'Finalizado'
-                            END AS EstadoContrato
+                            c.fecha_hasta AS FechaHasta
                         FROM contrato c
                         JOIN inquilino inq ON c.id_inquilino = inq.id_inquilino
                         JOIN persona pi ON inq.id_persona = pi.id_persona
@@ -144,8 +139,7 @@ namespace proyecto_inmobiliaria.Repository.imp
                                 reader.GetString("NombreCompletoInquilino"),
                                 reader.GetDecimal("Monto"),
                                 reader.GetDateTime("FechaDesde"),
-                                reader.GetDateTime("FechaHasta"),
-                                reader.GetString("EstadoContrato")
+                                reader.GetDateTime("FechaHasta")
                             );
                             contratos.Add(dto);
                         }
@@ -170,11 +164,7 @@ namespace proyecto_inmobiliaria.Repository.imp
                             CONCAT(pi.nombre, ' ', pi.apellido) AS NombreCompletoInquilino,
                             c.monto AS Monto,
                             c.fecha_desde AS FechaDesde,
-                            c.fecha_hasta AS FechaHasta,
-                            CASE 
-                                WHEN CURDATE() BETWEEN c.fecha_desde AND c.fecha_hasta THEN 'Vigente'
-                                ELSE 'Finalizado'
-                            END AS EstadoContrato
+                            c.fecha_hasta AS FechaHasta
                         FROM contrato c
                         JOIN inquilino inq ON c.id_inquilino = inq.id_inquilino
                         JOIN persona pi ON inq.id_persona = pi.id_persona
@@ -197,8 +187,7 @@ namespace proyecto_inmobiliaria.Repository.imp
                                 reader.GetString("NombreCompletoInquilino"),
                                 reader.GetDecimal("Monto"),
                                 reader.GetDateTime("FechaDesde"),
-                                reader.GetDateTime("FechaHasta"),
-                                reader.GetString("EstadoContrato")
+                                reader.GetDateTime("FechaHasta")
                             );
                         }
                         else

@@ -9,5 +9,6 @@ namespace proyecto_inmobiliaria.Models
         public decimal Monto { get; set; }
         public string? Detalle { get; set; }
         public bool Anulado { get; set; }
+        public int NumeroPago { get; set; }
     }
 }

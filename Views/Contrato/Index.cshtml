@@ -24,7 +24,6 @@
             <th>Monto</th>
             <th>Fecha inicial</th>
             <th>Fecha fin</th>
-            <th>Estado</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -35,10 +34,9 @@
                 <td>@contrato.IdContrato</td>
                 <td>@contrato.TipoInmueble</td>
                 <td>@contrato.NombreCompletoInquilino</td>
-                <td>@contrato.Monto</td>
+                <td>$@contrato.Monto</td>
                 <td>@contrato.FechaDesde.ToString("dd/MM/yyyy")</td>
                 <td>@contrato.FechaHasta.ToString("dd/MM/yyyy")</td>
-                <td>@contrato.EstadoContrato</td>
                 <td>
                     <div class="btn-group" role="group">
                         <a class="btn btn-primary" asp-action="Modificar" asp-route-IdContrato="@contrato.IdContrato" title="Editar">
@@ -57,8 +55,12 @@
                             <i class="fa-solid fa-eye"></i> Detalles
                         </a>
 
-                        <a class="btn btn-info" asp-action="Pago" asp-route-IdContrato="@contrato.IdContrato" title="Registrar Pago">
-                            <i class="fa-solid fa-eye"></i> Registrar Pago
+                        <a class="btn btn-info" 
+                            asp-controller="Pago" 
+                            asp-action="Index" 
+                            asp-route-idContrato="@contrato.IdContrato" 
+                            title="Pagos">
+                            <i class="fa-solid fa-dollar-sign"></i> Pagos
                         </a>
 
                     </div>

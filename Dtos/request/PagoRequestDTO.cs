@@ -12,15 +12,17 @@ namespace proyecto_inmobiliaria.Dtos.request
         string MetodoPago,
 
         [Required(ErrorMessage = "La fecha de pago es obligatoria.")]
-        DateTime FechaPago,
+        DateTime? FechaPago,
 
         [Required(ErrorMessage = "El monto es obligatorio.")]
         [Range(0.01, double.MaxValue, ErrorMessage = "El monto debe ser mayor a 0.")]
-        decimal Monto,
+        decimal? Monto,
 
         [StringLength(200, ErrorMessage = "El detalle no puede superar 200 caracteres.")]
         string? Detalle,
 
-        bool Anulado
+        bool Anulado,
+
+        int NumeroPago
     );
 }

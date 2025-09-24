@@ -1,0 +1,42 @@
+@model proyecto_inmobiliaria.Dtos.response.PagoResponseDTO
+
+@{
+    ViewData["Title"] = "Detalles del Pago";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="card mt-3">
+    <div class="card-header bg-warning text-dark">
+        Información del Pago
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Número de Pago</dt>
+            <dd class="col-sm-9">@Model.NumeroPago</dd>
+
+            <dt class="col-sm-3">Método de Pago</dt>
+            <dd class="col-sm-9">@Model.MetodoPago</dd>
+
+            <dt class="col-sm-3">Fecha de Pago</dt>
+            <dd class="col-sm-9">@Model.FechaPago.ToString("dd/MM/yyyy")</dd>
+
+            <dt class="col-sm-3">Monto</dt>
+            <dd class="col-sm-9">$@Model.Monto</dd>
+
+            <dt class="col-sm-3">Detalle</dt>
+            <dd class="col-sm-9">@Model.Detalle</dd>
+
+            <dt class="col-sm-3">Anulado</dt>
+            <dd class="col-sm-9">@((Model.Anulado ?? false) ? "Sí" : "No")</dd>
+        </dl>
+    </div>
+    <div class="card-footer">
+        <a asp-action="Index" asp-route-idContrato="@Model.IdContrato" class="btn btn-secondary">
+            <i class="fa-solid fa-arrow-left"></i> Volver
+        </a>
+        <a asp-action="Modificar" asp-route-idPago="@Model.IdPago" class="btn btn-primary">
+            <i class="fa-solid fa-pen"></i> Editar
+        </a>
+    </div>
+</div>

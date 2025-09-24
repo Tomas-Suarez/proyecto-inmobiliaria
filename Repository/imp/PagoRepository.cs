@@ -24,8 +24,8 @@ namespace proyecto_inmobiliaria.Repository.imp
                 connection.Open();
 
                 string query = @"INSERT INTO Pago
-                                (id_contrato, metodo_pago, fecha_pago, monto, detalle, anulado)
-                                VALUES (@IdContrato, @MetodoPago, @FechaPago, @Monto, @Detalle, @Anulado);";
+                                (id_contrato, metodo_pago, fecha_pago, monto, detalle, anulado, numero_pago)
+                                VALUES (@IdContrato, @MetodoPago, @FechaPago, @Monto, @Detalle, @Anulado, @NumeroPago);";
                 using (var command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@IdContrato", pago.IdContrato);
@@ -34,6 +34,7 @@ namespace proyecto_inmobiliaria.Repository.imp
                     command.Parameters.AddWithValue("@Monto", pago.Monto);
                     command.Parameters.AddWithValue("@Detalle", pago.Detalle);
                     command.Parameters.AddWithValue("@Anulado", pago.Anulado);
+                    command.Parameters.AddWithValue("@NumeroPago", pago.NumeroPago);
 
                     command.ExecuteNonQuery();
                     idPago = (int)command.LastInsertedId;
@@ -73,7 +74,8 @@ namespace proyecto_inmobiliaria.Repository.imp
                                     fecha_pago = @FechaPago,
                                     monto = @Monto,
                                     detalle = @Detalle,
-                                    anulado = @Anulado
+                                    anulado = @Anulado,
+                                    numero_pago = @NumeroPago
                                 WHERE id_pago = @IdPago;";
                 using (var command = new MySqlCommand(query, connection))
                 {
@@ -84,6 +86,7 @@ namespace proyecto_inmobiliaria.Repository.imp
                     command.Parameters.AddWithValue("@Monto", pago.Monto);
                     command.Parameters.AddWithValue("@Detalle", pago.Detalle);
                     command.Parameters.AddWithValue("@Anulado", pago.Anulado);
+                    command.Parameters.AddWithValue("@NumeroPago", pago.NumeroPago);
 
                     command.ExecuteNonQuery();
                 }
@@ -91,42 +94,49 @@ namespace proyecto_inmobiliaria.Repository.imp
             return pago;
         }
 
-        public IList<Pago> ObtenerLista(int paginaNro, int tamPagina)
+public IList<Pago> ObtenerLista(int idContrato, int paginaNro, int tamPagina)
+{
+    var pagos = new List<Pago>();
+    using (var connection = new MySqlConnection(_connectionString))
+    {
+        connection.Open();
+
+        string query = @"SELECT id_pago, id_contrato, metodo_pago, fecha_pago, monto, detalle, anulado, numero_pago
+                         FROM Pago
+                         WHERE id_contrato = @IdContrato
+                         LIMIT @PageSize OFFSET @Offset;";
+
+        using (var command = new MySqlCommand(query, connection))
         {
-            var pagos = new List<Pago>();
-            using (var connection = new MySqlConnection(_connectionString))
+            int offset = (paginaNro - 1) * tamPagina;
+
+            command.Parameters.AddWithValue("@IdContrato", idContrato);
+            command.Parameters.AddWithValue("@PageSize", tamPagina);
+            command.Parameters.AddWithValue("@Offset", offset);
+
+            using (var reader = command.ExecuteReader())
             {
-                connection.Open();
-
-                string query = @"SELECT id_pago, id_contrato, metodo_pago, fecha_pago, monto, detalle, anulado
-                                 FROM Pago
-                                 LIMIT @PageSize OFFSET @Offset;";
-                using (var command = new MySqlCommand(query, connection))
+                while (reader.Read())
                 {
-                    int offset = (paginaNro - 1) * tamPagina;
-                    command.Parameters.AddWithValue("@PageSize", tamPagina);
-                    command.Parameters.AddWithValue("@Offset", offset);
-
-                    using (var reader = command.ExecuteReader())
+                    pagos.Add(new Pago
                     {
-                        while (reader.Read())
-                        {
-                            pagos.Add(new Pago
-                            {
-                                IdPago = reader.GetInt32("id_pago"),
-                                IdContrato = reader.GetInt32("id_contrato"),
-                                MetodoPago = reader.GetString("metodo_pago"),
-                                FechaPago = reader.GetDateTime("fecha_pago"),
-                                Monto = reader.GetDecimal("monto"),
-                                Detalle = reader.GetString("detalle"),
-                                Anulado = reader.GetBoolean("anulado")
-                            });
-                        }
-                    }
+                        IdPago = reader.GetInt32("id_pago"),
+                        IdContrato = reader.GetInt32("id_contrato"),
+                        MetodoPago = reader.IsDBNull(reader.GetOrdinal("metodo_pago")) ? "" : reader.GetString("metodo_pago"),
+                        FechaPago = reader.IsDBNull(reader.GetOrdinal("fecha_pago")) ? DateTime.MinValue : reader.GetDateTime("fecha_pago"),
+                        Monto = reader.IsDBNull(reader.GetOrdinal("monto")) ? 0 : reader.GetDecimal("monto"),
+                        Detalle = reader.IsDBNull(reader.GetOrdinal("detalle")) ? "" : reader.GetString("detalle"),
+                        Anulado = !reader.IsDBNull(reader.GetOrdinal("anulado")) && reader.GetBoolean("anulado"),
+                        NumeroPago = reader.IsDBNull(reader.GetOrdinal("numero_pago")) ? 0 : reader.GetInt32("numero_pago")
+                    });
                 }
             }
-            return pagos;
         }
+    }
+    return pagos;
+}
+
+
 
         public Pago ObtenerPorId(int idPago)
         {
@@ -134,7 +144,7 @@ namespace proyecto_inmobiliaria.Repository.imp
             {
                 connection.Open();
 
-                string query = @"SELECT id_pago, id_contrato, metodo_pago, fecha_pago, monto, detalle, anulado
+                string query = @"SELECT id_pago, id_contrato, metodo_pago, fecha_pago, monto, detalle, anulado, numero_pago
                                  FROM Pago
                                  WHERE id_pago = @idPago;";
                 using (var command = new MySqlCommand(query, connection))
@@ -153,7 +163,8 @@ namespace proyecto_inmobiliaria.Repository.imp
                                 FechaPago = reader.GetDateTime("fecha_pago"),
                                 Monto = reader.GetDecimal("monto"),
                                 Detalle = reader.GetString("detalle"),
-                                Anulado = reader.GetBoolean("anulado")
+                                Anulado = reader.GetBoolean("anulado"),
+                                NumeroPago = reader.GetInt32("numero_pago")
                             };
                         }
                         else
@@ -163,6 +174,18 @@ namespace proyecto_inmobiliaria.Repository.imp
                     }
                 }
             }
+        }
+
+        public int ContarPagos(int idContrato)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+            connection.Open();
+
+            string query = @"SELECT COUNT(*) FROM Pago WHERE Id_Contrato = @IdContrato;";
+            using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@IdContrato", idContrato);
+
+            return Convert.ToInt32(command.ExecuteScalar());
         }
     }
 }

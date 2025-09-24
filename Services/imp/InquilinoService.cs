@@ -7,7 +7,7 @@ using proyecto_inmobiliaria.Repository;
 using static proyecto_inmobiliaria.Constants.InquilinoConstants;
 
 
-namespace proyecto_inmobiliaria.Services
+namespace proyecto_inmobiliaria.Services.imp
 {
     public class InquilinoService : IInquilinoService
     {
@@ -30,8 +30,7 @@ namespace proyecto_inmobiliaria.Services
 
         public void BajaInquilino(int InquilinoId)
         {
-            _ = _repository.ObtenerPorId(InquilinoId)
-                                ?? throw new NotFoundException(NO_SE_ENCONTRO_INQUILINO_POR_ID + InquilinoId);
+            _ = ObtenerPorId(InquilinoId);
 
             int filasAfectadas = _repository.Baja(InquilinoId);
 
@@ -44,8 +43,7 @@ namespace proyecto_inmobiliaria.Services
 
         public InquilinoResponseDTO ModificarInquilino(int InquilinoId, InquilinoRequestDTO dto)
         {
-            _ = _repository.ObtenerPorId(InquilinoId)
-                                ?? throw new NotFoundException(NO_SE_ENCONTRO_INQUILINO_POR_ID + InquilinoId);
+            _ = ObtenerPorId(InquilinoId);
 
             var inquilino = _mapper.ToEntity(dto);
 

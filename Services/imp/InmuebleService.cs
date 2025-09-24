@@ -22,7 +22,6 @@ namespace proyecto_inmobiliaria.Services.imp
         public InmuebleResponseDTO AltaInmueble(InmuebleRequestDTO dto)
         {
             var inmueble = _mapper.ToEntity(dto);
-            inmueble.IdEstadoInmueble = INMUEBLE_ESTADO_DISPONIBLE;
             inmueble = _repository.Alta(inmueble);
             return ObtenerPorId(inmueble.IdInmueble);
         }

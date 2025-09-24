@@ -8,6 +8,7 @@ namespace proyecto_inmobiliaria.Repository
         Pago Modificar(Pago pago);
         int Baja(int idPago);
         Pago ObtenerPorId(int idPago);
-        IList<Pago> ObtenerLista(int paginaNro, int tamPagina);
+        IList<Pago> ObtenerLista(int idContrato, int paginaNro, int tamPagina);
+        int ContarPagos(int idContrato);
     }
 }

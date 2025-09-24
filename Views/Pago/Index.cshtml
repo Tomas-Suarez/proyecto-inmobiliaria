@@ -1,0 +1,81 @@
+@model IEnumerable<proyecto_inmobiliaria.Dtos.response.PagoResponseDTO>
+
+@{
+    ViewData["Title"] = "Pagos";
+    int paginaActual = ViewData["PaginaActual"] != null ? (int)ViewData["PaginaActual"]! : 1;
+    int totalPaginas = ViewData["TotalPaginas"] != null ? (int)ViewData["TotalPaginas"]! : 1;
+    int idContrato = ViewData["IdContrato"] != null ? (int)ViewData["IdContrato"]! : 0;
+}
+
+<h1>
+    Pagos
+    <div class="btn-group float-right">
+        <a class="btn btn-primary" asp-action="Crear" asp-route-idContrato="@idContrato" title="Registrar Pago">
+            <i class="fa-solid fa-plus"></i> Registrar Pago
+        </a>
+    </div>
+</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Número de Pago</th>
+            <th>Método de pago</th>
+            <th>Fecha de pago</th>
+            <th>Monto</th>
+            <th>Anulado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var pago in Model)
+        {
+            <tr>
+                <td>@pago.NumeroPago</td>
+                <td>@pago.MetodoPago</td>
+                <td>@pago.FechaPago.ToString("dd/MM/yyyy")</td>
+                <td>$@pago.Monto</td>
+                <td>@((pago.Anulado ?? false) ? "Sí" : "No")</td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <a class="btn btn-primary" asp-action="Modificar" asp-route-idPago="@pago.IdPago" title="Editar">
+                            <i class="fa-solid fa-pen"></i> Editar
+                        </a>
+
+                        <form asp-action="Anular" method="post" class="d-inline">
+                            <input type="hidden" name="idPago" value="@pago.IdPago" />
+                            <input type="hidden" name="idContrato" value="@idContrato" />
+                            <button type="submit" class="btn btn-danger" title="Anular"
+                                    onclick="return confirm('¿Seguro que querés anular este pago?');">
+                                <i class="fa-solid fa-ban"></i> Anular
+                            </button>
+                        </form>
+
+                        <a class="btn btn-warning" asp-action="Detalles" asp-route-idPago="@pago.IdPago" title="Ver detalles">
+                            <i class="fa-solid fa-eye"></i> Detalles
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<nav aria-label="Paginación">
+    <ul class="pagination justify-content-center">
+        <li class="page-item @(paginaActual == 1 ? "disabled" : "")">
+            <a class="page-link" asp-action="Index" asp-route-idContrato="@idContrato" asp-route-paginaNro="@(paginaActual - 1)">Anterior</a>
+        </li>
+
+        @for (int i = 1; i <= totalPaginas; i++)
+        {
+            <li class="page-item @(i == paginaActual ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-idContrato="@idContrato" asp-route-paginaNro="@i">@i</a>
+            </li>
+        }
+
+        <li class="page-item @(paginaActual == totalPaginas ? "disabled" : "")">
+            <a class="page-link" asp-action="Index" asp-route-idContrato="@idContrato" asp-route-paginaNro="@(paginaActual + 1)">Siguiente</a>
+        </li>
+    </ul>
+</nav>
