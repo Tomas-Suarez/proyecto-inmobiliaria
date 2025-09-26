@@ -38,6 +38,11 @@ namespace proyecto_inmobiliaria.Services.imp
 
         }
 
+        public int CantidadPagosRealizados(int idContrato)
+        {
+            return _repository.CantidadPagosRealizados(idContrato);
+        }
+
         public int CantidadTotalPagos(int idContrato)
         {
             return _repository.ContarPagos(idContrato);

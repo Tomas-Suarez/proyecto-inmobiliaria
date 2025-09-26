@@ -91,5 +91,15 @@ namespace proyecto_inmobiliaria.Services.imp
         {
             _repository.ModificarEstadoInmueble(idInmueble, nuevoEstado);
         }
+
+        public IList<InmuebleResponseDTO> ObtenerInmueblesPorPropietario(int IdPropietario, int paginaNro, int tamPagina)
+        {
+            return _repository.ObtenerInmueblesPorPropietario(IdPropietario, paginaNro, tamPagina);
+        }
+
+        public int CantidadTotalPorPropietario(int idPropietario)
+        {
+            return _repository.CantidadTotalPorPropietario(idPropietario);
+        }
     }
 }

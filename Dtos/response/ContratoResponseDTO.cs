@@ -7,6 +7,8 @@ namespace proyecto_inmobiliaria.Dtos.response
         string NombreCompletoInquilino,
         decimal Monto,
         DateTime FechaDesde,
-        DateTime FechaHasta
+        DateTime FechaHasta,
+        DateTime? FechaFinAnticipada,
+        bool Finalizado
     );
 }

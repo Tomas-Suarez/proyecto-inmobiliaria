@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using proyecto_inmobiliaria.Dtos.request;
-using proyecto_inmobiliaria.Repository.imp;
 using proyecto_inmobiliaria.Services;
 
 namespace proyecto_inmobiliaria.Controllers
@@ -30,7 +29,7 @@ namespace proyecto_inmobiliaria.Controllers
         [HttpGet]
         public IActionResult Crear(int id = 0)
         {
-            var dto = new ContratoRequestDTO(id, 0, 0, 0, null, null);
+            var dto = new ContratoRequestDTO(id, 0, 0, 0, null, null, null, false);
             return View("formCrearModificar", dto);
         }
 
@@ -62,7 +61,7 @@ namespace proyecto_inmobiliaria.Controllers
             {
                 return View("formCrearModificar", dto);
             }
-           var hola = _service.ModificarContrato(dto.IdContrato, dto);
+            var hola = _service.ModificarContrato(dto.IdContrato, dto);
 
             return RedirectToAction(nameof(Index));
         }
@@ -82,6 +81,6 @@ namespace proyecto_inmobiliaria.Controllers
 
             return View(dto);
         }
-
+        
     }
 }

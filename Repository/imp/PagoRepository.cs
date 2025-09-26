@@ -15,7 +15,6 @@ namespace proyecto_inmobiliaria.Repository.imp
         {
             _connectionString = config.ConnectionString;
         }
-
         public Pago Alta(Pago pago)
         {
             int idPago;
@@ -94,49 +93,47 @@ namespace proyecto_inmobiliaria.Repository.imp
             return pago;
         }
 
-public IList<Pago> ObtenerLista(int idContrato, int paginaNro, int tamPagina)
-{
-    var pagos = new List<Pago>();
-    using (var connection = new MySqlConnection(_connectionString))
-    {
-        connection.Open();
+        public IList<Pago> ObtenerLista(int idContrato, int paginaNro, int tamPagina)
+        {
+            var pagos = new List<Pago>();
+            using (var connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
 
-        string query = @"SELECT id_pago, id_contrato, metodo_pago, fecha_pago, monto, detalle, anulado, numero_pago
+                string query = @"SELECT id_pago, id_contrato, metodo_pago, fecha_pago, monto, detalle, anulado, numero_pago
                          FROM Pago
                          WHERE id_contrato = @IdContrato
                          LIMIT @PageSize OFFSET @Offset;";
 
-        using (var command = new MySqlCommand(query, connection))
-        {
-            int offset = (paginaNro - 1) * tamPagina;
-
-            command.Parameters.AddWithValue("@IdContrato", idContrato);
-            command.Parameters.AddWithValue("@PageSize", tamPagina);
-            command.Parameters.AddWithValue("@Offset", offset);
-
-            using (var reader = command.ExecuteReader())
-            {
-                while (reader.Read())
+                using (var command = new MySqlCommand(query, connection))
                 {
-                    pagos.Add(new Pago
+                    int offset = (paginaNro - 1) * tamPagina;
+
+                    command.Parameters.AddWithValue("@IdContrato", idContrato);
+                    command.Parameters.AddWithValue("@PageSize", tamPagina);
+                    command.Parameters.AddWithValue("@Offset", offset);
+
+                    using (var reader = command.ExecuteReader())
                     {
-                        IdPago = reader.GetInt32("id_pago"),
-                        IdContrato = reader.GetInt32("id_contrato"),
-                        MetodoPago = reader.IsDBNull(reader.GetOrdinal("metodo_pago")) ? "" : reader.GetString("metodo_pago"),
-                        FechaPago = reader.IsDBNull(reader.GetOrdinal("fecha_pago")) ? DateTime.MinValue : reader.GetDateTime("fecha_pago"),
-                        Monto = reader.IsDBNull(reader.GetOrdinal("monto")) ? 0 : reader.GetDecimal("monto"),
-                        Detalle = reader.IsDBNull(reader.GetOrdinal("detalle")) ? "" : reader.GetString("detalle"),
-                        Anulado = !reader.IsDBNull(reader.GetOrdinal("anulado")) && reader.GetBoolean("anulado"),
-                        NumeroPago = reader.IsDBNull(reader.GetOrdinal("numero_pago")) ? 0 : reader.GetInt32("numero_pago")
-                    });
+                        while (reader.Read())
+                        {
+                            pagos.Add(new Pago
+                            {
+                                IdPago = reader.GetInt32("id_pago"),
+                                IdContrato = reader.GetInt32("id_contrato"),
+                                MetodoPago = reader.IsDBNull(reader.GetOrdinal("metodo_pago")) ? "" : reader.GetString("metodo_pago"),
+                                FechaPago = reader.IsDBNull(reader.GetOrdinal("fecha_pago")) ? DateTime.MinValue : reader.GetDateTime("fecha_pago"),
+                                Monto = reader.IsDBNull(reader.GetOrdinal("monto")) ? 0 : reader.GetDecimal("monto"),
+                                Detalle = reader.IsDBNull(reader.GetOrdinal("detalle")) ? "" : reader.GetString("detalle"),
+                                Anulado = !reader.IsDBNull(reader.GetOrdinal("anulado")) && reader.GetBoolean("anulado"),
+                                NumeroPago = reader.IsDBNull(reader.GetOrdinal("numero_pago")) ? 0 : reader.GetInt32("numero_pago")
+                            });
+                        }
+                    }
                 }
             }
+            return pagos;
         }
-    }
-    return pagos;
-}
-
-
 
         public Pago ObtenerPorId(int idPago)
         {
@@ -184,6 +181,21 @@ public IList<Pago> ObtenerLista(int idContrato, int paginaNro, int tamPagina)
             string query = @"SELECT COUNT(*) FROM Pago WHERE Id_Contrato = @IdContrato;";
             using var command = new MySqlCommand(query, connection);
             command.Parameters.AddWithValue("@IdContrato", idContrato);
+
+            return Convert.ToInt32(command.ExecuteScalar());
+        }
+
+        public int CantidadPagosRealizados(int idContrato)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+            connection.Open();
+
+            string query = @"SELECT COUNT(*) FROM Pago 
+                     WHERE id_contrato = @idContrato 
+                       AND Anulado = 0;";
+
+            using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@idContrato", idContrato);
 
             return Convert.ToInt32(command.ExecuteScalar());
         }

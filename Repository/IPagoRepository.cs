@@ -10,5 +10,6 @@ namespace proyecto_inmobiliaria.Repository
         Pago ObtenerPorId(int idPago);
         IList<Pago> ObtenerLista(int idContrato, int paginaNro, int tamPagina);
         int ContarPagos(int idContrato);
+        int CantidadPagosRealizados(int idContrato);
     }
 }

@@ -51,7 +51,11 @@
                             <i class="fa-solid fa-eye"></i> Detalles
                         </a>
 
-                        <a class="btn btn-secondary" asp-controller="Inmuebles" asp-action="PorPropietario" asp-route-id="@propietario.IdPropietario" title="Mis Propiedades">
+                        <a class="btn btn-secondary" 
+                            asp-controller="Inmueble" 
+                            asp-action="PorPropietario" 
+                            asp-route-IdPropietario="@propietario.IdPropietario" 
+                            title="Mis Propiedades">
                             <i class="fa-solid fa-building"></i> Mis propiedades
                         </a>
                     </div>

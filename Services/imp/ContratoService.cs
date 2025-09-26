@@ -2,35 +2,33 @@ using proyecto_inmobiliaria.Dtos.request;
 using proyecto_inmobiliaria.Dtos.response;
 using proyecto_inmobiliaria.Exceptions;
 using proyecto_inmobiliaria.Mappers;
+using proyecto_inmobiliaria.Repository;
 using proyecto_inmobiliaria.Repository.imp;
 
 using static proyecto_inmobiliaria.Constants.ContratoConstants;
-using static proyecto_inmobiliaria.Constants.InmuebleConstants;
 
 namespace proyecto_inmobiliaria.Services.imp
 {
     public class ContratoService : IContratoService
     {
 
-        private readonly IContratoRepository _repository;
+        private readonly IContratoRepository _contratoRepository;
+        private readonly IPagoRepository _pagoRepository;
 
         private readonly ContratoMapper _mapper;
 
-        private readonly IInmuebleService _inmuebleService;
-
-        public ContratoService(IContratoRepository repository, ContratoMapper mapper, IInmuebleService inmuebleService)
+        public ContratoService(IContratoRepository contratoRepository, ContratoMapper mapper, IPagoRepository pagoRepository)
         {
-            _repository = repository;
+            _contratoRepository = contratoRepository;
             _mapper = mapper;
-            _inmuebleService = inmuebleService;
+            _pagoRepository = pagoRepository;
         }
         public ContratoResponseDTO AltaContrato(ContratoRequestDTO dto)
         {
             var contrato = _mapper.ToEntity(dto);
-            contrato.FechaDesde = DateTime.Today;
-            contrato = _repository.Alta(contrato);
+            contrato.Finalizado = false;
+            contrato = _contratoRepository.Alta(contrato);
 
-            _inmuebleService.CambiarEstado(contrato.IdInmueble, INMUEBLE_ESTADO_ALQUILADO);
             return ObtenerPorId(contrato.IdContrato);
         }
 
@@ -38,7 +36,7 @@ namespace proyecto_inmobiliaria.Services.imp
         {
             _ = ObtenerPorId(ContratoId);
 
-            int filasAfectadas = _repository.Baja(ContratoId);
+            int filasAfectadas = _contratoRepository.Baja(ContratoId);
 
             if (filasAfectadas == 0)
             {
@@ -48,7 +46,7 @@ namespace proyecto_inmobiliaria.Services.imp
 
         public int CantidadTotalContrato()
         {
-            return _repository.CantidadTotal();
+            return _contratoRepository.CantidadTotal();
         }
 
         public ContratoResponseDTO ModificarContrato(int ContratoId, ContratoRequestDTO dto)
@@ -57,21 +55,21 @@ namespace proyecto_inmobiliaria.Services.imp
 
             var contrato = _mapper.ToEntity(dto);
 
-            _ = _repository.Modificar(contrato);
+            _ = _contratoRepository.Modificar(contrato);
 
-            return _repository.ObtenerPorId(ContratoId);
+            return _contratoRepository.ObtenerPorId(ContratoId);
         }
 
         public ContratoResponseDTO ObtenerPorId(int ContratoId)
         {
-            var contrato = _repository.ObtenerPorId(ContratoId)
+            var contrato = _contratoRepository.ObtenerPorId(ContratoId)
                                         ?? throw new NotFoundException(NO_SE_ENCONTRO_CONTRATO_POR_ID + ContratoId);
             return contrato;
         }
 
         public ContratoRequestDTO ObtenerRequestPorId(int ContratoId)
         {
-            var contrato = _repository.ObtenerPorIdRequest(ContratoId)
+            var contrato = _contratoRepository.ObtenerPorIdRequest(ContratoId)
                                         ?? throw new NotFoundException(NO_SE_ENCONTRO_CONTRATO_POR_ID + ContratoId);
 
             return new ContratoRequestDTO(
@@ -80,13 +78,38 @@ namespace proyecto_inmobiliaria.Services.imp
                 contrato.IdInmueble,
                 contrato.Monto,
                 contrato.FechaDesde,
-                contrato.FechaHasta
+                contrato.FechaHasta,
+                contrato.FechaFinAnticipada,
+                contrato.Finalizado
             );
         }
 
         public IList<ContratoResponseDTO> TodosLosContratosPaginados(int paginaNro, int tamPagina)
         {
-            return _repository.ObtenerLista(paginaNro, tamPagina);
+            return _contratoRepository.ObtenerLista(paginaNro, tamPagina);
+        }
+
+        public void FinalizarContratoAnticipado(int idContrato)
+        {
+            var contrato = ObtenerPorId(idContrato);
+
+            if (contrato.Finalizado)
+            {
+                throw new InvalidOperationException(ERROR_CONTRATO_FINALIZADO);
+            }
+
+            int totalMesesContrato = ((contrato.FechaHasta.Year - contrato.FechaDesde.Year) * 12) +
+                         (contrato.FechaHasta.Month - contrato.FechaDesde.Month + 1);
+
+            int pagosRealizados = _pagoRepository.CantidadPagosRealizados(idContrato);
+
+            int mesesTranscurridos = ((DateTime.Today.Year - contrato.FechaDesde.Year) * 12) +
+                             (DateTime.Today.Month - contrato.FechaDesde.Month + 1);
+
+            if (pagosRealizados < mesesTranscurridos)
+            {
+                throw new InvalidOperationException(PAGOS_PENDIENTES);
+            }
         }
     }
 }

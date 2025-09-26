@@ -11,5 +11,6 @@ namespace proyecto_inmobiliaria.Services
         IList<PagoResponseDTO> ObtenerPagosPaginados(int idContrato, int paginaNro, int tamPagina);
         PagoResponseDTO ObtenerPorId(int PagoId);
         int CantidadTotalPagos(int idContrato);
+        int CantidadPagosRealizados(int idContrato);
     }
 }

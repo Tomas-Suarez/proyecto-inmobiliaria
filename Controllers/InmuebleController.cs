@@ -120,5 +120,23 @@ namespace proyecto_inmobiliaria.Controllers
 
             return View(dto);
         }
+
+        [HttpGet]
+        public IActionResult PorPropietario(int IdPropietario, int paginaNro = 1, int tamPagina = 10)
+        {
+            var inmuebles = _service.ObtenerInmueblesPorPropietario(IdPropietario, paginaNro, tamPagina);
+            int totalInmuebles = _service.CantidadTotalPorPropietario(IdPropietario);
+            int totalPaginas = (int)Math.Ceiling((double)totalInmuebles / tamPagina);
+
+            var propietario = _propietarioRepo.ObtenerPorId(IdPropietario);
+            ViewBag.PropietarioNombre = $"{propietario.Nombre} {propietario.Apellido}";
+
+            ViewData["PaginaActual"] = paginaNro;
+            ViewData["TotalPaginas"] = totalPaginas;
+            ViewData["IdPropietario"] = IdPropietario;
+
+            return View("InmueblesPorPropietarios", inmuebles);
+        }
+
     }
 }

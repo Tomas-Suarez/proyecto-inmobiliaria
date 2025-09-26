@@ -63,6 +63,15 @@
                             <i class="fa-solid fa-dollar-sign"></i> Pagos
                         </a>
 
+                        <a class="btn btn-danger" 
+                            asp-action="FinalizarAnticipado" 
+                            asp-route-IdContrato="@contrato.IdContrato" 
+                            title="Finalizar contrato anticipadamente"
+                            onclick="return confirm('¿Seguro que querés finalizar este contrato antes de tiempo? Se calculará la multa correspondiente.');">
+                        <i class="fa-solid fa-hourglass-end"></i> Finalizar Anticipado
+</a>
+
+
                     </div>
                 </td>
             </tr>

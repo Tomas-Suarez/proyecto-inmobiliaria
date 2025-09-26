@@ -19,6 +19,10 @@ namespace proyecto_inmobiliaria.Dtos.request
         DateTime? FechaDesde,
 
         [Required(ErrorMessage = "La fecha de finalización es obligatoria")]
-        DateTime? FechaHasta
+        DateTime? FechaHasta,
+        
+        DateTime? FechaFinAnticipada,
+
+        bool Finalizado
     );
 }

@@ -79,6 +79,21 @@ namespace proyecto_inmobiliaria.Repository.imp
             }
         }
 
+        public int CantidadTotalPorPropietario(int idPropietario)
+        {
+            string query = @"SELECT COUNT(*) 
+                     FROM Inmueble 
+                     WHERE id_propietario = @idPropietario;";
+
+            using (var connection = new MySqlConnection(_connectionString))
+            using (var command = new MySqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@idPropietario", idPropietario);
+                connection.Open();
+                return Convert.ToInt32(command.ExecuteScalar());
+            }
+        }
+
         public Inmueble Modificar(Inmueble inmueble)
         {
             using (var connection = new MySqlConnection(_connectionString))
@@ -179,6 +194,59 @@ namespace proyecto_inmobiliaria.Repository.imp
 
             return inmuebles;
         }
+
+        public IList<InmuebleResponseDTO> ObtenerInmueblesPorPropietario(int idPropietario, int paginaNro, int tamPagina)
+        {
+            var inmuebles = new List<InmuebleResponseDTO>();
+
+            using (var connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = @"
+            SELECT i.id_Inmueble, 
+                   t.nombre AS TipoInmueble, 
+                   e.descripcion AS EstadoInmueble,
+                   CONCAT(p.nombre, ' ', p.apellido) AS NombreCompletoPropietario, 
+                   i.direccion, 
+                   i.cantidad_Ambientes, 
+                   i.superficie_M2
+            FROM Inmueble i
+            JOIN Tipo_Inmueble t ON i.id_Tipo_Inmueble = t.id_Tipo_Inmueble
+            JOIN Estado_Inmueble e ON i.id_Estado_Inmueble = e.id_Estado_Inmueble
+            JOIN Propietario pr ON i.id_Propietario = pr.id_Propietario
+            JOIN Persona p ON pr.id_Persona = p.id_Persona
+            WHERE i.id_Propietario = @idPropietario
+            LIMIT @PageSize OFFSET @Offset;";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    int offset = (paginaNro - 1) * tamPagina;
+
+                    command.Parameters.AddWithValue("@idPropietario", idPropietario);
+                    command.Parameters.AddWithValue("@PageSize", tamPagina);
+                    command.Parameters.AddWithValue("@Offset", offset);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            inmuebles.Add(new InmuebleResponseDTO(
+                                reader.GetInt32("id_Inmueble"),
+                                reader.GetString("TipoInmueble"),
+                                reader.GetString("EstadoInmueble"),
+                                reader.GetString("NombreCompletoPropietario"),
+                                reader.GetString("direccion"),
+                                reader.GetInt32("cantidad_Ambientes"),
+                                reader.GetDecimal("superficie_M2")
+                            ));
+                        }
+                    }
+                }
+            }
+            return inmuebles;
+        }
+
 
         public IList<InmuebleResponseDTO> ObtenerLista(int paginaNro, int tamPagina, int? idEstado = null)
         {

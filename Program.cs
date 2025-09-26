@@ -8,9 +8,6 @@ using proyecto_inmobiliaria.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 
-/* TODO: ¿Usar reflexion para no repetir tanto codigo?
-Todas las interfaces comienzan con I{nombre}...
-*/
 builder.Services.AddSingleton<IAppConfig, AppConfig>();
 
 builder.Services.AddTransient<MySqlConnection>(sp =>

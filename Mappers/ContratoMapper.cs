@@ -16,7 +16,9 @@ namespace proyecto_inmobiliaria.Mappers
                 IdInmueble = dto.IdInmueble,
                 Monto = dto.Monto,
                 FechaDesde = dto.FechaDesde,
-                FechaHasta = dto.FechaHasta
+                FechaHasta = dto.FechaHasta,
+                FechaFinAnticipada = dto.FechaFinAnticipada,
+                Finalizado = dto.Finalizado
             };
         }
     }

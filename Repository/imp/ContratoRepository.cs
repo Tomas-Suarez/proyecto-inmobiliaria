@@ -26,8 +26,8 @@ namespace proyecto_inmobiliaria.Repository.imp
                 connection.Open();
 
                 string query = @"INSERT INTO Contrato
-                                (id_inquilino, id_inmueble, monto, fecha_desde, fecha_hasta)
-                                VALUES (@idInquilino, @idInmueble, @monto, @fechaDesde, @fechaHasta);";
+                                (id_inquilino, id_inmueble, monto, fecha_desde, fecha_hasta, fecha_fin_anticipada, finalizado)
+                                VALUES (@idInquilino, @idInmueble, @monto, @fechaDesde, @fechaHasta, @FechaFinAnticipada, @finalizado);";
                 using (var command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@idInquilino", contrato.IdInquilino);
@@ -35,6 +35,8 @@ namespace proyecto_inmobiliaria.Repository.imp
                     command.Parameters.AddWithValue("@monto", contrato.Monto);
                     command.Parameters.AddWithValue("@fechaDesde", contrato.FechaDesde);
                     command.Parameters.AddWithValue("@fechaHasta", contrato.FechaHasta);
+                    command.Parameters.AddWithValue("@fechaFinAnticipada", contrato.FechaFinAnticipada);
+                    command.Parameters.AddWithValue("@finalizado", contrato.Finalizado);
 
                     command.ExecuteNonQuery();
                     idContrato = (int)command.LastInsertedId;
@@ -80,7 +82,9 @@ namespace proyecto_inmobiliaria.Repository.imp
                 string query = @"UPDATE Contrato
                                 SET monto = @monto,
                                     fecha_desde = @fechaDesde,
-                                    fecha_hasta = @fechaHasta
+                                    fecha_hasta = @fechaHasta,
+                                    fecha_fin_anticipada = @fechaFinAnticipada,
+                                    finalizado = @finalizado
                                 WHERE id_contrato = @idContrato;";
                 using (var command = new MySqlCommand(query, connection))
                 {
@@ -90,6 +94,8 @@ namespace proyecto_inmobiliaria.Repository.imp
                     command.Parameters.AddWithValue("@monto", contrato.Monto);
                     command.Parameters.AddWithValue("@fechaDesde", contrato.FechaDesde);
                     command.Parameters.AddWithValue("@fechaHasta", contrato.FechaHasta);
+                    command.Parameters.AddWithValue("@fechaFinAnticipada", contrato.FechaFinAnticipada);
+                    command.Parameters.AddWithValue("@finalizado", contrato.Finalizado);
 
                     command.ExecuteNonQuery();
                 }
@@ -112,7 +118,9 @@ namespace proyecto_inmobiliaria.Repository.imp
                             CONCAT(pi.nombre, ' ', pi.apellido) AS NombreCompletoInquilino,
                             c.monto AS Monto,
                             c.fecha_desde AS FechaDesde,
-                            c.fecha_hasta AS FechaHasta
+                            c.fecha_hasta AS FechaHasta,
+                            c.fecha_fin_anticipada AS FechaFinAnticipada,
+                            c.finalizado AS Finalizado
                         FROM contrato c
                         JOIN inquilino inq ON c.id_inquilino = inq.id_inquilino
                         JOIN persona pi ON inq.id_persona = pi.id_persona
@@ -132,6 +140,10 @@ namespace proyecto_inmobiliaria.Repository.imp
                     {
                         while (reader.Read())
                         {
+                            DateTime? fechaFinAnticipada = reader.IsDBNull(reader.GetOrdinal("FechaFinAnticipada"))
+                                ? null
+                                : reader.GetDateTime("FechaFinAnticipada");
+
                             var dto = new ContratoResponseDTO(
                                 reader.GetInt32("IdContrato"),
                                 reader.GetString("DireccionInmueble"),
@@ -139,7 +151,9 @@ namespace proyecto_inmobiliaria.Repository.imp
                                 reader.GetString("NombreCompletoInquilino"),
                                 reader.GetDecimal("Monto"),
                                 reader.GetDateTime("FechaDesde"),
-                                reader.GetDateTime("FechaHasta")
+                                reader.GetDateTime("FechaHasta"),
+                                fechaFinAnticipada,
+                                reader.GetBoolean("Finalizado")
                             );
                             contratos.Add(dto);
                         }
@@ -149,8 +163,7 @@ namespace proyecto_inmobiliaria.Repository.imp
 
             return contratos;
         }
-
-
+        
         public ContratoResponseDTO ObtenerPorId(int idContrato)
         {
             using (var connection = new MySqlConnection(_connectionString))
@@ -164,7 +177,9 @@ namespace proyecto_inmobiliaria.Repository.imp
                             CONCAT(pi.nombre, ' ', pi.apellido) AS NombreCompletoInquilino,
                             c.monto AS Monto,
                             c.fecha_desde AS FechaDesde,
-                            c.fecha_hasta AS FechaHasta
+                            c.fecha_hasta AS FechaHasta,
+                            c.fecha_fin_anticipada AS FechaFinAnticipada,
+                            c.finalizado AS Finalizado
                         FROM contrato c
                         JOIN inquilino inq ON c.id_inquilino = inq.id_inquilino
                         JOIN persona pi ON inq.id_persona = pi.id_persona
@@ -180,6 +195,10 @@ namespace proyecto_inmobiliaria.Repository.imp
                     {
                         if (reader.Read())
                         {
+                            DateTime? fechaFinAnticipada = reader.IsDBNull(reader.GetOrdinal("FechaFinAnticipada"))
+                                ? null
+                                : reader.GetDateTime("FechaFinAnticipada");
+
                             return new ContratoResponseDTO(
                                 reader.GetInt32("IdContrato"),
                                 reader.GetString("DireccionInmueble"),
@@ -187,7 +206,9 @@ namespace proyecto_inmobiliaria.Repository.imp
                                 reader.GetString("NombreCompletoInquilino"),
                                 reader.GetDecimal("Monto"),
                                 reader.GetDateTime("FechaDesde"),
-                                reader.GetDateTime("FechaHasta")
+                                reader.GetDateTime("FechaHasta"),
+                                fechaFinAnticipada,
+                                reader.GetBoolean("Finalizado")
                             );
                         }
                         else
@@ -198,6 +219,7 @@ namespace proyecto_inmobiliaria.Repository.imp
                 }
             }
         }
+
 
 
         public Contrato ObtenerPorIdRequest(int idContrato)
@@ -211,7 +233,9 @@ namespace proyecto_inmobiliaria.Repository.imp
                                     id_inmueble,
                                     monto,
                                     fecha_desde,
-                                    fecha_hasta 
+                                    fecha_hasta,
+                                    fecha_fin_anticipada,
+                                    finalizado 
                                 FROM Contrato 
                                 WHERE id_contrato = @idContrato";
 
@@ -230,7 +254,8 @@ namespace proyecto_inmobiliaria.Repository.imp
                                 IdInmueble = reader.GetInt32("id_inmueble"),
                                 Monto = reader.GetInt32("monto"),
                                 FechaDesde = reader.GetDateTime("fecha_desde"),
-                                FechaHasta = reader.GetDateTime("fecha_hasta")
+                                FechaHasta = reader.GetDateTime("fecha_hasta"),
+                                Finalizado = reader.GetBoolean("finalizado")
                             };
                         }
                         else
