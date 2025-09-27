@@ -15,6 +15,6 @@ namespace proyecto_inmobiliaria.Services
         IList<ContratoResponseDTO> ContratosPorInmueble(int idInmueble, int paginaNro, int tamPagina);
         int CantidadTotalPorInmueble(int idInmueble);
         PagoRequestDTO FinalizarContratoAnticipado(int idContrato);
-        public void MarcarContratoComoFinalizado(int idContrato);
+        public void MarcarContratoComoFinalizado(int idContrato, bool anticipado);
     }
 }

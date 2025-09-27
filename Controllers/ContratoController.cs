@@ -105,11 +105,14 @@ namespace proyecto_inmobiliaria.Controllers
             }
             catch (ContractAlreadyFinalizedException ex)
             {
-                TempData["Error"] = ex.Message;
-                return RedirectToAction(nameof(Detalles), new { IdContrato = idContrato });
+                TempData["ErrorMensaje"] = ex.Message;
+                return RedirectToAction(nameof(Index));
             }
-            
+            catch (PendingPaymentsException ex)
+            {
+                TempData["ErrorMensaje"] = ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
         }
-        
     }
 }

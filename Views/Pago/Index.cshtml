@@ -5,16 +5,67 @@
     int paginaActual = ViewData["PaginaActual"] != null ? (int)ViewData["PaginaActual"]! : 1;
     int totalPaginas = ViewData["TotalPaginas"] != null ? (int)ViewData["TotalPaginas"]! : 1;
     int idContrato = ViewData["IdContrato"] != null ? (int)ViewData["IdContrato"]! : 0;
+
+    bool contratoFinalizado = ViewData["ContratoFinalizado"] != null && (bool)ViewData["ContratoFinalizado"]!;
+    bool contratoFinalizadoAnticipado = ViewData["ContratoFinalizadoAnticipado"] != null && (bool)ViewData["ContratoFinalizadoAnticipado"]!;
+    int pagosRestantes = ViewData["PagosRestantes"] != null ? (int)ViewData["PagosRestantes"]! : 0;
 }
 
-<h1>
-    Pagos
-    <div class="btn-group float-right">
+<div class="btn-group float-right">
+    @if (!contratoFinalizado && pagosRestantes > 0)
+    {
         <a class="btn btn-primary" asp-action="Crear" asp-route-idContrato="@idContrato" title="Registrar Pago">
             <i class="fa-solid fa-plus"></i> Registrar Pago
         </a>
+    }
+    else if (contratoFinalizadoAnticipado)
+    {
+        <button class="btn btn-danger" disabled title="El contrato fue finalizado anticipadamente">
+            <i class="fa-solid fa-ban"></i> Contrato finalizado anticipadamente
+        </button>
+    }
+    else if (contratoFinalizado)
+    {
+        <button class="btn btn-success" disabled title="El contrato finalizó al cumplir su plazo">
+            <i class="fa-solid fa-check"></i> Contrato finalizado
+        </button>
+    }
+    else
+    {
+        <button class="btn btn-secondary" disabled title="El contrato ya está totalmente pagado">
+            <i class="fa-solid fa-check-double"></i> Contrato pagado
+        </button>
+    }
+</div>
+
+@if (contratoFinalizado)
+{
+    if (contratoFinalizadoAnticipado)
+    {
+        <div class="alert alert-danger" role="alert">
+            <strong>Este contrato fue finalizado anticipadamente.</strong>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-success" role="alert">
+            <strong>Este contrato fue finalizado correctamente al cumplir su plazo.</strong>
+        </div>
+    }
+}
+else
+{
+    <div class="alert @(pagosRestantes == 0 ? "alert-success" : "alert-info")" role="alert">
+        @if (pagosRestantes > 0)
+        {
+            <strong>Pagos restantes:</strong> @pagosRestantes
+        }
+        else
+        {
+            <strong>Este contrato ya está totalmente pagado.</strong>
+        }
     </div>
-</h1>
+}
 
 <table class="table table-striped">
     <thead>
@@ -36,26 +87,29 @@
                 <td>@pago.FechaPago.ToString("dd/MM/yyyy")</td>
                 <td>$@pago.Monto</td>
                 <td>@((pago.Anulado ?? false) ? "Sí" : "No")</td>
-                <td>
-                    <div class="btn-group" role="group">
-                        <a class="btn btn-primary" asp-action="Modificar" asp-route-idPago="@pago.IdPago" title="Editar">
-                            <i class="fa-solid fa-pen"></i> Editar
-                        </a>
+<td>
+    <div class="btn-group" role="group">
+        @if (!contratoFinalizado)
+        {
+            <a class="btn btn-primary" asp-action="Modificar" asp-route-idPago="@pago.IdPago" title="Editar">
+                <i class="fa-solid fa-pen"></i> Editar
+            </a>
 
-                        <form asp-action="Anular" method="post" class="d-inline">
-                            <input type="hidden" name="idPago" value="@pago.IdPago" />
-                            <input type="hidden" name="idContrato" value="@idContrato" />
-                            <button type="submit" class="btn btn-danger" title="Anular"
-                                    onclick="return confirm('¿Seguro que querés anular este pago?');">
-                                <i class="fa-solid fa-ban"></i> Anular
-                            </button>
-                        </form>
+            <form id="formAnular-@pago.IdPago" asp-action="Anular" method="post" class="d-inline">
+                <input type="hidden" name="idPago" value="@pago.IdPago" />
+                <input type="hidden" name="idContrato" value="@idContrato" />
+                <button type="button" class="btn btn-danger"
+                        onclick="mostrarModalConfirmacion('Anular pago', '¿Seguro que querés anular este pago?', 'formAnular-@pago.IdPago')">
+                    <i class="fa-solid fa-ban"></i> Anular
+                </button>
+            </form>
+        }
 
-                        <a class="btn btn-warning" asp-action="Detalles" asp-route-idPago="@pago.IdPago" title="Ver detalles">
-                            <i class="fa-solid fa-eye"></i> Detalles
-                        </a>
-                    </div>
-                </td>
+        <a class="btn btn-warning" asp-action="Detalles" asp-route-idPago="@pago.IdPago" title="Ver detalles">
+            <i class="fa-solid fa-eye"></i> Detalles
+        </a>
+    </div>
+</td>
             </tr>
         }
     </tbody>
@@ -79,3 +133,8 @@
         </li>
     </ul>
 </nav>
+
+<script src="~/js/modalReutilizable.js"></script>
+
+@await Html.PartialAsync("_ModalConfirmacion", ("", "", ""))
+@await Html.PartialAsync("_ModalMensaje", TempData["ErrorMensaje"] as string)

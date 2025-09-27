@@ -20,15 +20,33 @@ namespace proyecto_inmobiliaria.Controllers
             ViewData["ActivePage"] = "Pago";
 
             var pagos = _servicePago.ObtenerPagosPaginados(idContrato, paginaNro, tamPagina);
+
             int totalInmuebles = _servicePago.CantidadTotalPagos(idContrato);
             int totalPaginas = (int)Math.Ceiling((double)totalInmuebles / tamPagina);
+
+            var contrato = _serviceContrato.ObtenerPorId(idContrato);
+
+            int duracionContratoMeses = ((contrato.FechaHasta.Year - contrato.FechaDesde.Year) * 12) +
+                                        (contrato.FechaHasta.Month - contrato.FechaDesde.Month);
+
+            int pagosRealizados = _servicePago.CantidadPagosRealizados(idContrato);
+
+            int pagosRestantes = duracionContratoMeses - pagosRealizados;
+            if (pagosRestantes < 0) pagosRestantes = 0;
+
+            bool contratoFinalizado = contrato.Finalizado;
+            bool contratoFinalizadoAnticipado = contrato.FechaFinAnticipada != null;
 
             ViewData["IdContrato"] = idContrato;
             ViewData["PaginaActual"] = paginaNro;
             ViewData["TotalPaginas"] = totalPaginas;
+            ViewData["PagosRestantes"] = pagosRestantes;
+            ViewData["ContratoFinalizado"] = contratoFinalizado;
+            ViewData["ContratoFinalizadoAnticipado"] = contratoFinalizadoAnticipado;
 
             return View(pagos);
         }
+
 
         [HttpGet]
         public IActionResult Crear(int idContrato, bool esFinalizacion = false)
@@ -41,7 +59,8 @@ namespace proyecto_inmobiliaria.Controllers
             //En caso que sea finalizar anticipado llenamos el form de pago con los datos de la multa
             if (esFinalizacion)
             {
-                dto = _serviceContrato.FinalizarContratoAnticipado(idContrato);
+                var pagoMulta = _serviceContrato.FinalizarContratoAnticipado(idContrato);
+                dto = pagoMulta with { NumeroPago = numeroPago };
             }
             else
             {
@@ -74,10 +93,23 @@ namespace proyecto_inmobiliaria.Controllers
 
             _servicePago.AltaPago(dto);
 
-            // Si es un pago de finalización, marcamos contrato como finalizado
             if (esFinalizacion)
             {
-                _serviceContrato.MarcarContratoComoFinalizado(dto.IdContrato);  //Nos marca la fecha de anticipacion y el estado de finalizado.
+                // Finalización anticipada
+                _serviceContrato.MarcarContratoComoFinalizado(dto.IdContrato, anticipado: true);
+            }
+            else
+            {
+                var contrato = _serviceContrato.ObtenerPorId(dto.IdContrato);
+                int pagosRealizados = _servicePago.CantidadPagosRealizados(dto.IdContrato);
+                int duracionContratoMeses = ((contrato.FechaHasta.Year - contrato.FechaDesde.Year) * 12) +
+                                            (contrato.FechaHasta.Month - contrato.FechaDesde.Month);
+
+
+                if (pagosRealizados >= duracionContratoMeses)
+                {
+                    _serviceContrato.MarcarContratoComoFinalizado(dto.IdContrato, anticipado: false);
+                }
             }
 
             return RedirectToAction(nameof(Index), new { idContrato = dto.IdContrato });
@@ -120,8 +152,10 @@ namespace proyecto_inmobiliaria.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Anular(int idPago)
         {
+            var pago = _servicePago.ObtenerPorId(idPago);
             _servicePago.BajaPago(idPago);
-            return RedirectToAction(nameof(Index));
+
+            return RedirectToAction(nameof(Index), new { idContrato = pago.IdContrato });
         }
 
         [HttpGet]

@@ -4,9 +4,5 @@ namespace proyecto_inmobiliaria.Constants
     {
         public const string NO_SE_ENCONTRO_INMUEBLE_POR_ID = "No se encontró el inmueble con el id: ";
         public const string ERROR_AL_BORRAR_INMUEBLE = "Ocurrio un error al borrar el inquilino!";
-        public const int INMUEBLE_ESTADO_DISPONIBLE = 1;
-        public const int INMUEBLE_ESTADO_ALQUILADO = 2;
-        public const int INMUEBLE_ESTADO_MANTENIMIENTO = 3;
-
     }
 }

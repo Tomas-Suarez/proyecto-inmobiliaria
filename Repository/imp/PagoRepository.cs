@@ -156,12 +156,12 @@ namespace proyecto_inmobiliaria.Repository.imp
                             {
                                 IdPago = reader.GetInt32("id_pago"),
                                 IdContrato = reader.GetInt32("id_contrato"),
-                                MetodoPago = reader.GetString("metodo_pago"),
-                                FechaPago = reader.GetDateTime("fecha_pago"),
-                                Monto = reader.GetDecimal("monto"),
-                                Detalle = reader.GetString("detalle"),
-                                Anulado = reader.GetBoolean("anulado"),
-                                NumeroPago = reader.GetInt32("numero_pago")
+                                MetodoPago = reader.IsDBNull(reader.GetOrdinal("metodo_pago")) ? "" : reader.GetString("metodo_pago"),
+                                FechaPago = reader.IsDBNull(reader.GetOrdinal("fecha_pago")) ? DateTime.MinValue : reader.GetDateTime("fecha_pago"),
+                                Monto = reader.IsDBNull(reader.GetOrdinal("monto")) ? 0 : reader.GetDecimal("monto"),
+                                Detalle = reader.IsDBNull(reader.GetOrdinal("detalle")) ? "" : reader.GetString("detalle"),
+                                Anulado = !reader.IsDBNull(reader.GetOrdinal("anulado")) && reader.GetBoolean("anulado"),
+                                NumeroPago = reader.IsDBNull(reader.GetOrdinal("numero_pago")) ? 0 : reader.GetInt32("numero_pago")
                             };
                         }
                         else

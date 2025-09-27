@@ -151,17 +151,18 @@ namespace proyecto_inmobiliaria.Services.imp
             }
         }
 
-        public void MarcarContratoComoFinalizado(int idContrato)
+        public void MarcarContratoComoFinalizado(int idContrato, bool anticipado = true)
         {
             var contrato = ObtenerRequestPorId(idContrato);
 
             var contratoActualizado = contrato with
             {
                 Finalizado = true,
-                FechaFinAnticipada = DateTime.Today
+                FechaFinAnticipada = anticipado ? DateTime.Today : contrato.FechaFinAnticipada
             };
 
             ModificarContrato(idContrato, contratoActualizado);
         }
+
     }
 }

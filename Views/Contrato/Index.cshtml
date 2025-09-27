@@ -20,6 +20,7 @@
         <tr>
             <th>Id</th>
             <th>Tipo inmueble</th>
+            <th>Dirección</th>
             <th>Nombre inquilino</th>
             <th>Monto</th>
             <th>Fecha inicial</th>
@@ -33,46 +34,44 @@
             <tr>
                 <td>@contrato.IdContrato</td>
                 <td>@contrato.TipoInmueble</td>
+                <td>@contrato.DireccionInmueble</td>
                 <td>@contrato.NombreCompletoInquilino</td>
                 <td>$@contrato.Monto</td>
                 <td>@contrato.FechaDesde.ToString("dd/MM/yyyy")</td>
                 <td>@contrato.FechaHasta.ToString("dd/MM/yyyy")</td>
                 <td>
                     <div class="btn-group" role="group">
-                        <a class="btn btn-primary" asp-action="Modificar" asp-route-IdContrato="@contrato.IdContrato" title="Editar">
+                        <a class="btn btn-primary" asp-action="Modificar" asp-route-IdContrato="@contrato.IdContrato"
+                           title="Editar">
                             <i class="fa-solid fa-pen"></i> Editar
                         </a>
 
-                        <form asp-action="Eliminar" method="post" class="d-inline">
+                        <form id="formEliminar-@contrato.IdContrato" asp-action="Eliminar" method="post" class="d-inline">
                             <input type="hidden" name="id" value="@contrato.IdContrato" />
-                            <button type="submit" class="btn btn-danger" title="Eliminar"
-                                    onclick="return confirm('¿Seguro que querés eliminar de forma PERMANENTE este contrato?');">
+                            <button type="button" class="btn btn-danger"
+                                    onclick="mostrarModalConfirmacion('Eliminar contrato', '¿Seguro que querés eliminar este contrato de forma PERMANENTE?', 'formEliminar-@contrato.IdContrato')">
                                 <i class="fa-solid fa-trash-can"></i> Eliminar
                             </button>
                         </form>
 
-                        <a class="btn btn-warning" asp-action="Detalles" asp-route-IdContrato="@contrato.IdContrato" title="Ver detalles">
+                        <a class="btn btn-warning" asp-action="Detalles" asp-route-IdContrato="@contrato.IdContrato"
+                           title="Ver detalles">
                             <i class="fa-solid fa-eye"></i> Detalles
                         </a>
 
-                        <a class="btn btn-info" 
-                            asp-controller="Pago" 
-                            asp-action="Index" 
-                            asp-route-idContrato="@contrato.IdContrato" 
-                            title="Pagos">
+                        <a class="btn btn-info" asp-controller="Pago" asp-action="Index"
+                           asp-route-idContrato="@contrato.IdContrato" title="Pagos">
                             <i class="fa-solid fa-dollar-sign"></i> Pagos
                         </a>
 
-                        <form asp-action="FinalizarContratoAnticipado" method="post" class="d-inline">
+                        <form id="formFinalizar-@contrato.IdContrato" asp-action="FinalizarContratoAnticipado" method="post"
+                              class="d-inline">
                             <input type="hidden" name="idContrato" value="@contrato.IdContrato" />
-                                <button type="submit" class="btn btn-danger"
-                                    onclick="return confirm('¿Seguro que querés finalizar este contrato antes de tiempo? Se calculará la multa correspondiente.');"
-                                    title="Finalizar contrato anticipadamente">
-                                        <i class="fa-solid fa-hourglass-end"></i> Finalizar Anticipado
-                                </button>
+                            <button type="button" class="btn btn-danger"
+                                    onclick="mostrarModalConfirmacion('Finalizar contrato', '¿Seguro que querés finalizar este contrato antes de tiempo? Se calculará la multa correspondiente.', 'formFinalizar-@contrato.IdContrato')">
+                                <i class="fa-solid fa-hourglass-end"></i> Finalizar Anticipado
+                            </button>
                         </form>
-
-
                     </div>
                 </td>
             </tr>
@@ -98,3 +97,7 @@
         </li>
     </ul>
 </nav>
+
+@await Html.PartialAsync("_ModalConfirmacion", ("", "", ""))
+@await Html.PartialAsync("_ModalMensaje", TempData["ErrorMensaje"] as string)
+<script src="~/js/modalReutilizable.js"></script>
