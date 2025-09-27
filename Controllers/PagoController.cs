@@ -31,35 +31,58 @@ namespace proyecto_inmobiliaria.Controllers
         }
 
         [HttpGet]
-        public IActionResult Crear(int idContrato)
+        public IActionResult Crear(int idContrato, bool esFinalizacion = false)
         {
-            var NumeroContrato = _servicePago.CantidadTotalPagos(idContrato) + 1;
+            var numeroPago = _servicePago.CantidadTotalPagos(idContrato) + 1;
             var contrato = _serviceContrato.ObtenerPorId(idContrato);
 
-            var dto = new PagoRequestDTO(
-                0,
-                idContrato,
-                "",
-                DateTime.Now,
-                contrato.Monto,
-                "",
-                false,
-                NumeroContrato);
+            PagoRequestDTO dto;
 
+            //En caso que sea finalizar anticipado llenamos el form de pago con los datos de la multa
+            if (esFinalizacion)
+            {
+                dto = _serviceContrato.FinalizarContratoAnticipado(idContrato);
+            }
+            else
+            {
+                dto = new PagoRequestDTO(
+                    0,
+                    idContrato,
+                    "",
+                    DateTime.Now,
+                    contrato.Monto,
+                    "",
+                    false,
+                    numeroPago
+                );
+            }
+
+            ViewData["EsFinalizacion"] = esFinalizacion;
             return View("formCrearModificar", dto);
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Crear(PagoRequestDTO dto)
+        public IActionResult Crear(PagoRequestDTO dto, bool esFinalizacion = false)
         {
             if (!ModelState.IsValid)
             {
+                ViewData["EsFinalizacion"] = esFinalizacion;
                 return View("formCrearModificar", dto);
             }
+
             _servicePago.AltaPago(dto);
+
+            // Si es un pago de finalización, marcamos contrato como finalizado
+            if (esFinalizacion)
+            {
+                _serviceContrato.MarcarContratoComoFinalizado(dto.IdContrato);  //Nos marca la fecha de anticipacion y el estado de finalizado.
+            }
+
             return RedirectToAction(nameof(Index), new { idContrato = dto.IdContrato });
         }
+
 
         [HttpGet]
         public IActionResult Modificar(int idPago)

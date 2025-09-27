@@ -4,6 +4,7 @@ namespace proyecto_inmobiliaria.Constants
     {
         public const string NO_SE_ENCONTRO_PAGO_POR_ID = "No se encontró el pago con el id: ";
         public const string ERROR_AL_BORRAR_PAGO = "Ocurrio un error al borrar un pago!";
+        public const string FINALIZACION_ANTICIPADA_PAGO = "Finalización anticipada con multa.";
 
     }
 }

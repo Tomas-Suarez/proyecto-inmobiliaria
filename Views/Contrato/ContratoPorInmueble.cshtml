@@ -1,29 +1,28 @@
 @model IEnumerable<proyecto_inmobiliaria.Dtos.response.ContratoResponseDTO>
 
 @{
-    ViewData["Title"] = "Contrato";
+    ViewData["Title"] = "Contratos del Inmueble";
     int paginaActual = ViewData["PaginaActual"] != null ? (int)ViewData["PaginaActual"]! : 1;
     int totalPaginas = ViewData["TotalPaginas"] != null ? (int)ViewData["TotalPaginas"]! : 1;
+    int idInmueble = ViewData["IdInmueble"] != null ? (int)ViewData["IdInmueble"]! : 0;
 }
 
 <h1>
-    Contratos
+    Contratos de @ViewBag.InmuebleDireccion
     <div class="btn-group float-right">
-        <a class="btn btn-primary" asp-action="Crear" title="Crear">
-            <i class="fa-solid fa-plus"></i> Crear
-        </a>
+        <a class="btn btn-secondary" asp-controller="Inmueble" asp-action="Index">Volver</a>
     </div>
 </h1>
 
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Id</th>
-            <th>Tipo inmueble</th>
-            <th>Nombre inquilino</th>
+            <th>Id Contrato</th>
+            <th>Inquilino</th>
             <th>Monto</th>
-            <th>Fecha inicial</th>
-            <th>Fecha fin</th>
+            <th>Fecha Desde</th>
+            <th>Fecha Hasta</th>
+            <th>Finalizado</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -32,11 +31,20 @@
         {
             <tr>
                 <td>@contrato.IdContrato</td>
-                <td>@contrato.TipoInmueble</td>
                 <td>@contrato.NombreCompletoInquilino</td>
                 <td>$@contrato.Monto</td>
                 <td>@contrato.FechaDesde.ToString("dd/MM/yyyy")</td>
                 <td>@contrato.FechaHasta.ToString("dd/MM/yyyy")</td>
+                <td>
+                    @if (contrato.Finalizado)
+                    {
+                        <span class="badge bg-danger">Finalizado</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">Activo</span>
+                    }
+                </td>
                 <td>
                     <div class="btn-group" role="group">
                         <a class="btn btn-primary" asp-action="Modificar" asp-route-IdContrato="@contrato.IdContrato" title="Editar">
@@ -54,25 +62,6 @@
                         <a class="btn btn-warning" asp-action="Detalles" asp-route-IdContrato="@contrato.IdContrato" title="Ver detalles">
                             <i class="fa-solid fa-eye"></i> Detalles
                         </a>
-
-                        <a class="btn btn-info" 
-                            asp-controller="Pago" 
-                            asp-action="Index" 
-                            asp-route-idContrato="@contrato.IdContrato" 
-                            title="Pagos">
-                            <i class="fa-solid fa-dollar-sign"></i> Pagos
-                        </a>
-
-                        <form asp-action="FinalizarContratoAnticipado" method="post" class="d-inline">
-                            <input type="hidden" name="idContrato" value="@contrato.IdContrato" />
-                                <button type="submit" class="btn btn-danger"
-                                    onclick="return confirm('¿Seguro que querés finalizar este contrato antes de tiempo? Se calculará la multa correspondiente.');"
-                                    title="Finalizar contrato anticipadamente">
-                                        <i class="fa-solid fa-hourglass-end"></i> Finalizar Anticipado
-                                </button>
-                        </form>
-
-
                     </div>
                 </td>
             </tr>
@@ -83,18 +72,30 @@
 <nav aria-label="Paginación">
     <ul class="pagination justify-content-center">
         <li class="page-item @(paginaActual == 1 ? "disabled" : "")">
-            <a class="page-link" asp-action="Index" asp-route-paginaNro="@(paginaActual - 1)">Anterior</a>
+            <a class="page-link" asp-action="PorInmueble"
+               asp-route-IdInmueble="@idInmueble"
+               asp-route-paginaNro="@(paginaActual - 1)">
+                Anterior
+            </a>
         </li>
 
         @for (int i = 1; i <= totalPaginas; i++)
         {
             <li class="page-item @(i == paginaActual ? "active" : "")">
-                <a class="page-link" asp-action="Index" asp-route-paginaNro="@i">@i</a>
+                <a class="page-link" asp-action="PorInmueble"
+                   asp-route-IdInmueble="@idInmueble"
+                   asp-route-paginaNro="@i">
+                    @i
+                </a>
             </li>
         }
 
         <li class="page-item @(paginaActual == totalPaginas ? "disabled" : "")">
-            <a class="page-link" asp-action="Index" asp-route-paginaNro="@(paginaActual + 1)">Siguiente</a>
+            <a class="page-link" asp-action="PorInmueble"
+               asp-route-IdInmueble="@idInmueble"
+               asp-route-paginaNro="@(paginaActual + 1)">
+                Siguiente
+            </a>
         </li>
     </ul>
 </nav>

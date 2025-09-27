@@ -73,6 +73,20 @@ namespace proyecto_inmobiliaria.Repository.imp
             return Convert.ToInt32(command.ExecuteScalar());
         }
 
+        public int CantidadTotalPorInmueble(int idInmueble)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+            connection.Open();
+
+            string query = "SELECT COUNT(*) FROM contrato WHERE id_inmueble = @idInmueble;";
+
+            using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@idInmueble", idInmueble);
+
+            return Convert.ToInt32(command.ExecuteScalar());
+        }
+
+
         public Contrato Modificar(Contrato contrato)
         {
             using (var connection = new MySqlConnection(_connectionString))
@@ -101,6 +115,69 @@ namespace proyecto_inmobiliaria.Repository.imp
                 }
             }
             return contrato;
+        }
+
+        public IList<ContratoResponseDTO> ObtenerContratosPorInmueble(int idInmueble, int paginaNro, int tamPagina)
+        {
+            IList<ContratoResponseDTO> contratos = new List<ContratoResponseDTO>();
+
+            using (var connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = @"SELECT 
+                            c.id_contrato AS IdContrato,
+                            i.direccion AS DireccionInmueble,
+                            ti.nombre AS TipoInmueble,
+                            CONCAT(pi.nombre, ' ', pi.apellido) AS NombreCompletoInquilino,
+                            c.monto AS Monto,
+                            c.fecha_desde AS FechaDesde,
+                            c.fecha_hasta AS FechaHasta,
+                            c.fecha_fin_anticipada AS FechaFinAnticipada,
+                            c.finalizado AS Finalizado
+                        FROM contrato c
+                        JOIN inquilino inq ON c.id_inquilino = inq.id_inquilino
+                        JOIN persona pi ON inq.id_persona = pi.id_persona
+                        JOIN inmueble i ON c.id_inmueble = i.id_inmueble
+                        JOIN tipo_inmueble ti ON i.id_tipo_inmueble = ti.id_tipo_inmueble
+                        WHERE c.id_inmueble = @idInmueble
+                        ORDER BY c.fecha_desde DESC
+                        LIMIT @PageSize OFFSET @Offset;";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    int offset = (paginaNro - 1) * tamPagina;
+
+                    command.Parameters.AddWithValue("@idInmueble", idInmueble);
+                    command.Parameters.AddWithValue("@PageSize", tamPagina);
+                    command.Parameters.AddWithValue("@Offset", offset);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            DateTime? fechaFinAnticipada = reader.IsDBNull(reader.GetOrdinal("FechaFinAnticipada"))
+                                ? null
+                                : reader.GetDateTime("FechaFinAnticipada");
+
+                            var dto = new ContratoResponseDTO(
+                                reader.GetInt32("IdContrato"),
+                                reader.GetString("DireccionInmueble"),
+                                reader.GetString("TipoInmueble"),
+                                reader.GetString("NombreCompletoInquilino"),
+                                reader.GetDecimal("Monto"),
+                                reader.GetDateTime("FechaDesde"),
+                                reader.GetDateTime("FechaHasta"),
+                                fechaFinAnticipada,
+                                reader.GetBoolean("Finalizado")
+                            );
+                            contratos.Add(dto);
+                        }
+                    }
+                }
+            }
+
+            return contratos;
         }
 
         public IList<ContratoResponseDTO> ObtenerLista(int paginaNro, int tamPagina)
@@ -163,7 +240,7 @@ namespace proyecto_inmobiliaria.Repository.imp
 
             return contratos;
         }
-        
+
         public ContratoResponseDTO ObtenerPorId(int idContrato)
         {
             using (var connection = new MySqlConnection(_connectionString))
@@ -219,8 +296,6 @@ namespace proyecto_inmobiliaria.Repository.imp
                 }
             }
         }
-
-
 
         public Contrato ObtenerPorIdRequest(int idContrato)
         {

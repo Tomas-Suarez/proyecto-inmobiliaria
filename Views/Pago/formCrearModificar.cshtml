@@ -10,6 +10,8 @@
 <form asp-action="@(crearPago ? "Crear" : "Modificar")" method="post">
     <input type="hidden" asp-for="IdPago" />
     <input type="hidden" asp-for="IdContrato" />
+    <input type="hidden" name="esFinalizacion" value="@(ViewData["EsFinalizacion"]?.ToString()!.ToLower() ?? "false")" />
+
 
     <div class="form-group">
         <label asp-for="NumeroPago" class="control-label">Número de Pago</label>

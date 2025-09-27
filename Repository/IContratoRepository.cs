@@ -12,5 +12,8 @@ namespace proyecto_inmobiliaria.Repository.imp
         Contrato ObtenerPorIdRequest(int idContrato);
         IList<ContratoResponseDTO> ObtenerLista(int paginaNro, int tamPagina);
         int CantidadTotal();
+        IList<ContratoResponseDTO> ObtenerContratosPorInmueble(int idInmueble, int paginaNro, int tamPagina);
+        int CantidadTotalPorInmueble(int idInmueble);
+
     }
 }

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using proyecto_inmobiliaria.Dtos.request;
 using proyecto_inmobiliaria.Services;
+using proyecto_inmobiliaria.Exceptions;
 
 namespace proyecto_inmobiliaria.Controllers
 {
@@ -80,6 +81,34 @@ namespace proyecto_inmobiliaria.Controllers
             var dto = _service.ObtenerPorId(IdContrato);
 
             return View(dto);
+        }
+
+        public IActionResult PorInmueble(int idInmueble, int paginaNro = 1, int tamPagina = 10)
+        {
+            var contratos = _service.ContratosPorInmueble(idInmueble, paginaNro, tamPagina);
+            int totalInmuebles = _service.CantidadTotalPorInmueble(idInmueble);
+            int totalPaginas = (int)Math.Ceiling((double)totalInmuebles / tamPagina);
+
+            ViewData["PaginaActual"] = paginaNro;
+            ViewData["TotalPaginas"] = totalPaginas;
+            ViewData["IdInmueble"] = idInmueble;
+
+            return View("ContratoPorInmueble", contratos);
+        }
+
+        public IActionResult FinalizarContratoAnticipado(int idContrato)
+        {
+            try
+            {
+                var pagoMulta = _service.FinalizarContratoAnticipado(idContrato);
+                return RedirectToAction("Crear", "Pago", new { idContrato = idContrato, esFinalizacion = true });
+            }
+            catch (ContractAlreadyFinalizedException ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(Detalles), new { IdContrato = idContrato });
+            }
+            
         }
         
     }

@@ -12,6 +12,9 @@ namespace proyecto_inmobiliaria.Services
         ContratoResponseDTO ObtenerPorId(int ContratoId);
         int CantidadTotalContrato();
         ContratoRequestDTO ObtenerRequestPorId(int ContratoId);
-
+        IList<ContratoResponseDTO> ContratosPorInmueble(int idInmueble, int paginaNro, int tamPagina);
+        int CantidadTotalPorInmueble(int idInmueble);
+        PagoRequestDTO FinalizarContratoAnticipado(int idContrato);
+        public void MarcarContratoComoFinalizado(int idContrato);
     }
 }
