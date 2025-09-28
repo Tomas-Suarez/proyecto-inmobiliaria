@@ -16,10 +16,10 @@ namespace proyecto_inmobiliaria.Dtos.request
         [Range(1, double.MaxValue, ErrorMessage = "El monto debe ser mayor a 0")]
         decimal Monto,
 
-        DateTime? FechaDesde,
+        DateTime FechaDesde,
 
         [Required(ErrorMessage = "La fecha de finalización es obligatoria")]
-        DateTime? FechaHasta,
+        DateTime FechaHasta,
         
         DateTime? FechaFinAnticipada,
 

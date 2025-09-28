@@ -79,6 +79,37 @@ namespace proyecto_inmobiliaria.Repository.imp
             }
         }
 
+        public int CantidadTotalDisponiblesPorFecha(DateTime fechaDesde, DateTime fechaHasta)
+        {
+            using (var connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = @"
+            SELECT COUNT(*)
+            FROM Inmueble i
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM Contrato c
+                WHERE c.id_inmueble = i.id_inmueble
+                  AND (
+                        (@fechaDesde BETWEEN c.fecha_desde AND IFNULL(c.fecha_fin_anticipada, c.fecha_hasta))
+                     OR (@fechaHasta BETWEEN c.fecha_desde AND IFNULL(c.fecha_fin_anticipada, c.fecha_hasta))
+                     OR (c.fecha_desde BETWEEN @fechaDesde AND @fechaHasta)
+                     OR (IFNULL(c.fecha_fin_anticipada, c.fecha_hasta) BETWEEN @fechaDesde AND @fechaHasta)
+                  )
+            );";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@fechaDesde", fechaDesde);
+                    command.Parameters.AddWithValue("@fechaHasta", fechaHasta);
+
+                    return Convert.ToInt32(command.ExecuteScalar());
+                }
+            }
+        }
+
         public int CantidadTotalPorPropietario(int idPropietario)
         {
             string query = @"SELECT COUNT(*) 
@@ -186,6 +217,71 @@ namespace proyecto_inmobiliaria.Repository.imp
                                 reader.GetString("direccion"),
                                 reader.GetInt32("cantidad_Ambientes"),
                                 reader.GetDecimal("superficie_M2")
+                            ));
+                        }
+                    }
+                }
+            }
+
+            return inmuebles;
+        }
+
+        public IList<InmuebleResponseDTO> ObtenerDisponiblesPorFecha(DateTime fechaDesde, DateTime fechaHasta, int paginaNro, int tamPagina)
+        {
+            var inmuebles = new List<InmuebleResponseDTO>();
+
+            using (var connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = @"
+            SELECT i.id_inmueble,
+                   t.nombre AS TipoInmueble,
+                   e.descripcion AS EstadoInmueble,
+                   CONCAT(p.nombre, ' ', p.apellido) AS NombreCompletoPropietario,
+                   i.direccion,
+                   i.cantidad_ambientes,
+                   i.superficie_m2
+            FROM Inmueble i
+            JOIN Tipo_Inmueble t ON i.id_tipo_inmueble = t.id_tipo_inmueble
+            JOIN Estado_Inmueble e ON i.id_estado_inmueble = e.id_estado_inmueble
+            JOIN Propietario pr ON i.id_propietario = pr.id_propietario
+            JOIN Persona p ON pr.id_persona = p.id_persona
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM Contrato c
+                WHERE c.id_inmueble = i.id_inmueble
+                  AND (
+                        (@fechaDesde BETWEEN c.fecha_desde AND IFNULL(c.fecha_fin_anticipada, c.fecha_hasta))
+                     OR (@fechaHasta BETWEEN c.fecha_desde AND IFNULL(c.fecha_fin_anticipada, c.fecha_hasta))
+                     OR (c.fecha_desde BETWEEN @fechaDesde AND @fechaHasta)
+                     OR (IFNULL(c.fecha_fin_anticipada, c.fecha_hasta) BETWEEN @fechaDesde AND @fechaHasta)
+                  )
+            )
+            ORDER BY i.id_inmueble
+            LIMIT @PageSize OFFSET @Offset;";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    int offset = (paginaNro - 1) * tamPagina;
+
+                    command.Parameters.AddWithValue("@fechaDesde", fechaDesde);
+                    command.Parameters.AddWithValue("@fechaHasta", fechaHasta);
+                    command.Parameters.AddWithValue("@PageSize", tamPagina);
+                    command.Parameters.AddWithValue("@Offset", offset);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            inmuebles.Add(new InmuebleResponseDTO(
+                                reader.GetInt32("id_inmueble"),
+                                reader.GetString("TipoInmueble"),
+                                reader.GetString("EstadoInmueble"),
+                                reader.GetString("NombreCompletoPropietario"),
+                                reader.GetString("direccion"),
+                                reader.GetInt32("cantidad_ambientes"),
+                                reader.GetDecimal("superficie_m2")
                             ));
                         }
                     }

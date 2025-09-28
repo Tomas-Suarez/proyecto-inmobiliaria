@@ -30,7 +30,7 @@ namespace proyecto_inmobiliaria.Controllers
         [HttpGet]
         public IActionResult Crear(int id = 0)
         {
-            var dto = new ContratoRequestDTO(id, 0, 0, 0, null, null, null, false);
+            var dto = new ContratoRequestDTO(id, 0, 0, 0, DateTime.Today, DateTime.Today, null, false);
             return View("formCrearModificar", dto);
         }
 
@@ -42,8 +42,16 @@ namespace proyecto_inmobiliaria.Controllers
             {
                 return View("formCrearModificar", dto);
             }
-            _service.AltaContrato(dto);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                _service.AltaContrato(dto);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (ContractOverlapException ex)
+            {
+                TempData["ErrorMensaje"] = ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         [HttpGet]
@@ -62,7 +70,7 @@ namespace proyecto_inmobiliaria.Controllers
             {
                 return View("formCrearModificar", dto);
             }
-            var hola = _service.ModificarContrato(dto.IdContrato, dto);
+            _service.ModificarContrato(dto.IdContrato, dto);
 
             return RedirectToAction(nameof(Index));
         }
@@ -101,7 +109,7 @@ namespace proyecto_inmobiliaria.Controllers
             try
             {
                 var pagoMulta = _service.FinalizarContratoAnticipado(idContrato);
-                return RedirectToAction("Crear", "Pago", new { idContrato = idContrato, esFinalizacion = true });
+                return RedirectToAction("Crear", "Pago", new { idContrato, esFinalizacion = true });
             }
             catch (ContractAlreadyFinalizedException ex)
             {

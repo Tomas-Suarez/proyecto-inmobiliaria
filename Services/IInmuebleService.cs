@@ -16,5 +16,7 @@ namespace proyecto_inmobiliaria.Services
         void CambiarEstado(int idInmueble, int nuevoEstado);
         IList<InmuebleResponseDTO> ObtenerInmueblesPorPropietario(int IdPropietario, int paginaNro, int tamPagina);
         int CantidadTotalPorPropietario(int idPropietario);
+        int CantidadTotalDisponiblesPorFecha(DateTime fechaDesde, DateTime fechaHasta);
+        IList<InmuebleResponseDTO> ObtenerDisponiblesPorFecha(DateTime fechaDesde, DateTime fechaHasta, int paginaNro, int tamPagina);
     }
 }

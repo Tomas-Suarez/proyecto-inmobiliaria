@@ -101,5 +101,15 @@ namespace proyecto_inmobiliaria.Services.imp
         {
             return _repository.CantidadTotalPorPropietario(idPropietario);
         }
+
+        public int CantidadTotalDisponiblesPorFecha(DateTime fechaDesde, DateTime fechaHasta)
+        {
+            return _repository.CantidadTotalDisponiblesPorFecha(fechaDesde, fechaHasta);
+        }
+
+        public IList<InmuebleResponseDTO> ObtenerDisponiblesPorFecha(DateTime fechaDesde, DateTime fechaHasta, int paginaNro, int tamPagina)
+        {
+            return _repository.ObtenerDisponiblesPorFecha(fechaDesde, fechaHasta, paginaNro, tamPagina);
+        }
     }
 }

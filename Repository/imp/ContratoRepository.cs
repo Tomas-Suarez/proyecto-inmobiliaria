@@ -86,6 +86,40 @@ namespace proyecto_inmobiliaria.Repository.imp
             return Convert.ToInt32(command.ExecuteScalar());
         }
 
+        public bool ExisteSuperposicion(
+            int idInmueble,
+            DateTime fechaDesde,
+            DateTime fechaHasta,
+            int? idContratoExcluir = null)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+            connection.Open();
+
+            string query = @"
+                    SELECT COUNT(*) 
+                    FROM contrato
+                    WHERE id_inmueble = @idInmueble
+                        AND (
+                            (@fechaDesde BETWEEN fecha_desde AND IFNULL(fecha_fin_anticipada, fecha_hasta))
+                            OR (@fechaHasta BETWEEN fecha_desde AND IFNULL(fecha_fin_anticipada, fecha_hasta))
+                            OR (fecha_desde BETWEEN @fechaDesde AND @fechaHasta)
+                            OR (IFNULL(fecha_fin_anticipada, fecha_hasta) BETWEEN @fechaDesde AND @fechaHasta)
+                        )";
+
+            if (idContratoExcluir.HasValue)
+                query += " AND id_contrato <> @idContratoExcluir";
+
+            using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@idInmueble", idInmueble);
+            command.Parameters.AddWithValue("@fechaDesde", fechaDesde);
+            command.Parameters.AddWithValue("@fechaHasta", fechaHasta);
+            if (idContratoExcluir.HasValue)
+                command.Parameters.AddWithValue("@idContratoExcluir", idContratoExcluir.Value);
+
+            int count = Convert.ToInt32(command.ExecuteScalar());
+            return count > 0;
+        }
+
 
         public Contrato Modificar(Contrato contrato)
         {
@@ -97,7 +131,7 @@ namespace proyecto_inmobiliaria.Repository.imp
                                 SET monto = @monto,
                                     fecha_desde = @fechaDesde,
                                     fecha_hasta = @fechaHasta,
-                                    fecha_fin_anticipada = @fechaFinAnticipada,
+                                    fecha_fin_anticipacion = @fechaFinAnticipacion,
                                     finalizado = @finalizado
                                 WHERE id_contrato = @idContrato;";
                 using (var command = new MySqlCommand(query, connection))
@@ -108,7 +142,7 @@ namespace proyecto_inmobiliaria.Repository.imp
                     command.Parameters.AddWithValue("@monto", contrato.Monto);
                     command.Parameters.AddWithValue("@fechaDesde", contrato.FechaDesde);
                     command.Parameters.AddWithValue("@fechaHasta", contrato.FechaHasta);
-                    command.Parameters.AddWithValue("@fechaFinAnticipada", contrato.FechaFinAnticipada);
+                    command.Parameters.AddWithValue("@fechaFinAnticipacion", contrato.FechaFinAnticipada);
                     command.Parameters.AddWithValue("@finalizado", contrato.Finalizado);
 
                     command.ExecuteNonQuery();

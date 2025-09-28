@@ -48,8 +48,8 @@
     }
     else
     {
-        <!-- En edición, aseguramos que el hidden tenga el IdInquilino -->
         <input type="hidden" asp-for="IdInquilino" id="idInquilino" value="@Model.IdInquilino" />
+        <input type="hidden" asp-for="IdInmueble" id="idInmueble" value="@Model.IdInmueble" />
     }
 
     <div class="form-group">
@@ -146,3 +146,4 @@
         });
     </script>
 }
+@await Html.PartialAsync("_ModalMensaje", TempData["ErrorMensaje"] as string)

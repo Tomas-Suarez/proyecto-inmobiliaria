@@ -3,6 +3,7 @@ using proyecto_inmobiliaria.Services;
 using proyecto_inmobiliaria.Dtos.request;
 using proyecto_inmobiliaria.Repository;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using proyecto_inmobiliaria.Dtos.response;
 
 namespace proyecto_inmobiliaria.Controllers
 {
@@ -25,24 +26,48 @@ namespace proyecto_inmobiliaria.Controllers
             _propietarioRepo = propietarioRepo;
         }
 
-        public IActionResult Index(int paginaNro = 1, int tamPagina = 10, int? estado = null)
+        public IActionResult Index(
+            int paginaNro = 1,
+            int tamPagina = 10,
+            int? estado = null,
+            DateTime? fechaDesde = null,
+            DateTime? fechaHasta = null)
         {
             ViewData["ActivePage"] = "Inmueble";
+            ViewData["EstadoSeleccionado"] = estado;
+            ViewData["FechaDesde"] = fechaDesde;
+            ViewData["FechaHasta"] = fechaHasta;
 
-            var inmuebles = _service.TodosLosInmueblesPaginados(paginaNro, tamPagina, estado);
-            int totalInmuebles = _service.CantidadTotalInmuebles(estado);
+            IList<InmuebleResponseDTO> inmuebles;
+            int totalInmuebles;
+
+            if (fechaDesde.HasValue && fechaHasta.HasValue)
+            {
+                inmuebles = _service.ObtenerDisponiblesPorFecha(fechaDesde.Value, fechaHasta.Value, paginaNro, tamPagina);
+                totalInmuebles = _service.CantidadTotalDisponiblesPorFecha(fechaDesde.Value, fechaHasta.Value);
+            }
+            else if (estado.HasValue)
+            {
+                inmuebles = _service.TodosLosInmueblesPaginados(paginaNro, tamPagina, estado);
+                totalInmuebles = _service.CantidadTotalInmuebles(estado);
+            }
+            else
+            {
+                inmuebles = _service.TodosLosInmueblesPaginados(paginaNro, tamPagina, null);
+                totalInmuebles = _service.CantidadTotalInmuebles(null);
+            }
+
             int totalPaginas = (int)Math.Ceiling((double)totalInmuebles / tamPagina);
-
             ViewData["PaginaActual"] = paginaNro;
             ViewData["TotalPaginas"] = totalPaginas;
-            ViewData["EstadoSeleccionado"] = estado;
 
             var estados = _estadoRepo.ObtenerEstadoInmueble();
             ViewBag.EstadosInmueble = new SelectList(estados, "IdEstadoInmueble", "Descripcion", estado);
 
-
             return View(inmuebles);
         }
+
+
 
         [HttpGet]
         public IActionResult Crear(int id = 0)

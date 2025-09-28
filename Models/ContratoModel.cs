@@ -6,8 +6,8 @@ namespace proyecto_inmobiliaria.Models
         public int IdInquilino { get; set; }
         public int IdInmueble { get; set; }
         public decimal Monto { get; set; }
-        public DateTime? FechaDesde { get; set; }
-        public DateTime? FechaHasta { get; set; }
+        public DateTime FechaDesde { get; set; }
+        public DateTime FechaHasta { get; set; }
         public DateTime? FechaFinAnticipada { get; set; }
         public bool Finalizado { get; set; }
         

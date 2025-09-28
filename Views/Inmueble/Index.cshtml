@@ -14,17 +14,11 @@
         <a class="btn btn-primary" asp-action="Crear" title="Crear">
             <i class="fa-solid fa-plus"></i> Crear
         </a>
+        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalFiltros">
+            <i class="fa-solid fa-filter"></i> Filtros
+        </button>
     </div>
 </h1>
-
-<form method="get" asp-action="Index" class="form-inline mb-3">
-    <label class="mr-2">Estado:</label>
-    <select name="estado" asp-items="ViewBag.EstadosInmueble" class="form-control mr-2">
-        <option value="">Todos</option>
-    </select>
-
-    <button type="submit" class="btn btn-secondary">Filtrar</button>
-</form>
 
 <table class="table table-striped">
     <thead>
@@ -52,23 +46,26 @@
                 <td>@inmueble.NombreCompletoPropietario</td>
                 <td>
                     <div class="btn-group" role="group">
-                        <a class="btn btn-primary" asp-action="Modificar" asp-route-IdInmueble="@inmueble.IdInmueble" title="Editar">
+                        <a class="btn btn-primary" asp-action="Modificar" asp-route-IdInmueble="@inmueble.IdInmueble"
+                            title="Editar">
                             <i class="fa-solid fa-pen"></i> Editar
                         </a>
 
                         <form asp-action="Eliminar" method="post" class="d-inline">
                             <input type="hidden" name="id" value="@inmueble.IdInmueble" />
                             <button type="submit" class="btn btn-danger" title="Eliminar"
-                                    onclick="return confirm('¿Seguro que querés eliminar de forma PERMANENTE este inmueble?');">
+                                onclick="return confirm('¿Seguro que querés eliminar de forma PERMANENTE este inmueble?');">
                                 <i class="fa-solid fa-trash-can"></i> Eliminar
                             </button>
                         </form>
 
-                        <a class="btn btn-warning" asp-action="Detalles" asp-route-IdInmueble="@inmueble.IdInmueble" title="Ver detalles">
+                        <a class="btn btn-warning" asp-action="Detalles" asp-route-IdInmueble="@inmueble.IdInmueble"
+                            title="Ver detalles">
                             <i class="fa-solid fa-eye"></i> Detalles
                         </a>
 
-                        <a class="btn btn-info" asp-controller="Contrato" asp-action="PorInmueble" asp-route-IdInmueble="@inmueble.IdInmueble">
+                        <a class="btn btn-info" asp-controller="Contrato" asp-action="PorInmueble"
+                            asp-route-IdInmueble="@inmueble.IdInmueble">
                             <i class="fa-solid fa-file-contract"></i> Contratos
                         </a>
 
@@ -82,24 +79,23 @@
 <nav aria-label="Paginación">
     <ul class="pagination justify-content-center">
         <li class="page-item @(paginaActual == 1 ? "disabled" : "")">
-            <a class="page-link" asp-action="Index" 
-               asp-route-paginaNro="@(paginaActual - 1)" 
-               asp-route-estado="@estadoSeleccionado">Anterior</a>
+            <a class="page-link" asp-action="Index" asp-route-paginaNro="@(paginaActual - 1)"
+                asp-route-estado="@estadoSeleccionado">Anterior</a>
         </li>
 
         @for (int i = 1; i <= totalPaginas; i++)
         {
             <li class="page-item @(i == paginaActual ? "active" : "")">
-                <a class="page-link" asp-action="Index" 
-                   asp-route-paginaNro="@i" 
-                   asp-route-estado="@estadoSeleccionado">@i</a>
+                <a class="page-link" asp-action="Index" asp-route-paginaNro="@i"
+                    asp-route-estado="@estadoSeleccionado">@i</a>
             </li>
         }
 
         <li class="page-item @(paginaActual == totalPaginas ? "disabled" : "")">
-            <a class="page-link" asp-action="Index" 
-               asp-route-paginaNro="@(paginaActual + 1)" 
-               asp-route-estado="@estadoSeleccionado">Siguiente</a>
+            <a class="page-link" asp-action="Index" asp-route-paginaNro="@(paginaActual + 1)"
+                asp-route-estado="@estadoSeleccionado">Siguiente</a>
         </li>
     </ul>
 </nav>
+
+@await Html.PartialAsync("_ModalFiltros")

@@ -28,6 +28,11 @@ namespace proyecto_inmobiliaria.Services.imp
         {
             var contrato = _mapper.ToEntity(dto);
             contrato.Finalizado = false;
+
+            if (_contratoRepository.ExisteSuperposicion(contrato.IdInmueble, contrato.FechaDesde, contrato.FechaHasta))
+            {
+                throw new ContractOverlapException(CONTRATO_EXISTE_EN_ESAS_FECHAS);
+            }
             contrato = _contratoRepository.Alta(contrato);
 
             return ObtenerPorId(contrato.IdContrato);
