@@ -15,5 +15,7 @@ namespace proyecto_inmobiliaria.Repository.imp
         IList<ContratoResponseDTO> ObtenerContratosPorInmueble(int idInmueble, int paginaNro, int tamPagina);
         int CantidadTotalPorInmueble(int idInmueble);
         bool ExisteSuperposicion(int idInmueble, DateTime fechaDesde, DateTime fechaHasta, int? idContratoExcluir = null);
+        IList<ContratoResponseDTO> ObtenerContratosVigentesPorFecha(DateTime fechaDesde, DateTime fechaHasta, int paginaNro, int tamPagina);
+        int CantidadContratosVigentesPorFecha(DateTime fechaDesde, DateTime fechaHasta);
     }
 }

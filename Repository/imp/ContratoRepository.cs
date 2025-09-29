@@ -64,6 +64,26 @@ namespace proyecto_inmobiliaria.Repository.imp
             return filasAfectadas;
         }
 
+        public int CantidadContratosVigentesPorFecha(DateTime fechaDesde, DateTime fechaHasta)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+            connection.Open();
+
+            string query = @"
+                SELECT COUNT(*)
+                FROM contrato c
+                WHERE c.fecha_desde <= @fechaHasta
+                    AND IFNULL(c.fecha_fin_anticipada, c.fecha_hasta) >= @fechaDesde
+                    AND c.finalizado = 0;";
+
+            using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@fechaDesde", fechaDesde);
+            command.Parameters.AddWithValue("@fechaHasta", fechaHasta);
+
+            return Convert.ToInt32(command.ExecuteScalar());
+        }
+
+
         public int CantidadTotal()
         {
             using var connection = new MySqlConnection(_connectionString);
@@ -131,7 +151,7 @@ namespace proyecto_inmobiliaria.Repository.imp
                                 SET monto = @monto,
                                     fecha_desde = @fechaDesde,
                                     fecha_hasta = @fechaHasta,
-                                    fecha_fin_anticipacion = @fechaFinAnticipacion,
+                                    fecha_fin_anticipada = @fechaFinAnticipacion,
                                     finalizado = @finalizado
                                 WHERE id_contrato = @idContrato;";
                 using (var command = new MySqlCommand(query, connection))
@@ -213,6 +233,74 @@ namespace proyecto_inmobiliaria.Repository.imp
 
             return contratos;
         }
+
+        public IList<ContratoResponseDTO> ObtenerContratosVigentesPorFecha(DateTime fechaDesde, DateTime fechaHasta, int paginaNro, int tamPagina)
+        {
+            IList<ContratoResponseDTO> contratos = new List<ContratoResponseDTO>();
+
+            using (var connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = @"
+                    SELECT 
+                    c.id_contrato AS IdContrato,
+                    i.direccion AS DireccionInmueble,
+                    ti.nombre AS TipoInmueble,
+                    CONCAT(pi.nombre, ' ', pi.apellido) AS NombreCompletoInquilino,
+                    c.monto AS Monto,
+                    c.fecha_desde AS FechaDesde,
+                    c.fecha_hasta AS FechaHasta,
+                    c.fecha_fin_anticipada AS FechaFinAnticipada,
+                    c.finalizado AS Finalizado
+                FROM contrato c
+                JOIN inquilino inq ON c.id_inquilino = inq.id_inquilino
+                JOIN persona pi ON inq.id_persona = pi.id_persona
+                JOIN inmueble i ON c.id_inmueble = i.id_inmueble
+                JOIN tipo_inmueble ti ON i.id_tipo_inmueble = ti.id_tipo_inmueble
+                WHERE c.fecha_desde <= @fechaHasta
+                    AND IFNULL(c.fecha_fin_anticipada, c.fecha_hasta) >= @fechaDesde
+                    AND c.finalizado = 0
+                ORDER BY c.fecha_desde DESC
+                LIMIT @PageSize OFFSET @Offset;";
+
+                using (var command = new MySqlCommand(query, connection))
+                {
+                    int offset = (paginaNro - 1) * tamPagina;
+
+                    command.Parameters.AddWithValue("@fechaDesde", fechaDesde);
+                    command.Parameters.AddWithValue("@fechaHasta", fechaHasta);
+                    command.Parameters.AddWithValue("@PageSize", tamPagina);
+                    command.Parameters.AddWithValue("@Offset", offset);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            DateTime? fechaFinAnticipada = reader.IsDBNull(reader.GetOrdinal("FechaFinAnticipada"))
+                                ? null
+                                : reader.GetDateTime("FechaFinAnticipada");
+
+                            var dto = new ContratoResponseDTO(
+                                reader.GetInt32("IdContrato"),
+                                reader.GetString("DireccionInmueble"),
+                                reader.GetString("TipoInmueble"),
+                                reader.GetString("NombreCompletoInquilino"),
+                                reader.GetDecimal("Monto"),
+                                reader.GetDateTime("FechaDesde"),
+                                reader.GetDateTime("FechaHasta"),
+                                fechaFinAnticipada,
+                                reader.GetBoolean("Finalizado")
+                            );
+                            contratos.Add(dto);
+                        }
+                    }
+                }
+            }
+
+            return contratos;
+        }
+
 
         public IList<ContratoResponseDTO> ObtenerLista(int paginaNro, int tamPagina)
         {

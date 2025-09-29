@@ -10,7 +10,7 @@
 <form asp-action="@(crearContrato ? "Crear" : "Modificar")" method="post">
     <input type="hidden" asp-for="IdContrato" />
 
-    @if (crearContrato)
+    @if (crearContrato && ViewData["NombreInquilino"] == null)
     {
         <div class="form-group">
             <label for="filtroDireccion">Filtrar por dirección</label>
@@ -46,8 +46,19 @@
             <input type="hidden" asp-for="IdInquilino" id="idInquilino" />
         </div>
     }
+    else if (crearContrato && ViewData["NombreInquilino"] != null)
+    {
+        <div class="alert alert-info">
+            <p><strong>Inquilino:</strong> @ViewData["NombreInquilino"]</p>
+            <p><strong>Dirección:</strong> @ViewData["DireccionInmueble"]</p>
+        </div>
+
+        <input type="hidden" asp-for="IdInquilino" id="idInquilino" value="@Model.IdInquilino" />
+        <input type="hidden" asp-for="IdInmueble" id="idInmueble" value="@Model.IdInmueble" />
+    }
     else
     {
+        <!-- Editar contrato existente -->
         <input type="hidden" asp-for="IdInquilino" id="idInquilino" value="@Model.IdInquilino" />
         <input type="hidden" asp-for="IdInmueble" id="idInmueble" value="@Model.IdInmueble" />
     }
@@ -69,8 +80,7 @@
         <label asp-for="FechaHasta" class="control-label"></label>
         @if (crearContrato)
         {
-            <input asp-for="FechaHasta" class="form-control" type="date"
-                   min="@DateTime.Today.AddMonths(6).ToString("yyyy-MM-dd")" />
+            <input asp-for="FechaHasta" id="fechaHasta" class="form-control" type="date" />
             <small class="form-text text-muted">
                 La fecha de finalización debe ser al menos 6 meses después del inicio.
             </small>
@@ -143,6 +153,24 @@
                     idInquilinoInput.value = "";
                     errorInquilino.innerText = "Error al buscar inquilino.";
                 });
+        });
+
+        // Fecha desde se agrega apartir de 6 meses
+        const fechaDesdeInput = document.getElementById("FechaDesde");
+        const fechaHastaInput = document.getElementById("fechaHasta");
+
+        fechaDesdeInput?.addEventListener("change", function () {
+            if (this.value) {
+                const desde = new Date(this.value);
+                desde.setMonth(desde.getMonth() + 6);
+
+                const minFecha = desde.toISOString().split("T")[0];
+                fechaHastaInput.min = minFecha;
+
+                if (fechaHastaInput.value && fechaHastaInput.value < minFecha) {
+                    fechaHastaInput.value = "";
+                }
+            }
         });
     </script>
 }

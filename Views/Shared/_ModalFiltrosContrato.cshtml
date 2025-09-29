@@ -1,0 +1,41 @@
+@{
+  DateTime? fechaDesde = ViewData["FechaDesde"] as DateTime?;
+  DateTime? fechaHasta = ViewData["FechaHasta"] as DateTime?;
+}
+
+<div class="modal fade" id="modalFiltrosContrato" tabindex="-1" aria-labelledby="modalFiltrosContratoLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title" id="modalFiltrosContratoLabel">Filtros de Contratos</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body">
+        <form method="get" asp-action="Index" id="formFiltrosContrato">
+
+          <div class="form-group mb-3">
+            <label for="fechaDesde">Fecha desde:</label>
+            <input type="date" name="fechaDesde" class="form-control"
+                   value="@(fechaDesde.HasValue? fechaDesde.Value.ToString("yyyy-MM-dd") : "")" />
+          </div>
+
+          <div class="form-group mb-3">
+            <label for="fechaHasta">Fecha hasta:</label>
+            <input type="date" name="fechaHasta" class="form-control"
+                   value="@(fechaHasta.HasValue? fechaHasta.Value.ToString("yyyy-MM-dd") : "")" />
+          </div>
+
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary" form="formFiltrosContrato">Aplicar filtros</button>
+        <a href="@Url.Action("Index", "Contrato")" class="btn btn-outline-danger">Borrar filtros</a>
+      </div>
+
+    </div>
+  </div>
+</div>

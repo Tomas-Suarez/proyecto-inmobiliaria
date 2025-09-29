@@ -169,5 +169,14 @@ namespace proyecto_inmobiliaria.Services.imp
             ModificarContrato(idContrato, contratoActualizado);
         }
 
+        public int CantidadContratosVigentesPorFecha(DateTime fechaDesde, DateTime fechaHasta)
+        {
+            return _contratoRepository.CantidadContratosVigentesPorFecha(fechaDesde, fechaHasta);
+        }
+
+        public IList<ContratoResponseDTO> ObtenerContratosVigentesPorFecha(DateTime fechaDesde, DateTime fechaHasta, int paginaNro, int tamPagina)
+        {
+            return _contratoRepository.ObtenerContratosVigentesPorFecha(fechaDesde, fechaHasta, paginaNro, tamPagina);
+        }
     }
 }

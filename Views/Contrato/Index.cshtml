@@ -12,6 +12,10 @@
         <a class="btn btn-primary" asp-action="Crear" title="Crear">
             <i class="fa-solid fa-plus"></i> Crear
         </a>
+
+        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalFiltrosContrato">
+            <i class="fa-solid fa-filter"></i> Filtros
+        </button>
     </div>
 </h1>
 
@@ -42,36 +46,40 @@
                 <td>
                     <div class="btn-group" role="group">
                         <a class="btn btn-primary" asp-action="Modificar" asp-route-IdContrato="@contrato.IdContrato"
-                           title="Editar">
+                            title="Editar">
                             <i class="fa-solid fa-pen"></i> Editar
                         </a>
 
                         <form id="formEliminar-@contrato.IdContrato" asp-action="Eliminar" method="post" class="d-inline">
                             <input type="hidden" name="id" value="@contrato.IdContrato" />
                             <button type="button" class="btn btn-danger"
-                                    onclick="mostrarModalConfirmacion('Eliminar contrato', '¿Seguro que querés eliminar este contrato de forma PERMANENTE?', 'formEliminar-@contrato.IdContrato')">
+                                onclick="mostrarModalConfirmacion('Eliminar contrato', '¿Seguro que querés eliminar este contrato de forma PERMANENTE?', 'formEliminar-@contrato.IdContrato')">
                                 <i class="fa-solid fa-trash-can"></i> Eliminar
                             </button>
                         </form>
 
                         <a class="btn btn-warning" asp-action="Detalles" asp-route-IdContrato="@contrato.IdContrato"
-                           title="Ver detalles">
+                            title="Ver detalles">
                             <i class="fa-solid fa-eye"></i> Detalles
                         </a>
 
                         <a class="btn btn-info" asp-controller="Pago" asp-action="Index"
-                           asp-route-idContrato="@contrato.IdContrato" title="Pagos">
+                            asp-route-idContrato="@contrato.IdContrato" title="Pagos">
                             <i class="fa-solid fa-dollar-sign"></i> Pagos
                         </a>
 
                         <form id="formFinalizar-@contrato.IdContrato" asp-action="FinalizarContratoAnticipado" method="post"
-                              class="d-inline">
+                            class="d-inline">
                             <input type="hidden" name="idContrato" value="@contrato.IdContrato" />
                             <button type="button" class="btn btn-danger"
-                                    onclick="mostrarModalConfirmacion('Finalizar contrato', '¿Seguro que querés finalizar este contrato antes de tiempo? Se calculará la multa correspondiente.', 'formFinalizar-@contrato.IdContrato')">
+                                onclick="mostrarModalConfirmacion('Finalizar contrato', '¿Seguro que querés finalizar este contrato antes de tiempo? Se calculará la multa correspondiente.', 'formFinalizar-@contrato.IdContrato')">
                                 <i class="fa-solid fa-hourglass-end"></i> Finalizar Anticipado
                             </button>
                         </form>
+
+                            <a class="btn btn-success" asp-action="Renovar" asp-route-idContrato="@contrato.IdContrato" title="Renovar contrato">
+                                <i class="fa-solid fa-arrow-rotate-right"></i> Renovar
+                            </a>
                     </div>
                 </td>
             </tr>
@@ -100,4 +108,5 @@
 
 @await Html.PartialAsync("_ModalConfirmacion", ("", "", ""))
 @await Html.PartialAsync("_ModalMensaje", TempData["ErrorMensaje"] as string)
+@await Html.PartialAsync("_ModalFiltrosContrato")
 <script src="~/js/modalReutilizable.js"></script>

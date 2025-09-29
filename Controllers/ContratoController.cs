@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using proyecto_inmobiliaria.Dtos.request;
 using proyecto_inmobiliaria.Services;
 using proyecto_inmobiliaria.Exceptions;
+using proyecto_inmobiliaria.Dtos.response;
+using System.Data;
 
 namespace proyecto_inmobiliaria.Controllers
 {
@@ -14,18 +16,37 @@ namespace proyecto_inmobiliaria.Controllers
             _service = service;
         }
 
-        public IActionResult Index(int paginaNro = 1, int tamPagina = 10)
+        public IActionResult Index(
+            int paginaNro = 1,
+            int tamPagina = 10,
+            DateTime? fechaDesde = null,
+            DateTime? fechaHasta = null)
         {
             ViewData["ActivePage"] = "Contrato";
+            ViewData["FechaDesde"] = fechaDesde;
+            ViewData["FechaHasta"] = fechaHasta;
 
-            var contratos = _service.TodosLosContratosPaginados(paginaNro, tamPagina);
-            int totalInmuebles = _service.CantidadTotalContrato();
-            int totalPaginas = (int)Math.Ceiling((double)totalInmuebles / tamPagina);
+            IList<ContratoResponseDTO> contratos;
+            int totalContratos;
 
+            if (fechaDesde.HasValue && fechaHasta.HasValue)
+            {
+                contratos = _service.ObtenerContratosVigentesPorFecha(fechaDesde.Value, fechaHasta.Value, paginaNro, tamPagina);
+                totalContratos = _service.CantidadContratosVigentesPorFecha(fechaDesde.Value, fechaHasta.Value);
+            }
+            else
+            {
+                contratos = _service.TodosLosContratosPaginados(paginaNro, tamPagina);
+                totalContratos = _service.CantidadTotalContrato();
+            }
+
+            int totalPaginas = (int)Math.Ceiling((double)totalContratos / tamPagina);
+            ViewData["PaginaActual"] = paginaNro;
             ViewData["TotalPaginas"] = totalPaginas;
 
             return View(contratos);
         }
+
 
         [HttpGet]
         public IActionResult Crear(int id = 0)
@@ -121,6 +142,29 @@ namespace proyecto_inmobiliaria.Controllers
                 TempData["ErrorMensaje"] = ex.Message;
                 return RedirectToAction(nameof(Index));
             }
+        }
+
+        public IActionResult Renovar(int idContrato)
+        {
+            var contratoOriginal = _service.ObtenerRequestPorId(idContrato);
+
+            var responseContrato = _service.ObtenerPorId(idContrato);
+
+            var NuevoContrato = new ContratoRequestDTO(
+                0,
+                contratoOriginal.IdInquilino,
+                contratoOriginal.IdInmueble,
+                contratoOriginal.Monto,
+                DateTime.Today,
+                DateTime.Today,
+                null,
+                false
+            );
+
+            ViewData["NombreInquilino"] = responseContrato.NombreCompletoInquilino;
+            ViewData["DireccionInmueble"] = responseContrato.DireccionInmueble;
+
+            return View("formCrearModificar", NuevoContrato);
         }
     }
 }

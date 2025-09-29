@@ -18,6 +18,5 @@ namespace proyecto_inmobiliaria.Repository
         int CantidadTotalPorPropietario(int idPropietario);
         IList<InmuebleResponseDTO> ObtenerDisponiblesPorFecha(DateTime fechaDesde, DateTime fechaHasta, int paginaNro, int tamPagina);
         int CantidadTotalDisponiblesPorFecha(DateTime fechaDesde, DateTime fechaHasta);
-
     }
 }

@@ -16,5 +16,7 @@ namespace proyecto_inmobiliaria.Services
         int CantidadTotalPorInmueble(int idInmueble);
         PagoRequestDTO FinalizarContratoAnticipado(int idContrato);
         public void MarcarContratoComoFinalizado(int idContrato, bool anticipado);
+        int CantidadContratosVigentesPorFecha(DateTime fechaDesde, DateTime fechaHasta);
+        IList<ContratoResponseDTO> ObtenerContratosVigentesPorFecha(DateTime fechaDesde, DateTime fechaHasta, int paginaNro, int tamPagina);
     }
 }
