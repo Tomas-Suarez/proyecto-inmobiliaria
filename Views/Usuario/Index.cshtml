@@ -1,0 +1,77 @@
+@model IEnumerable<proyecto_inmobiliaria.Dtos.response.UsuarioResponseDTO>
+
+@{
+    ViewData["Title"] = "Usuarios";
+    int paginaActual = ViewData["PaginaActual"] != null ? (int)ViewData["PaginaActual"]! : 1;
+    int totalPaginas = ViewData["TotalPaginas"] != null ? (int)ViewData["TotalPaginas"]! : 1;
+}
+
+<h1>
+    Usuarios
+    <div class="btn-group float-right">
+        <a class="btn btn-primary" asp-action="Registro" title="Crear Usuario">
+            <i class="fa-solid fa-plus"></i> Crear
+        </a>
+    </div>
+</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var usuario in Model)
+        {
+            <tr>
+                <td>@usuario.IdUsuario</td>
+                <td>@usuario.NombreUsuario</td>
+                <td>@usuario.Email</td>
+                <td>@usuario.Rol</td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <a class="btn btn-primary" asp-action="Modificar" asp-route-id="@usuario.IdUsuario" title="Editar">
+                            <i class="fa-solid fa-pen"></i> Editar
+                        </a>
+
+                        <form asp-action="Eliminar" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@usuario.IdUsuario" />
+                            <button type="submit" class="btn btn-danger" title="Eliminar"
+                                onclick="return confirm('¿Seguro que querés eliminar este usuario?');">
+                                <i class="fa-solid fa-trash-can"></i> Eliminar
+                            </button>
+                        </form>
+
+                        <a class="btn btn-info" asp-action="Detalles" asp-route-id="@usuario.IdUsuario" title="Ver detalles">
+                            <i class="fa-solid fa-eye"></i> Detalles
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<nav aria-label="Paginación">
+    <ul class="pagination justify-content-center">
+        <li class="page-item @(paginaActual == 1 ? "disabled" : "")">
+            <a class="page-link" asp-action="Index" asp-route-paginaNro="@(paginaActual - 1)">Anterior</a>
+        </li>
+
+        @for (int i = 1; i <= totalPaginas; i++)
+        {
+            <li class="page-item @(i == paginaActual ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-paginaNro="@i">@i</a>
+            </li>
+        }
+
+        <li class="page-item @(paginaActual == totalPaginas ? "disabled" : "")">
+            <a class="page-link" asp-action="Index" asp-route-paginaNro="@(paginaActual + 1)">Siguiente</a>
+        </li>
+    </ul>
+</nav>

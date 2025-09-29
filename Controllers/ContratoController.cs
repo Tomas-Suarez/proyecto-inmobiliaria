@@ -3,7 +3,6 @@ using proyecto_inmobiliaria.Dtos.request;
 using proyecto_inmobiliaria.Services;
 using proyecto_inmobiliaria.Exceptions;
 using proyecto_inmobiliaria.Dtos.response;
-using System.Data;
 
 namespace proyecto_inmobiliaria.Controllers
 {

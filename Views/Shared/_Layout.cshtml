@@ -42,6 +42,10 @@
                             <a class="nav-link border rounded px-3 @(ViewData["ActivePage"]?.ToString() == "Contrato" ? "active-nav" : "")"
                                 asp-area="" asp-controller="Contrato" asp-action="Index">Contratos</a>
                         </li>
+                        <li class="nav-item"></li>
+                            <a class="nav-link border rounded px-3 @(ViewData["ActivePage"]?.ToString() == "Usuario" ? "active-nav" : "")"
+                                asp-area="" asp-controller="Usuario" asp-action="Index">Usuario</a>
+                        </li>
                     </ul>
                 </div>
             </div>

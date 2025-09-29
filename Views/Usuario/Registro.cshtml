@@ -1,0 +1,49 @@
+@model proyecto_inmobiliaria.Dtos.request.UsuarioRequestDTO
+
+@{
+    ViewData["Title"] = "Registro de Usuario";
+}
+
+<h2>Registro de Usuario</h2>
+
+@if (TempData["ErrorMensaje"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMensaje"]
+    </div>
+}
+
+<form asp-action="Registro" method="post">
+    <div class="form-group mb-3">
+        <label asp-for="NombreUsuario" class="form-label">Nombre de usuario</label>
+        <input asp-for="NombreUsuario" class="form-control" placeholder="Ingrese el nombre de usuario" />
+        <span asp-validation-for="NombreUsuario" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Contrasena" class="form-label">Contraseña</label>
+        <input asp-for="Contrasena" type="password" class="form-control" placeholder="Ingrese la contraseña" />
+        <span asp-validation-for="Contrasena" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Email" class="form-label">Correo electrónico</label>
+        <input asp-for="Email" type="email" class="form-control" placeholder="Ingrese el correo electrónico" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Rol" class="form-label">Rol</label>
+        <select asp-for="Rol" class="form-control" asp-items="Html.GetEnumSelectList<proyecto_inmobiliaria.Enum.ERol>()">
+            <option value="">-- Seleccione un rol --</option>
+        </select>
+        <span asp-validation-for="Rol" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Registrar Usuario</button>
+    <a asp-action="Index" asp-controller="Usuario" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

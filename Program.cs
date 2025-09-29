@@ -5,6 +5,10 @@ using proyecto_inmobiliaria.Services;
 using proyecto_inmobiliaria.Services.imp;
 using proyecto_inmobiliaria.Mappers;
 using proyecto_inmobiliaria.Config;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using proyecto_inmobiliaria.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +25,7 @@ builder.Services.AddScoped<IEstadoInmuebleRepository, EstadoInmuebleRepository>(
 builder.Services.AddScoped<ITipoInmuebleRepository, TipoInmuebleRepository>();
 builder.Services.AddScoped<IContratoRepository, ContratoRepository>();
 builder.Services.AddScoped<IPagoRepository, PagoRepository>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
 
 //Mapper
@@ -29,6 +34,7 @@ builder.Services.AddSingleton<InquilinoMapper>();
 builder.Services.AddSingleton<InmuebleMapper>();
 builder.Services.AddSingleton<ContratoMapper>();
 builder.Services.AddSingleton<PagoMapper>();
+builder.Services.AddSingleton<UsuarioMapper>();
 
 
 //Service
@@ -37,12 +43,52 @@ builder.Services.AddScoped<IInquilinoService, InquilinoService>();
 builder.Services.AddScoped<IInmuebleService, InmuebleService>();
 builder.Services.AddScoped<IContratoService, ContratoService>();
 builder.Services.AddScoped<IPagoService, PagoService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+
+builder.Services.AddSingleton<JwtTokenGenerator>();
 
 
 builder.Services.AddControllersWithViews()
     .AddSessionStateTempDataProvider();
 
 builder.Services.AddSession();
+
+// JWT Config
+var jwtKey = builder.Configuration["Jwt:Key"];
+var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+var jwtAudience = builder.Configuration["Jwt:Audience"];
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey!))
+    };
+
+    // Leer token desde cookie
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            if (context.Request.Cookies.ContainsKey("token"))
+            {
+                context.Token = context.Request.Cookies["token"];
+            }
+            return Task.CompletedTask;
+        }
+    };
+});
 
 var app = builder.Build();
 
