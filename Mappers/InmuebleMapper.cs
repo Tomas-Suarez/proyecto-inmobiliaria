@@ -1,5 +1,4 @@
 using proyecto_inmobiliaria.Dtos.request;
-using proyecto_inmobiliaria.Dtos.response;
 using proyecto_inmobiliaria.Models;
 
 namespace proyecto_inmobiliaria.Mappers

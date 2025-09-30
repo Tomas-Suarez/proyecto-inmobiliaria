@@ -26,6 +26,8 @@ builder.Services.AddScoped<ITipoInmuebleRepository, TipoInmuebleRepository>();
 builder.Services.AddScoped<IContratoRepository, ContratoRepository>();
 builder.Services.AddScoped<IPagoRepository, PagoRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IAuditoriaContratoRepository, AuditoriaContratoRepository>();
+
 
 // Mapper
 builder.Services.AddSingleton<PropietarioMapper>();
@@ -34,6 +36,8 @@ builder.Services.AddSingleton<InmuebleMapper>();
 builder.Services.AddSingleton<ContratoMapper>();
 builder.Services.AddSingleton<PagoMapper>();
 builder.Services.AddSingleton<UsuarioMapper>();
+builder.Services.AddSingleton<AuditoriaContratoMapper>();
+
 
 // Service
 builder.Services.AddScoped<IPropietarioService, PropietarioService>();
@@ -42,6 +46,8 @@ builder.Services.AddScoped<IInmuebleService, InmuebleService>();
 builder.Services.AddScoped<IContratoService, ContratoService>();
 builder.Services.AddScoped<IPagoService, PagoService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IAuditoriaContratoService, AuditoriaContratoService>();
+
 
 builder.Services.AddSingleton<JwtTokenGenerator>();
 

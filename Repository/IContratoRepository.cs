@@ -1,7 +1,7 @@
 using proyecto_inmobiliaria.Dtos.response;
 using proyecto_inmobiliaria.Models;
 
-namespace proyecto_inmobiliaria.Repository.imp
+namespace proyecto_inmobiliaria.Repository
 {
     public interface IContratoRepository
     {

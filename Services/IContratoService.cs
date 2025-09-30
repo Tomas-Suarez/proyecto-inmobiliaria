@@ -5,8 +5,8 @@ namespace proyecto_inmobiliaria.Services
 {
     public interface IContratoService
     {
-        ContratoResponseDTO AltaContrato(ContratoRequestDTO dto);
-        ContratoResponseDTO ModificarContrato(int ContratoId, ContratoRequestDTO dto);
+        ContratoResponseDTO AltaContrato(ContratoRequestDTO dto, int idUsuario);
+        ContratoResponseDTO ModificarContrato(int ContratoId, ContratoRequestDTO dto, int idUsuario, bool auditar);
         void BajaContrato(int ContratoId);
         IList<ContratoResponseDTO> TodosLosContratosPaginados(int paginaNro, int tamPagina);
         ContratoResponseDTO ObtenerPorId(int ContratoId);
@@ -15,7 +15,7 @@ namespace proyecto_inmobiliaria.Services
         IList<ContratoResponseDTO> ContratosPorInmueble(int idInmueble, int paginaNro, int tamPagina);
         int CantidadTotalPorInmueble(int idInmueble);
         PagoRequestDTO FinalizarContratoAnticipado(int idContrato);
-        public void MarcarContratoComoFinalizado(int idContrato, bool anticipado);
+        void MarcarContratoComoFinalizado(int idContrato, int idUsuario, bool anticipado);
         int CantidadContratosVigentesPorFecha(DateTime fechaDesde, DateTime fechaHasta);
         IList<ContratoResponseDTO> ObtenerContratosVigentesPorFecha(DateTime fechaDesde, DateTime fechaHasta, int paginaNro, int tamPagina);
     }

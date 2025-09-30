@@ -5,17 +5,18 @@ using proyecto_inmobiliaria.Exceptions;
 using proyecto_inmobiliaria.Dtos.response;
 using Microsoft.AspNetCore.Authorization;
 using proyecto_inmobiliaria.Constants;
+using System.Security.Claims;
+
 
 namespace proyecto_inmobiliaria.Controllers
 {
     [Authorize]
     public class ContratoController : Controller
     {
-        private readonly IContratoService _service;
-
+        private readonly IContratoService _contratoService;
         public ContratoController(IContratoService service)
         {
-            _service = service;
+            _contratoService = service;
         }
 
         public IActionResult Index(
@@ -33,13 +34,13 @@ namespace proyecto_inmobiliaria.Controllers
 
             if (fechaDesde.HasValue && fechaHasta.HasValue)
             {
-                contratos = _service.ObtenerContratosVigentesPorFecha(fechaDesde.Value, fechaHasta.Value, paginaNro, tamPagina);
-                totalContratos = _service.CantidadContratosVigentesPorFecha(fechaDesde.Value, fechaHasta.Value);
+                contratos = _contratoService.ObtenerContratosVigentesPorFecha(fechaDesde.Value, fechaHasta.Value, paginaNro, tamPagina);
+                totalContratos = _contratoService.CantidadContratosVigentesPorFecha(fechaDesde.Value, fechaHasta.Value);
             }
             else
             {
-                contratos = _service.TodosLosContratosPaginados(paginaNro, tamPagina);
-                totalContratos = _service.CantidadTotalContrato();
+                contratos = _contratoService.TodosLosContratosPaginados(paginaNro, tamPagina);
+                totalContratos = _contratoService.CantidadTotalContrato();
             }
 
             int totalPaginas = (int)Math.Ceiling((double)totalContratos / tamPagina);
@@ -62,25 +63,21 @@ namespace proyecto_inmobiliaria.Controllers
         public IActionResult Crear(ContratoRequestDTO dto)
         {
             if (!ModelState.IsValid)
-            {
                 return View("formCrearModificar", dto);
-            }
-            try
-            {
-                _service.AltaContrato(dto);
-                return RedirectToAction(nameof(Index));
-            }
-            catch (ContractOverlapException ex)
-            {
-                TempData["ErrorMensaje"] = ex.Message;
-                return RedirectToAction(nameof(Index));
-            }
+
+            var claimSub = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
+
+            int idUsuario = int.Parse(claimSub!.Value);
+
+            _contratoService.AltaContrato(dto, idUsuario);
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
         public IActionResult Modificar(int IdContrato)
         {
-            var dto = _service.ObtenerRequestPorId(IdContrato);
+            var dto = _contratoService.ObtenerRequestPorId(IdContrato);
 
             return View("formCrearModificar", dto);
         }
@@ -93,7 +90,10 @@ namespace proyecto_inmobiliaria.Controllers
             {
                 return View("formCrearModificar", dto);
             }
-            _service.ModificarContrato(dto.IdContrato, dto);
+            var claimSub = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
+            int idUsuario = int.Parse(claimSub!.Value);
+
+            _contratoService.ModificarContrato(dto.IdContrato, dto, idUsuario, true);
 
             return RedirectToAction(nameof(Index));
         }
@@ -103,22 +103,22 @@ namespace proyecto_inmobiliaria.Controllers
         [Authorize(Roles = Roles.Administrador)]
         public IActionResult Eliminar(int id)
         {
-            _service.BajaContrato(id);
+            _contratoService.BajaContrato(id);
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
         public IActionResult Detalles(int IdContrato)
         {
-            var dto = _service.ObtenerPorId(IdContrato);
+            var dto = _contratoService.ObtenerPorId(IdContrato);
 
             return View(dto);
         }
 
         public IActionResult PorInmueble(int idInmueble, int paginaNro = 1, int tamPagina = 10)
         {
-            var contratos = _service.ContratosPorInmueble(idInmueble, paginaNro, tamPagina);
-            int totalInmuebles = _service.CantidadTotalPorInmueble(idInmueble);
+            var contratos = _contratoService.ContratosPorInmueble(idInmueble, paginaNro, tamPagina);
+            int totalInmuebles = _contratoService.CantidadTotalPorInmueble(idInmueble);
             int totalPaginas = (int)Math.Ceiling((double)totalInmuebles / tamPagina);
 
             ViewData["PaginaActual"] = paginaNro;
@@ -132,7 +132,7 @@ namespace proyecto_inmobiliaria.Controllers
         {
             try
             {
-                var pagoMulta = _service.FinalizarContratoAnticipado(idContrato);
+                var pagoMulta = _contratoService.FinalizarContratoAnticipado(idContrato);
                 return RedirectToAction("Crear", "Pago", new { idContrato, esFinalizacion = true });
             }
             catch (ContractAlreadyFinalizedException ex)
@@ -149,9 +149,9 @@ namespace proyecto_inmobiliaria.Controllers
 
         public IActionResult Renovar(int idContrato)
         {
-            var contratoOriginal = _service.ObtenerRequestPorId(idContrato);
+            var contratoOriginal = _contratoService.ObtenerRequestPorId(idContrato);
 
-            var responseContrato = _service.ObtenerPorId(idContrato);
+            var responseContrato = _contratoService.ObtenerPorId(idContrato);
 
             var NuevoContrato = new ContratoRequestDTO(
                 0,
@@ -169,5 +169,6 @@ namespace proyecto_inmobiliaria.Controllers
 
             return View("formCrearModificar", NuevoContrato);
         }
+
     }
 }
