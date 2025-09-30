@@ -1,4 +1,6 @@
 @model IEnumerable<proyecto_inmobiliaria.Dtos.response.InmuebleResponseDTO>
+@using proyecto_inmobiliaria.Enum
+
 
 @{
     ViewData["Title"] = "Inmueble";
@@ -51,13 +53,16 @@
                             <i class="fa-solid fa-pen"></i> Editar
                         </a>
 
-                        <form asp-action="Eliminar" method="post" class="d-inline">
-                            <input type="hidden" name="id" value="@inmueble.IdInmueble" />
-                            <button type="submit" class="btn btn-danger" title="Eliminar"
-                                onclick="return confirm('¿Seguro que querés eliminar de forma PERMANENTE este inmueble?');">
-                                <i class="fa-solid fa-trash-can"></i> Eliminar
-                            </button>
-                        </form>
+                        @if (User.IsInRole(Enum.GetName(typeof(ERol), ERol.Administrador)!))
+                        {
+                            <form asp-action="Eliminar" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@inmueble.IdInmueble" />
+                                <button type="submit" class="btn btn-danger" title="Eliminar"
+                                    onclick="return confirm('¿Seguro que querés eliminar de forma PERMANENTE este inmueble?');">
+                                    <i class="fa-solid fa-trash-can"></i> Eliminar
+                                </button>
+                            </form>
+                        }
 
                         <a class="btn btn-warning" asp-action="Detalles" asp-route-IdInmueble="@inmueble.IdInmueble"
                             title="Ver detalles">

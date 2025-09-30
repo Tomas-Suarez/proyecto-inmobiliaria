@@ -3,9 +3,12 @@ using proyecto_inmobiliaria.Dtos.request;
 using proyecto_inmobiliaria.Dtos.response;
 using proyecto_inmobiliaria.Exceptions;
 using proyecto_inmobiliaria.Services;
+using Microsoft.AspNetCore.Authorization;
+using proyecto_inmobiliaria.Constants;
 
 namespace proyecto_inmobiliaria.Controllers
 {
+    [Authorize]
     public class InquilinoController : Controller
     {
         private readonly IInquilinoService service;
@@ -74,6 +77,7 @@ namespace proyecto_inmobiliaria.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Roles.Administrador)]
         public IActionResult Eliminar(int id)
         {
             service.BajaInquilino(id);
@@ -93,13 +97,13 @@ namespace proyecto_inmobiliaria.Controllers
                 return Ok(new { success = false, message = "No se encontró inquilino con ese documento." });
             }
         }
-        
+
         [HttpGet]
         public IActionResult Detalles(int IdInquilino)
         {
             var dto = service.ObtenerPorId(IdInquilino);
 
             return View(dto);
-        } 
+        }
     }
 }

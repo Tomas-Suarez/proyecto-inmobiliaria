@@ -3,9 +3,12 @@ using proyecto_inmobiliaria.Dtos.request;
 using proyecto_inmobiliaria.Services;
 using proyecto_inmobiliaria.Exceptions;
 using proyecto_inmobiliaria.Dtos.response;
+using Microsoft.AspNetCore.Authorization;
+using proyecto_inmobiliaria.Constants;
 
 namespace proyecto_inmobiliaria.Controllers
 {
+    [Authorize]
     public class ContratoController : Controller
     {
         private readonly IContratoService _service;
@@ -97,6 +100,7 @@ namespace proyecto_inmobiliaria.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Roles.Administrador)]
         public IActionResult Eliminar(int id)
         {
             _service.BajaContrato(id);

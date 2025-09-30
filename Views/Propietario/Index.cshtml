@@ -1,3 +1,4 @@
+@using proyecto_inmobiliaria.Enum
 @model IEnumerable<proyecto_inmobiliaria.Dtos.response.PropietarioResponseDTO>
 
 @{
@@ -35,27 +36,29 @@
                 <td>@propietario.Telefono</td>
                 <td>
                     <div class="btn-group" role="group">
-                        <a class="btn btn-primary" asp-action="Modificar" asp-route-IdPropietario="@propietario.IdPropietario" title="Editar">
+                        <a class="btn btn-primary" asp-action="Modificar"
+                            asp-route-IdPropietario="@propietario.IdPropietario" title="Editar">
                             <i class="fa-solid fa-pen"></i> Editar
                         </a>
 
-                        <form asp-action="Eliminar" method="post" class="d-inline">
-                            <input type="hidden" name="id" value="@propietario.IdPropietario" />
-                            <button type="submit" class="btn btn-danger" title="Eliminar"
+                        @if (User.IsInRole(Enum.GetName(typeof(ERol), ERol.Administrador)!))
+                        {
+                            <form asp-action="Eliminar" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@propietario.IdPropietario" />
+                                <button type="submit" class="btn btn-danger" title="Eliminar"
                                     onclick="return confirm('¿Seguro que querés eliminar de forma PERMANENTE este propietario?');">
-                                <i class="fa-solid fa-trash-can"></i> Eliminar
-                            </button>
-                        </form>
+                                    <i class="fa-solid fa-trash-can"></i> Eliminar
+                                </button>
+                            </form>
+                        }
 
-                        <a class="btn btn-warning" asp-action="Detalles" asp-route-IdPropietario="@propietario.IdPropietario" title="Ver detalles">
+                        <a class="btn btn-warning" asp-action="Detalles"
+                            asp-route-IdPropietario="@propietario.IdPropietario" title="Ver detalles">
                             <i class="fa-solid fa-eye"></i> Detalles
                         </a>
 
-                        <a class="btn btn-secondary" 
-                            asp-controller="Inmueble" 
-                            asp-action="PorPropietario" 
-                            asp-route-IdPropietario="@propietario.IdPropietario" 
-                            title="Mis Propiedades">
+                        <a class="btn btn-secondary" asp-controller="Inmueble" asp-action="PorPropietario"
+                            asp-route-IdPropietario="@propietario.IdPropietario" title="Mis Propiedades">
                             <i class="fa-solid fa-building"></i> Mis propiedades
                         </a>
                     </div>

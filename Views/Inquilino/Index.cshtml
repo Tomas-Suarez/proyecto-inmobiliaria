@@ -1,3 +1,4 @@
+@using proyecto_inmobiliaria.Enum
 @model IEnumerable<proyecto_inmobiliaria.Dtos.response.InquilinoResponseDTO>
 
 @{
@@ -35,19 +36,24 @@
                 <td>@inquilino.Telefono</td>
                 <td>
                     <div class="btn-group" role="group">
-                        <a class="btn btn-primary" asp-action="Modificar" asp-route-IdInquilino="@inquilino.IdInquilino" title="Editar">
+                        <a class="btn btn-primary" asp-action="Modificar" asp-route-IdInquilino="@inquilino.IdInquilino"
+                            title="Editar">
                             <i class="fa-solid fa-pen"></i> Editar
                         </a>
 
-                        <form asp-action="Eliminar" method="post" class="d-inline">
-                            <input type="hidden" name="id" value="@inquilino.IdInquilino" />
-                            <button type="submit" class="btn btn-danger" title="Eliminar"
+                        @if (User.IsInRole(Enum.GetName(typeof(ERol), ERol.Administrador)!))
+                        {
+                            <form asp-action="Eliminar" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@inquilino.IdInquilino" />
+                                <button type="submit" class="btn btn-danger" title="Eliminar"
                                     onclick="return confirm('¿Seguro que querés eliminar de forma PERMANENTE este inquilino?');">
-                                <i class="fa-solid fa-trash-can"></i> Eliminar
-                            </button>
-                        </form>
+                                    <i class="fa-solid fa-trash-can"></i> Eliminar
+                                </button>
+                            </form>
+                        }
 
-                        <a class="btn btn-warning" asp-action="Detalles" asp-route-IdInquilino="@inquilino.IdInquilino" title="Ver detalles">
+                        <a class="btn btn-warning" asp-action="Detalles" asp-route-IdInquilino="@inquilino.IdInquilino"
+                            title="Ver detalles">
                             <i class="fa-solid fa-eye"></i> Detalles
                         </a>
 

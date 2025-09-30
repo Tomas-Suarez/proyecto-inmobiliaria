@@ -1,4 +1,6 @@
 @model IEnumerable<proyecto_inmobiliaria.Dtos.response.ContratoResponseDTO>
+@using proyecto_inmobiliaria.Enum
+
 
 @{
     ViewData["Title"] = "Contrato";
@@ -50,13 +52,16 @@
                             <i class="fa-solid fa-pen"></i> Editar
                         </a>
 
-                        <form id="formEliminar-@contrato.IdContrato" asp-action="Eliminar" method="post" class="d-inline">
-                            <input type="hidden" name="id" value="@contrato.IdContrato" />
-                            <button type="button" class="btn btn-danger"
-                                onclick="mostrarModalConfirmacion('Eliminar contrato', '¿Seguro que querés eliminar este contrato de forma PERMANENTE?', 'formEliminar-@contrato.IdContrato')">
-                                <i class="fa-solid fa-trash-can"></i> Eliminar
-                            </button>
-                        </form>
+                        @if (User.IsInRole(Enum.GetName(typeof(ERol), ERol.Administrador)!))
+                        {
+                            <form id="formEliminar-@contrato.IdContrato" asp-action="Eliminar" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@contrato.IdContrato" />
+                                <button type="button" class="btn btn-danger"
+                                    onclick="mostrarModalConfirmacion('Eliminar contrato', '¿Seguro que querés eliminar este contrato de forma PERMANENTE?', 'formEliminar-@contrato.IdContrato')">
+                                    <i class="fa-solid fa-trash-can"></i> Eliminar
+                                </button>
+                            </form>
+                        }
 
                         <a class="btn btn-warning" asp-action="Detalles" asp-route-IdContrato="@contrato.IdContrato"
                             title="Ver detalles">
@@ -77,9 +82,10 @@
                             </button>
                         </form>
 
-                            <a class="btn btn-success" asp-action="Renovar" asp-route-idContrato="@contrato.IdContrato" title="Renovar contrato">
-                                <i class="fa-solid fa-arrow-rotate-right"></i> Renovar
-                            </a>
+                        <a class="btn btn-success" asp-action="Renovar" asp-route-idContrato="@contrato.IdContrato"
+                            title="Renovar contrato">
+                            <i class="fa-solid fa-arrow-rotate-right"></i> Renovar
+                        </a>
                     </div>
                 </td>
             </tr>

@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using proyecto_inmobiliaria.Dtos.request;
 using proyecto_inmobiliaria.Jwt;
 using proyecto_inmobiliaria.Services;
+using Microsoft.AspNetCore.Authorization;
+using proyecto_inmobiliaria.Constants;
 
 namespace proyecto_inmobiliaria.Controllers
 {
@@ -17,6 +19,7 @@ namespace proyecto_inmobiliaria.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = Roles.Administrador)]
         public IActionResult Index(int paginaNro = 1, int tamPagina = 10)
         {
             var usuarios = _usuarioService.TodosLosUsuariosPaginados(paginaNro, tamPagina);
@@ -30,6 +33,7 @@ namespace proyecto_inmobiliaria.Controllers
             return View(usuarios);
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult Login()
         {
@@ -37,6 +41,7 @@ namespace proyecto_inmobiliaria.Controllers
             return View("Login", dto);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Login(string nombreUsuario, string contrasena)
@@ -54,10 +59,11 @@ namespace proyecto_inmobiliaria.Controllers
                 var token = _jwtTokenGenerator.GenerateToken(
                     usuario.IdUsuario.ToString(),
                     usuario.Email,
+                    usuario.NombreUsuario,
                     usuario.Rol.ToString()
                 );
 
-                Response.Cookies.Append("AuthToken", token, new CookieOptions
+                Response.Cookies.Append("token", token, new CookieOptions
                 {
                     HttpOnly = true,
                     Secure = false,
@@ -75,6 +81,7 @@ namespace proyecto_inmobiliaria.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = Roles.Administrador)]
         public IActionResult Registro()
         {
             var dto = new UsuarioRequestDTO(0, "", "", "", Enum.ERol.Empleado);
@@ -83,6 +90,7 @@ namespace proyecto_inmobiliaria.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Roles.Administrador)]
         public IActionResult Registro(UsuarioRequestDTO dto)
         {
             if (!ModelState.IsValid)
@@ -102,6 +110,17 @@ namespace proyecto_inmobiliaria.Controllers
                 TempData["ErrorMensaje"] = ex.Message;
                 return View(dto);
             }
+        }
+
+        [HttpGet]
+        public IActionResult Logout()
+        {
+            if (Request.Cookies["token"] != null)
+            {
+                Response.Cookies.Delete("token");
+            }
+
+            return RedirectToAction("Login");
         }
 
 

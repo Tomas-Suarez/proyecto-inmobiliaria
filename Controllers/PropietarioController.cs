@@ -3,9 +3,12 @@ using proyecto_inmobiliaria.Dtos.request;
 using proyecto_inmobiliaria.Dtos.response;
 using proyecto_inmobiliaria.Exceptions;
 using proyecto_inmobiliaria.Services;
+using Microsoft.AspNetCore.Authorization;
+using proyecto_inmobiliaria.Constants;
 
 namespace proyecto_inmobiliaria.Controllers
 {
+    [Authorize]
     public class PropietarioController : Controller
     {
         private readonly IPropietarioService service;
@@ -74,6 +77,7 @@ namespace proyecto_inmobiliaria.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Roles.Administrador)]
         public IActionResult Eliminar(int id)
         {
             service.BajaPropietario(id);
@@ -101,7 +105,7 @@ namespace proyecto_inmobiliaria.Controllers
             var dto = service.ObtenerPorId(IdPropietario);
 
             return View(dto);
-        } 
+        }
 
     }
 }

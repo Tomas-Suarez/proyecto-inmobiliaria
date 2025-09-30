@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using proyecto_inmobiliaria.Dtos.request;
 using proyecto_inmobiliaria.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace proyecto_inmobiliaria.Controllers
 {
+    [Authorize]
     public class PagoController : Controller
     {
         private readonly IPagoService _servicePago;

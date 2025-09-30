@@ -4,9 +4,12 @@ using proyecto_inmobiliaria.Dtos.request;
 using proyecto_inmobiliaria.Repository;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using proyecto_inmobiliaria.Dtos.response;
+using Microsoft.AspNetCore.Authorization;
+using proyecto_inmobiliaria.Constants;
 
 namespace proyecto_inmobiliaria.Controllers
 {
+    [Authorize]
     public class InmuebleController : Controller
     {
         private readonly IInmuebleService _service;
@@ -116,6 +119,7 @@ namespace proyecto_inmobiliaria.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Roles.Administrador)]
         public IActionResult Eliminar(int id)
         {
             _service.BajaInmueble(id);

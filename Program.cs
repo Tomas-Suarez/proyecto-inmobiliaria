@@ -17,7 +17,7 @@ builder.Services.AddSingleton<IAppConfig, AppConfig>();
 builder.Services.AddTransient<MySqlConnection>(sp =>
     new MySqlConnection(sp.GetRequiredService<IAppConfig>().ConnectionString));
 
-//Repository
+// Repository
 builder.Services.AddScoped<IPropietarioRepository, PropietarioRepository>();
 builder.Services.AddScoped<IInquilinoRepository, InquilinoRepository>();
 builder.Services.AddScoped<IInmuebleRepository, InmuebleRepository>();
@@ -27,8 +27,7 @@ builder.Services.AddScoped<IContratoRepository, ContratoRepository>();
 builder.Services.AddScoped<IPagoRepository, PagoRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
-
-//Mapper
+// Mapper
 builder.Services.AddSingleton<PropietarioMapper>();
 builder.Services.AddSingleton<InquilinoMapper>();
 builder.Services.AddSingleton<InmuebleMapper>();
@@ -36,8 +35,7 @@ builder.Services.AddSingleton<ContratoMapper>();
 builder.Services.AddSingleton<PagoMapper>();
 builder.Services.AddSingleton<UsuarioMapper>();
 
-
-//Service
+// Service
 builder.Services.AddScoped<IPropietarioService, PropietarioService>();
 builder.Services.AddScoped<IInquilinoService, InquilinoService>();
 builder.Services.AddScoped<IInmuebleService, InmuebleService>();
@@ -46,7 +44,6 @@ builder.Services.AddScoped<IPagoService, PagoService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
 builder.Services.AddSingleton<JwtTokenGenerator>();
-
 
 builder.Services.AddControllersWithViews()
     .AddSessionStateTempDataProvider();
@@ -86,8 +83,21 @@ builder.Services.AddAuthentication(options =>
                 context.Token = context.Request.Cookies["token"];
             }
             return Task.CompletedTask;
+        },
+        OnChallenge = context =>
+        {
+            context.HandleResponse();
+            context.Response.Redirect("/Usuario/Login");
+            return Task.CompletedTask;
         }
     };
+});
+
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
 });
 
 var app = builder.Build();
@@ -101,6 +111,7 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseSession();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseExceptionHandler("/Error");
