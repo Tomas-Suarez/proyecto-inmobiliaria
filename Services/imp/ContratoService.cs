@@ -3,7 +3,6 @@ using proyecto_inmobiliaria.Dtos.response;
 using proyecto_inmobiliaria.Exceptions;
 using proyecto_inmobiliaria.Mappers;
 using proyecto_inmobiliaria.Repository;
-using proyecto_inmobiliaria.Repository.imp;
 
 using static proyecto_inmobiliaria.Constants.ContratoConstants;
 using static proyecto_inmobiliaria.Constants.PagoConstants;
@@ -15,16 +14,17 @@ namespace proyecto_inmobiliaria.Services.imp
 
         private readonly IContratoRepository _contratoRepository;
         private readonly IPagoRepository _pagoRepository;
-
+        private readonly IAuditoriaContratoService _auditoriaService;
         private readonly ContratoMapper _mapper;
 
-        public ContratoService(IContratoRepository contratoRepository, ContratoMapper mapper, IPagoRepository pagoRepository)
+        public ContratoService(IContratoRepository contratoRepository, ContratoMapper mapper, IPagoRepository pagoRepository, IAuditoriaContratoService auditoriaService)
         {
             _contratoRepository = contratoRepository;
             _mapper = mapper;
             _pagoRepository = pagoRepository;
+            _auditoriaService = auditoriaService;
         }
-        public ContratoResponseDTO AltaContrato(ContratoRequestDTO dto)
+        public ContratoResponseDTO AltaContrato(ContratoRequestDTO dto, int idUsuario)
         {
             var contrato = _mapper.ToEntity(dto);
             contrato.Finalizado = false;
@@ -35,6 +35,14 @@ namespace proyecto_inmobiliaria.Services.imp
             }
             contrato = _contratoRepository.Alta(contrato);
 
+            _auditoriaService.Registrar(new AuditoriaContratoRequestDTO(
+                0,
+                contrato.IdContrato,
+                idUsuario,
+                Enum.Auditoria.CREAR,
+                DateTime.Now
+            ));
+
             return ObtenerPorId(contrato.IdContrato);
         }
 
@@ -43,6 +51,7 @@ namespace proyecto_inmobiliaria.Services.imp
             _ = ObtenerPorId(ContratoId);
 
             int filasAfectadas = _contratoRepository.Baja(ContratoId);
+
 
             if (filasAfectadas == 0)
             {
@@ -55,16 +64,27 @@ namespace proyecto_inmobiliaria.Services.imp
             return _contratoRepository.CantidadTotal();
         }
 
-        public ContratoResponseDTO ModificarContrato(int ContratoId, ContratoRequestDTO dto)
+        public ContratoResponseDTO ModificarContrato(int ContratoId, ContratoRequestDTO dto, int idUsuario, bool auditar = true)
         {
             _ = ObtenerPorId(ContratoId);
 
             var contrato = _mapper.ToEntity(dto);
-
             _ = _contratoRepository.Modificar(contrato);
+
+            if (auditar)
+            {
+                _auditoriaService.Registrar(new AuditoriaContratoRequestDTO(
+                    0,
+                    contrato.IdContrato,
+                    idUsuario,
+                    Enum.Auditoria.EDITAR,
+                    DateTime.Now
+                ));
+            }
 
             return _contratoRepository.ObtenerPorId(ContratoId);
         }
+
 
         public ContratoResponseDTO ObtenerPorId(int ContratoId)
         {
@@ -156,7 +176,7 @@ namespace proyecto_inmobiliaria.Services.imp
             }
         }
 
-        public void MarcarContratoComoFinalizado(int idContrato, bool anticipado = true)
+        public void MarcarContratoComoFinalizado(int idContrato, int idUsuario, bool anticipado = true)
         {
             var contrato = ObtenerRequestPorId(idContrato);
 
@@ -166,7 +186,15 @@ namespace proyecto_inmobiliaria.Services.imp
                 FechaFinAnticipada = anticipado ? DateTime.Today : contrato.FechaFinAnticipada
             };
 
-            ModificarContrato(idContrato, contratoActualizado);
+            ModificarContrato(idContrato, contratoActualizado, idUsuario, false);
+
+            _auditoriaService.Registrar(new AuditoriaContratoRequestDTO(
+                0,
+                idContrato,
+                idUsuario,
+                anticipado ? Enum.Auditoria.FINALIZAR_ANTICIPADO : Enum.Auditoria.FINALIZAR_PAGOS_COMPLETOS,
+                DateTime.Now
+            ));
         }
 
         public int CantidadContratosVigentesPorFecha(DateTime fechaDesde, DateTime fechaHasta)

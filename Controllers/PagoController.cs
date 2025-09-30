@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using proyecto_inmobiliaria.Dtos.request;
 using proyecto_inmobiliaria.Services;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+
 
 namespace proyecto_inmobiliaria.Controllers
 {
@@ -93,12 +95,15 @@ namespace proyecto_inmobiliaria.Controllers
                 return View("formCrearModificar", dto);
             }
 
+            var claimSub = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
+            int idUsuario = int.Parse(claimSub!.Value);
+
             _servicePago.AltaPago(dto);
 
             if (esFinalizacion)
             {
                 // Finalización anticipada
-                _serviceContrato.MarcarContratoComoFinalizado(dto.IdContrato, anticipado: true);
+                _serviceContrato.MarcarContratoComoFinalizado(dto.IdContrato, idUsuario, anticipado: true);
             }
             else
             {
@@ -110,7 +115,7 @@ namespace proyecto_inmobiliaria.Controllers
 
                 if (pagosRealizados >= duracionContratoMeses)
                 {
-                    _serviceContrato.MarcarContratoComoFinalizado(dto.IdContrato, anticipado: false);
+                    _serviceContrato.MarcarContratoComoFinalizado(dto.IdContrato, idUsuario, anticipado: false);
                 }
             }
 

@@ -4,7 +4,6 @@ using proyecto_inmobiliaria.Config;
 using proyecto_inmobiliaria.Models;
 using proyecto_inmobiliaria.Exceptions;
 using proyecto_inmobiliaria.Enum;
-using System;
 
 
 using static proyecto_inmobiliaria.Constants.UsuarioConstants;
