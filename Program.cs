@@ -27,6 +27,8 @@ builder.Services.AddScoped<IContratoRepository, ContratoRepository>();
 builder.Services.AddScoped<IPagoRepository, PagoRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IAuditoriaContratoRepository, AuditoriaContratoRepository>();
+builder.Services.AddScoped<IAuditoriaPagoRepository, AuditoriaPagoRepository>();
+
 
 
 // Mapper
@@ -37,6 +39,7 @@ builder.Services.AddSingleton<ContratoMapper>();
 builder.Services.AddSingleton<PagoMapper>();
 builder.Services.AddSingleton<UsuarioMapper>();
 builder.Services.AddSingleton<AuditoriaContratoMapper>();
+builder.Services.AddSingleton<AuditoriaPagoMapper>();
 
 
 // Service
@@ -47,6 +50,8 @@ builder.Services.AddScoped<IContratoService, ContratoService>();
 builder.Services.AddScoped<IPagoService, PagoService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IAuditoriaContratoService, AuditoriaContratoService>();
+builder.Services.AddScoped<IAuditoriaPagoService, AuditoriaPagoService>();
+
 
 
 builder.Services.AddSingleton<JwtTokenGenerator>();

@@ -4,7 +4,7 @@ namespace proyecto_inmobiliaria.Enum
     {
         CREAR,
         EDITAR,
-        ELIMINAR,
+        ANULAR_PAGO,
         FINALIZAR_PAGOS_COMPLETOS,
         FINALIZAR_ANTICIPADO
     }

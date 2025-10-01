@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using proyecto_inmobiliaria.Dtos.request;
 using proyecto_inmobiliaria.Services;
 using Microsoft.AspNetCore.Authorization;
+using proyecto_inmobiliaria.Constants;
 using System.Security.Claims;
 
 
@@ -98,7 +99,7 @@ namespace proyecto_inmobiliaria.Controllers
             var claimSub = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
             int idUsuario = int.Parse(claimSub!.Value);
 
-            _servicePago.AltaPago(dto);
+            _servicePago.AltaPago(dto, idUsuario);
 
             if (esFinalizacion)
             {
@@ -151,16 +152,25 @@ namespace proyecto_inmobiliaria.Controllers
             {
                 return View("formCrearModificar", dto);
             }
-            _servicePago.ModificarPago(dto.IdPago, dto);
+
+            var claimSub = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
+            int idUsuario = int.Parse(claimSub!.Value);
+
+            _servicePago.ModificarPago(dto.IdPago, dto, idUsuario);
             return RedirectToAction(nameof(Index), new { idContrato = dto.IdContrato });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Roles.Administrador)]
         public IActionResult Anular(int idPago)
         {
+
+            var claimSub = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
+            int idUsuario = int.Parse(claimSub!.Value);
+
             var pago = _servicePago.ObtenerPorId(idPago);
-            _servicePago.BajaPago(idPago);
+            _servicePago.BajaPago(idPago, idUsuario);
 
             return RedirectToAction(nameof(Index), new { idContrato = pago.IdContrato });
         }

@@ -11,23 +11,34 @@ namespace proyecto_inmobiliaria.Services.imp
     public class PagoService : IPagoService
     {
         private readonly IPagoRepository _repository;
+        private readonly IAuditoriaPagoService _auditoriaService;
         private readonly PagoMapper _mapper;
 
-        public PagoService(IPagoRepository repository, PagoMapper mapper)
+        public PagoService(IPagoRepository repository, PagoMapper mapper, IAuditoriaPagoService auditoriaService)
         {
             _repository = repository;
             _mapper = mapper;
+            _auditoriaService = auditoriaService;
+
         }
-        public PagoResponseDTO AltaPago(PagoRequestDTO dto)
+        public PagoResponseDTO AltaPago(PagoRequestDTO dto, int idUsuario)
         {
             var pago = _mapper.ToEntity(dto);
             pago = _repository.Alta(pago);
+
+            _auditoriaService.Registrar(new AuditoriaPagoRequestDTO(
+                0,
+                pago.IdPago,
+                idUsuario,
+                Enum.Auditoria.CREAR,
+                DateTime.Now
+            ));
             return _mapper.ToDto(pago);
         }
 
-        public void BajaPago(int PagoId)
+        public void BajaPago(int PagoId, int idUsuario)
         {
-            _ = ObtenerPorId(PagoId);
+            var pago = ObtenerPorId(PagoId);
 
             int filasAfectadas = _repository.Baja(PagoId);
 
@@ -36,6 +47,13 @@ namespace proyecto_inmobiliaria.Services.imp
                 throw new DeleteFailedException(ERROR_AL_BORRAR_PAGO);
             }
 
+            _auditoriaService.Registrar(new AuditoriaPagoRequestDTO(
+                0,
+                pago.IdPago,
+                idUsuario,
+                Enum.Auditoria.ANULAR_PAGO,
+                DateTime.Now
+            ));
         }
 
         public int CantidadPagosRealizados(int idContrato)
@@ -48,7 +66,7 @@ namespace proyecto_inmobiliaria.Services.imp
             return _repository.ContarPagos(idContrato);
         }
 
-        public PagoResponseDTO ModificarPago(int PagoId, PagoRequestDTO dto)
+        public PagoResponseDTO ModificarPago(int PagoId, PagoRequestDTO dto, int idUsuario)
         {
             _ = ObtenerPorId(PagoId);
 
@@ -57,6 +75,14 @@ namespace proyecto_inmobiliaria.Services.imp
             pago.IdPago = PagoId;
 
             pago = _repository.Modificar(pago);
+
+            _auditoriaService.Registrar(new AuditoriaPagoRequestDTO(
+                0,
+                pago.IdPago,
+                idUsuario,
+                Enum.Auditoria.EDITAR,
+                DateTime.Now
+            ));
 
             return _mapper.ToDto(pago);
         }

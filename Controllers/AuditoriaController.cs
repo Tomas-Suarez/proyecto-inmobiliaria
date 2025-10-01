@@ -1,38 +1,55 @@
 using Microsoft.AspNetCore.Mvc;
 using proyecto_inmobiliaria.Services;
-using proyecto_inmobiliaria.Dtos.response;
-using System.Linq;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
+using proyecto_inmobiliaria.Constants;
 
 namespace proyecto_inmobiliaria.Controllers
 {
+    [Authorize(Roles = Roles.Administrador)]
     public class AuditoriaController : Controller
     {
         private readonly IAuditoriaContratoService _auditoriaContratoService;
-        //private readonly IAuditoriaPagoService _auditoriaPagoService;
+        private readonly IAuditoriaPagoService _auditoriaPagoService;
 
         public AuditoriaController(
-            IAuditoriaContratoService auditoriaContratoService)
+            IAuditoriaContratoService auditoriaContratoService,
+            IAuditoriaPagoService auditoriaPagoService)
         {
             _auditoriaContratoService = auditoriaContratoService;
-            //_auditoriaPagoService = auditoriaPagoService;
+            _auditoriaPagoService = auditoriaPagoService;
         }
 
-        // GET: /Auditoria
-        public IActionResult Index(string tipoAuditoria = "")
+        public IActionResult Index(
+            string tipoAuditoria = "",
+            int paginaNro = 1,
+            int tamPagina = 10)
         {
             ViewData["TipoAuditoria"] = tipoAuditoria;
 
+            IList<object> auditorias;
+            int totalAuditorias;
+
             if (tipoAuditoria == "Contrato")
             {
-                var auditorias = _auditoriaContratoService.ListarAuditoria(1, 100);
-                return View(auditorias.Cast<object>());
+                auditorias = _auditoriaContratoService.ListarAuditoria(paginaNro, tamPagina).Cast<object>().ToList();
+                totalAuditorias = _auditoriaContratoService.CantidadAuditoria();
+            }
+            else if (tipoAuditoria == "Pago")
+            {
+                auditorias = _auditoriaPagoService.ListarAuditoria(paginaNro, tamPagina).Cast<object>().ToList();
+                totalAuditorias = _auditoriaPagoService.CantidadAuditoria();
             }
             else
             {
-                // Si no se selecciona tipo, mostrar tabla vacía
-                return View(Enumerable.Empty<object>());
+                auditorias = new List<object>();
+                totalAuditorias = 0;
             }
+
+            int totalPaginas = (int)Math.Ceiling((double)totalAuditorias / tamPagina);
+            ViewData["PaginaActual"] = paginaNro;
+            ViewData["TotalPaginas"] = totalPaginas;
+
+            return View(auditorias);
         }
     }
 }

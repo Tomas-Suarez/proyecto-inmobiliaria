@@ -5,9 +5,9 @@ namespace proyecto_inmobiliaria.Services
 {
     public interface IPagoService
     {
-        PagoResponseDTO AltaPago(PagoRequestDTO dto);
-        PagoResponseDTO ModificarPago(int PagoId, PagoRequestDTO dto);
-        void BajaPago(int PagoId);
+        PagoResponseDTO AltaPago(PagoRequestDTO dto, int idUsuario);
+        PagoResponseDTO ModificarPago(int PagoId, PagoRequestDTO dto, int idUsuario);
+        void BajaPago(int PagoId, int idUsuario);
         IList<PagoResponseDTO> ObtenerPagosPaginados(int idContrato, int paginaNro, int tamPagina);
         PagoResponseDTO ObtenerPorId(int PagoId);
         int CantidadTotalPagos(int idContrato);
