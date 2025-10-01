@@ -1,7 +1,11 @@
-﻿<!DOCTYPE html>
+﻿@using proyecto_inmobiliaria.Enum
+@{
+    // Avatar y nombre del usuario autenticado
+    var avatarUrl = User.Claims.FirstOrDefault(c => c.Type == "avatar")?.Value ?? "/img/avatar-default.jpg";
+    var nombreUsuario = User.Identity!.Name ?? "Usuario";
+}
+<!DOCTYPE html>
 <html lang="en">
-
-@using proyecto_inmobiliaria.Enum
 
 <head>
     <meta charset="utf-8" />
@@ -19,7 +23,7 @@
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">inmobiliaria</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
@@ -27,56 +31,58 @@
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link border rounded px-3 me-2 @(ViewData["ActivePage"]?.ToString() == "Home" ? "active-nav" : "")"
-                                asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
+                               asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link border rounded px-3 me-2 @(ViewData["ActivePage"]?.ToString() == "Propietario" ? "active-nav" : "")"
-                                asp-area="" asp-controller="Propietario" asp-action="Index">Propietarios</a>
+                               asp-area="" asp-controller="Propietario" asp-action="Index">Propietarios</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link border rounded px-3 @(ViewData["ActivePage"]?.ToString() == "Inquilino" ? "active-nav" : "")"
-                                asp-area="" asp-controller="Inquilino" asp-action="Index">Inquilinos</a>
+                               asp-area="" asp-controller="Inquilino" asp-action="Index">Inquilinos</a>
                         </li>
-                        <li class="nav-item"></li>
-                        <a class="nav-link border rounded px-3 @(ViewData["ActivePage"]?.ToString() == "Inmueble" ? "active-nav" : "")"
-                            asp-area="" asp-controller="Inmueble" asp-action="Index">Inmuebles</a>
+                        <li class="nav-item">
+                            <a class="nav-link border rounded px-3 @(ViewData["ActivePage"]?.ToString() == "Inmueble" ? "active-nav" : "")"
+                               asp-area="" asp-controller="Inmueble" asp-action="Index">Inmuebles</a>
                         </li>
-                        <li class="nav-item"></li>
-                        <a class="nav-link border rounded px-3 @(ViewData["ActivePage"]?.ToString() == "Contrato" ? "active-nav" : "")"
-                            asp-area="" asp-controller="Contrato" asp-action="Index">Contratos</a>
+                        <li class="nav-item">
+                            <a class="nav-link border rounded px-3 @(ViewData["ActivePage"]?.ToString() == "Contrato" ? "active-nav" : "")"
+                               asp-area="" asp-controller="Contrato" asp-action="Index">Contratos</a>
                         </li>
-                        <li class="nav-item"></li>
                         @if (User.IsInRole(Enum.GetName(typeof(ERol), ERol.Administrador)!))
                         {
-                            <a class="nav-link border rounded px-3 @(ViewData["ActivePage"]?.ToString() == "Usuario" ? "active-nav" : "")"
-                                asp-area="" asp-controller="Usuario" asp-action="Index">Usuario</a>
-
-                            <a class="nav-link border rounded px-3 @(ViewData["ActivePage"]?.ToString() == "Auditoria" ? "active-nav" : "")"
-                                asp-area="" asp-controller="Auditoria" asp-action="Index">Auditoría</a>
+                            <li class="nav-item">
+                                <a class="nav-link border rounded px-3 @(ViewData["ActivePage"]?.ToString() == "Usuario" ? "active-nav" : "")"
+                                   asp-area="" asp-controller="Usuario" asp-action="Index">Usuario</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link border rounded px-3 @(ViewData["ActivePage"]?.ToString() == "Auditoria" ? "active-nav" : "")"
+                                   asp-area="" asp-controller="Auditoria" asp-action="Index">Auditoría</a>
+                            </li>
                         }
-                        </li>
                     </ul>
 
                     <ul class="navbar-nav">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="avatarDropdown"
-                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="~/img/avatar-default.jpg" alt="Avatar" class="rounded-circle" width="35"
-                                    height="35">
-                                <span class="ms-2">@User.Identity!.Name</span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="avatarDropdown">
-                                <li><a class="dropdown-item" asp-controller="Usuario"
-                                        asp-action="Perfil">Configuración</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li><a class="dropdown-item" asp-controller="Usuario" asp-action="Logout">Cerrar
-                                        sesión</a></li>
-                            </ul>
-                        </li>
+                        @if (User.Identity!.IsAuthenticated)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="avatarDropdown"
+                                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="@avatarUrl" alt="Avatar" class="rounded-circle" width="35" height="35" />
+                                    <span class="ms-2">@nombreUsuario</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="avatarDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Usuario" asp-action="Perfil">Configuración</a>
+                                    </li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Usuario" asp-action="Logout">Cerrar sesión</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
                     </ul>
-
                 </div>
             </div>
         </nav>
@@ -93,6 +99,7 @@
             &copy; 2025 - proyecto_inmobiliaria - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

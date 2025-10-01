@@ -14,7 +14,9 @@ namespace proyecto_inmobiliaria.Mappers
                 NombreUsuario = dto.NombreUsuario,
                 Email = dto.Email,
                 Contrasena = dto.Contrasena,
-                Rol = dto.Rol
+                Rol = dto.Rol,
+                Avatar_url = dto.AvatarUrl,
+                AvatarFile = dto.AvatarFile
             };
         }
 
@@ -24,7 +26,8 @@ namespace proyecto_inmobiliaria.Mappers
                 entity.IdUsuario,
                 entity.NombreUsuario!,
                 entity.Email!,
-                entity.Rol
+                entity.Rol,
+                entity.Avatar_url
             );
         }
     }

@@ -9,5 +9,7 @@ namespace proyecto_inmobiliaria.Models
         public string? Email { get; set; }
         public string? NombreUsuario { get; set; }
         public string? Contrasena { get; set; }
+        public string? Avatar_url { get; set; }
+        public IFormFile? AvatarFile { get; set; }
     }
 }

@@ -13,6 +13,8 @@ namespace proyecto_inmobiliaria.Services.imp
     {
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly UsuarioMapper _usuarioMapper;
+        private readonly string _avatarsPath = "wwwroot/img";
+        private readonly string _defaultAvatar = "/img/avatar-default.jpg";
 
         public UsuarioService(IUsuarioRepository usuarioRepository, UsuarioMapper usuarioMapper)
         {
@@ -26,6 +28,8 @@ namespace proyecto_inmobiliaria.Services.imp
 
             usuario.Contrasena = AuthHelper.HashPassword(dto.Contrasena);
 
+            usuario.Avatar_url ??= _defaultAvatar;
+
             _usuarioRepository.Alta(usuario);
 
             return _usuarioMapper.ToDto(usuario);
@@ -33,7 +37,15 @@ namespace proyecto_inmobiliaria.Services.imp
 
         public void BajaUsuario(int idUsuario)
         {
-            ObtenerPorId(idUsuario);
+            var usuario = ObtenerPorId(idUsuario);
+
+            //Borramos el avatar si no es el default
+            if (!string.IsNullOrEmpty(usuario.AvatarUrl) && usuario.AvatarUrl != _defaultAvatar)
+            {
+                var pathViejo = Path.Combine(_avatarsPath, Path.GetFileName(usuario.AvatarUrl));
+                if (File.Exists(pathViejo))
+                    File.Delete(pathViejo);
+            }
 
             _usuarioRepository.Baja(idUsuario);
         }
@@ -67,16 +79,19 @@ namespace proyecto_inmobiliaria.Services.imp
 
         public UsuarioResponseDTO ModificarUsuario(int idUsuario, UsuarioRequestDTO dto)
         {
-            ObtenerPorId(idUsuario);
+            var usuarioExistente = _usuarioRepository.ObtenerPorId(idUsuario)
+                                 ?? throw new NotFoundException(NO_SE_ENCONTRO_USUARIO_POR_ID + idUsuario);
 
             var usuario = _usuarioMapper.ToEntity(dto);
-
             usuario.IdUsuario = idUsuario;
+
+            usuario.Avatar_url ??= usuarioExistente.Avatar_url;
 
             usuario = _usuarioRepository.Modificar(usuario);
 
             return _usuarioMapper.ToDto(usuario);
         }
+
 
         public UsuarioResponseDTO ObtenerPorId(int idUsuario)
         {
@@ -96,6 +111,33 @@ namespace proyecto_inmobiliaria.Services.imp
             }
 
             return usuario.Select(p => _usuarioMapper.ToDto(p)).ToList();
+        }
+
+        public UsuarioResponseDTO CambiarAvatar(int idUsuario, IFormFile nuevoArchivo)
+        {
+            var usuario = _usuarioRepository.ObtenerPorId(idUsuario)
+                          ?? throw new NotFoundException(NO_SE_ENCONTRO_USUARIO_POR_ID + idUsuario);
+
+            if (!string.IsNullOrEmpty(usuario.Avatar_url) && usuario.Avatar_url != _defaultAvatar)
+            {
+                var pathViejo = Path.Combine(_avatarsPath, Path.GetFileName(usuario.Avatar_url));
+                if (File.Exists(pathViejo))
+                    File.Delete(pathViejo);
+            }
+
+            var nombreArchivo = $"{Guid.NewGuid()}{Path.GetExtension(nuevoArchivo.FileName)}";
+            var pathNuevo = Path.Combine(_avatarsPath, nombreArchivo);
+
+            using (var stream = new FileStream(pathNuevo, FileMode.Create))
+            {
+                nuevoArchivo.CopyTo(stream);
+            }
+
+            usuario.Avatar_url = $"/img/{nombreArchivo}";
+
+            _usuarioRepository.Modificar(usuario);
+
+            return _usuarioMapper.ToDto(usuario);
         }
     }
 }

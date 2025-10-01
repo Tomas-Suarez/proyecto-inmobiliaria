@@ -6,6 +6,7 @@ namespace proyecto_inmobiliaria.Dtos.response
         int IdUsuario,
         string NombreUsuario,
         string Email,
-        ERol Rol
+        ERol Rol,
+        string? AvatarUrl
     );
 }

@@ -1,0 +1,38 @@
+@model proyecto_inmobiliaria.Dtos.response.UsuarioResponseDTO
+
+@{
+    ViewData["Title"] = "Modificar Usuario";
+}
+
+<h2>Modificar Usuario</h2>
+
+<div class="row">
+    <div class="col-md-6">
+
+        <div class="mb-3">
+            <label>Avatar actual:</label><br />
+            <img src="@Model.AvatarUrl" alt="Avatar" class="img-thumbnail" style="width:150px; height:150px;" />
+        </div>
+
+        <form asp-action="CambiarAvatar" asp-controller="Usuario" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="AvatarFile" class="form-label">Nuevo Avatar</label>
+                <input type="file" class="form-control" name="AvatarFile" id="AvatarFile" accept="image/*" required />
+            </div>
+            <input type="hidden" name="IdUsuario" value="@Model.IdUsuario" />
+            <button type="submit" class="btn btn-primary">Actualizar Avatar</button>
+        </form>
+
+        <hr />
+
+        <form asp-action="CambiarContrasena" asp-controller="Usuario" method="post">
+            <div class="mb-3">
+                <label for="NuevaContrasena" class="form-label">Nueva Contraseña</label>
+                <input type="password" class="form-control" name="NuevaContrasena" id="NuevaContrasena" required />
+            </div>
+            <input type="hidden" name="IdUsuario" value="@Model.IdUsuario" />
+            <button type="submit" class="btn btn-warning">Cambiar Contraseña</button>
+        </form>
+
+    </div>
+</div>

@@ -80,7 +80,6 @@ namespace proyecto_inmobiliaria.Repository.imp
             return auditorias;
         }
 
-
         public AuditoriaPagoResponseDTO ObtenerPorId(int idAuditoriaPago)
         {
             using var connection = new MySqlConnection(_connectionString);
@@ -122,8 +121,6 @@ namespace proyecto_inmobiliaria.Repository.imp
                 throw new NotFoundException(NO_SE_ENCONTRO_AUDITORIA_POR_ID + idAuditoriaPago);
             }
         }
-
-
 
         public AuditoriaPago Registrar(AuditoriaPago auditoria)
         {

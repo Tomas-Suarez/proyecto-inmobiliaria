@@ -13,5 +13,7 @@ namespace proyecto_inmobiliaria.Services
         int CantidadUsuario();
         void CambiarContrasena(int idUsuario, string nuevaContrasena);
         UsuarioResponseDTO Login(string nombreUsuarioOEmail, string contrasena);
+        UsuarioResponseDTO CambiarAvatar(int idUsuario, IFormFile nuevoArchivo);
+
     }
 }

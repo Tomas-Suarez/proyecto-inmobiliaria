@@ -17,6 +17,9 @@ namespace proyecto_inmobiliaria.Dtos.request
         [EmailAddress(ErrorMessage = "El email no es válido.")]
         string Email,
 
-        ERol Rol
+        ERol Rol,
+
+        IFormFile AvatarFile,
+        string? AvatarUrl
     );
 }

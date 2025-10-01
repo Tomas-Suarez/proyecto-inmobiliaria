@@ -27,8 +27,8 @@ namespace proyecto_inmobiliaria.Repository.imp
                 connection.Open();
 
                 string query = @"INSERT INTO Usuario
-                                (nombre_usuario, rol, contrasena, email)
-                                VALUES (@NombreUsuario, @Rol, @Contrasena, @Email)";
+                                (nombre_usuario, rol, contrasena, email, avatar_url)
+                                VALUES (@NombreUsuario, @Rol, @Contrasena, @Email, @AvatarUrl)";
 
                 using (var command = new MySqlCommand(query, connection))
                 {
@@ -36,6 +36,7 @@ namespace proyecto_inmobiliaria.Repository.imp
                     command.Parameters.AddWithValue("@Rol", usuario.Rol.ToString());
                     command.Parameters.AddWithValue("@Contrasena", usuario.Contrasena);
                     command.Parameters.AddWithValue("@Email", usuario.Email);
+                    command.Parameters.AddWithValue("@AvatarUrl", (object?)usuario.Avatar_url ?? DBNull.Value);
 
                     command.ExecuteNonQuery();
                     idUsuario = (int)command.LastInsertedId;
@@ -73,7 +74,8 @@ namespace proyecto_inmobiliaria.Repository.imp
                                 SET nombre_usuario = @NombreUsuario,
                                     rol = @Rol,
                                     contrasena = @Contrasena,
-                                    email = @Email
+                                    email = @Email,
+                                    avatar_url = @AvatarUrl
                                 WHERE id_usuario = @IdUsuario;";
 
                 using (var command = new MySqlCommand(query, connection))
@@ -83,6 +85,7 @@ namespace proyecto_inmobiliaria.Repository.imp
                     command.Parameters.AddWithValue("@Rol", usuario.Rol.ToString());
                     command.Parameters.AddWithValue("@Contrasena", usuario.Contrasena);
                     command.Parameters.AddWithValue("@Email", usuario.Email);
+                    command.Parameters.AddWithValue("@AvatarUrl", (object?)usuario.Avatar_url ?? DBNull.Value);
 
                     int filas = command.ExecuteNonQuery();
                     if (filas == 0)
@@ -96,37 +99,33 @@ namespace proyecto_inmobiliaria.Repository.imp
         {
             IList<Usuario> usuarios = new List<Usuario>();
 
-            using (var connection = new MySqlConnection(_connectionString))
+            using var connection = new MySqlConnection(_connectionString);
+            connection.Open();
+
+            string query = @"SELECT id_usuario, nombre_usuario, rol, contrasena, email, avatar_url
+                            FROM usuario
+                            ORDER BY nombre_usuario
+                            LIMIT @PageSize OFFSET @Offset;";
+
+            using var command = new MySqlCommand(query, connection);
+            int offset = (paginaNro - 1) * tamPagina;
+            command.Parameters.AddWithValue("@PageSize", tamPagina);
+            command.Parameters.AddWithValue("@Offset", offset);
+
+            using var reader = command.ExecuteReader();
+            int avatarIndex = reader.GetOrdinal("avatar_url");
+
+            while (reader.Read())
             {
-                connection.Open();
-
-                string query = @"SELECT id_usuario, nombre_usuario, rol, contrasena, email
-                                FROM usuario
-                                ORDER BY nombre_usuario
-                                LIMIT @PageSize OFFSET @Offset;";
-
-                using (var command = new MySqlCommand(query, connection))
+                usuarios.Add(new Usuario
                 {
-                    int offset = (paginaNro - 1) * tamPagina;
-
-                    command.Parameters.AddWithValue("@PageSize", tamPagina);
-                    command.Parameters.AddWithValue("@Offset", offset);
-
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            usuarios.Add(new Usuario
-                            {
-                                IdUsuario = reader.GetInt32("id_usuario"),
-                                NombreUsuario = reader.GetString("nombre_usuario"),
-                                Rol = System.Enum.Parse<ERol>(reader.GetString("rol"), true),
-                                Contrasena = reader.GetString("contrasena"),
-                                Email = reader.GetString("email")
-                            });
-                        }
-                    }
-                }
+                    IdUsuario = reader.GetInt32("id_usuario"),
+                    NombreUsuario = reader.GetString("nombre_usuario"),
+                    Rol = System.Enum.Parse<ERol>(reader.GetString("rol"), true),
+                    Contrasena = reader.GetString("contrasena"),
+                    Email = reader.GetString("email"),
+                    Avatar_url = reader.IsDBNull(avatarIndex) ? null : reader.GetString(avatarIndex)
+                });
             }
 
             return usuarios;
@@ -138,7 +137,7 @@ namespace proyecto_inmobiliaria.Repository.imp
             {
                 connection.Open();
 
-                string query = @"SELECT id_usuario, nombre_usuario, rol, contrasena, email
+                string query = @"SELECT id_usuario, nombre_usuario, rol, contrasena, email, avatar_url
                                 FROM usuario
                                 WHERE id_usuario = @idUsuario;";
 
@@ -150,13 +149,16 @@ namespace proyecto_inmobiliaria.Repository.imp
                     {
                         if (reader.Read())
                         {
+                            int avatarIndex = reader.GetOrdinal("avatar_url");
+
                             return new Usuario
                             {
                                 IdUsuario = reader.GetInt32("id_usuario"),
                                 NombreUsuario = reader.GetString("nombre_usuario"),
                                 Rol = System.Enum.Parse<ERol>(reader.GetString("rol"), true),
                                 Contrasena = reader.GetString("contrasena"),
-                                Email = reader.GetString("email")
+                                Email = reader.GetString("email"),
+                                Avatar_url = reader.IsDBNull(avatarIndex) ? null : reader.GetString(avatarIndex)
                             };
                         }
                         else
