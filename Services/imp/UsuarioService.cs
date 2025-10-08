@@ -78,9 +78,6 @@ namespace proyecto_inmobiliaria.Services.imp
 
             var dtoConAvatar = usuarioDto with { AvatarUrl = usuarioDto.AvatarUrl ?? "/img/avatar-default.jpg" };
 
-Console.WriteLine($"DEBUG: AvatarUrl del usuario {usuario.NombreUsuario} = {usuario.Avatar_url}");
-
-
             return dtoConAvatar;
 
         }

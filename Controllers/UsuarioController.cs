@@ -102,11 +102,11 @@ namespace proyecto_inmobiliaria.Controllers
                 return View(dto);
             }
 
-                var nuevoUsuario = _usuarioService.AltaUsuario(dto);
+            var nuevoUsuario = _usuarioService.AltaUsuario(dto);
 
-                TempData["ExitoMensaje"] = $"Usuario '{nuevoUsuario.NombreUsuario}' creado correctamente.";
+            TempData["ExitoMensaje"] = $"Usuario '{nuevoUsuario.NombreUsuario}' creado correctamente.";
 
-                return RedirectToAction("Index");
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -120,14 +120,6 @@ namespace proyecto_inmobiliaria.Controllers
             return RedirectToAction("Login");
         }
 
-        [HttpGet]
-        [Authorize]
-        public IActionResult ModificarUsuario(int idUsuario)
-        {
-            var usuario = _usuarioService.ObtenerPorId(idUsuario);
-            return View(usuario);
-        }
-
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
@@ -138,8 +130,112 @@ namespace proyecto_inmobiliaria.Controllers
                 TempData["ErrorMensaje"] = "Debe seleccionar un archivo válido.";
                 return RedirectToAction("Perfil", new { idUsuario });
             }
-                var usuario = _usuarioService.CambiarAvatar(idUsuario, AvatarFile);
-                TempData["ExitoMensaje"] = "Avatar actualizado correctamente.";
+
+            var claimSub = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
+            int idActual = int.Parse(claimSub!.Value);
+            bool esAdmin = User.IsInRole(Roles.Administrador);
+
+            if (!esAdmin && idUsuario != idActual)
+            {
+                TempData["ErrorMensaje"] = "No tiene permisos para modificar este usuario.";
+                return RedirectToAction("Perfil", new { idUsuario = idActual });
+            }
+
+            var usuario = _usuarioService.CambiarAvatar(idUsuario, AvatarFile);
+            TempData["ExitoMensaje"] = "Avatar actualizado correctamente.";
+
+            if (idUsuario == idActual)
+            {
+                var token = _jwtTokenGenerator.GenerateToken(
+                    usuario.IdUsuario.ToString(),
+                    usuario.Email,
+                    usuario.NombreUsuario,
+                    usuario.Rol.ToString(),
+                    usuario.AvatarUrl!
+                );
+
+                Response.Cookies.Append("token", token, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.UtcNow.AddMinutes(120)
+                });
+            }
+
+            return RedirectToAction("Perfil", new { idUsuario });
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public IActionResult CambiarContrasena(int idUsuario, string NuevaContrasena)
+        {
+            if (string.IsNullOrWhiteSpace(NuevaContrasena))
+            {
+                TempData["ErrorMensaje"] = "La nueva contraseña no puede estar vacía.";
+                return RedirectToAction("Perfil", new { idUsuario });
+            }
+
+            var claimSub = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
+            int idActual = int.Parse(claimSub!.Value);
+            bool esAdmin = User.IsInRole(Roles.Administrador);
+
+            if (!esAdmin && idUsuario != idActual)
+            {
+                TempData["ErrorMensaje"] = "No tiene permisos para modificar este usuario.";
+                return RedirectToAction("Perfil", new { idUsuario = idActual });
+            }
+
+            _usuarioService.CambiarContrasena(idUsuario, NuevaContrasena);
+            TempData["ExitoMensaje"] = "Contraseña actualizada correctamente.";
+
+            return RedirectToAction("Perfil", new { idUsuario });
+        }
+
+
+        [Authorize]
+        public IActionResult Perfil(int? idUsuario)
+        {
+            var claimSub = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
+            int idActual = int.Parse(claimSub!.Value);
+
+            bool esAdmin = User.IsInRole(Roles.Administrador);
+
+            int idAEditar = (esAdmin && idUsuario.HasValue) ? idUsuario.Value : idActual;
+
+            var usuario = _usuarioService.ObtenerPorId(idAEditar);
+
+            if (usuario == null)
+            {
+                TempData["ErrorMensaje"] = "El usuario no existe.";
+                return RedirectToAction("Index");
+            }
+
+            return View(usuario);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public IActionResult EliminarAvatar(int idUsuario)
+        {
+            var claimSub = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
+            int idActual = int.Parse(claimSub!.Value);
+            bool esAdmin = User.IsInRole(Roles.Administrador);
+
+            if (!esAdmin && idUsuario != idActual)
+            {
+                TempData["ErrorMensaje"] = "No tiene permisos para modificar este usuario.";
+                return RedirectToAction("Perfil", new { idUsuario = idActual });
+            }
+
+            _usuarioService.EliminarAvatar(idUsuario);
+            TempData["ExitoMensaje"] = "Avatar restablecido al predeterminado.";
+
+            if (idUsuario == idActual)
+            {
+                var usuario = _usuarioService.ObtenerPorId(idActual);
 
                 var token = _jwtTokenGenerator.GenerateToken(
                     usuario.IdUsuario.ToString(),
@@ -156,63 +252,7 @@ namespace proyecto_inmobiliaria.Controllers
                     SameSite = SameSiteMode.Strict,
                     Expires = DateTime.UtcNow.AddMinutes(120)
                 });
-            
-
-            return RedirectToAction("Perfil", new { idUsuario });
-        }
-
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        public IActionResult CambiarContrasena(int idUsuario, string NuevaContrasena)
-        {
-            if (string.IsNullOrWhiteSpace(NuevaContrasena))
-            {
-                TempData["ErrorMensaje"] = "La nueva contraseña no puede estar vacía.";
-                return RedirectToAction("Perfil", new { idUsuario });
             }
-            _usuarioService.CambiarContrasena(idUsuario, NuevaContrasena);
-            TempData["ExitoMensaje"] = "Contraseña actualizada correctamente.";
-            return RedirectToAction("Perfil", new { idUsuario });
-        }
-
-        [HttpGet]
-        [Authorize]
-        public IActionResult Perfil()
-        {
-            var claimSub = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
-
-            int idUsuario = int.Parse(claimSub!.Value);
-
-            var usuario = _usuarioService.ObtenerPorId(idUsuario);
-            return View("Perfil", usuario);
-        }
-
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        public IActionResult EliminarAvatar(int idUsuario)
-        {
-            var usuario = _usuarioService.ObtenerPorId(idUsuario);
-            _usuarioService.EliminarAvatar(idUsuario);
-            TempData["ExitoMensaje"] = "Avatar restablecido al predeterminado.";
-
-            var token = _jwtTokenGenerator.GenerateToken(
-                usuario.IdUsuario.ToString(),
-                usuario.Email,
-                usuario.NombreUsuario,
-                usuario.Rol.ToString(),
-                "/img/avatar-default.jpg"
-            );
-
-            Response.Cookies.Append("token", token, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = false,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTime.UtcNow.AddMinutes(120)
-            });
 
             return RedirectToAction("Perfil", new { idUsuario });
         }

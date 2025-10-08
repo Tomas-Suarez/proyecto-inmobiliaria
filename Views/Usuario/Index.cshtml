@@ -36,7 +36,7 @@
                 <td>@usuario.Rol</td>
                 <td>
                     <div class="btn-group" role="group">
-                        <a class="btn btn-primary" asp-action="ModificarUsuario" asp-route-idUsuario="@usuario.IdUsuario" title="Editar">
+                        <a class="btn btn-primary" asp-action="Perfil" asp-route-idUsuario="@usuario.IdUsuario" title="Editar">
                             <i class="fa-solid fa-pen"></i> Editar
                         </a>
 
@@ -49,10 +49,6 @@
                                 <i class="fa-solid fa-trash-can"></i> Eliminar
                             </button>
                         </form>
-
-                        <a class="btn btn-info" asp-action="Perfil" asp-route-idUsuario="@usuario.IdUsuario" title="Ver detalles">
-                            <i class="fa-solid fa-eye"></i> Detalles
-                        </a>
                     </div>
                 </td>
             </tr>

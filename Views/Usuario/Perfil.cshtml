@@ -4,55 +4,65 @@
     ViewData["Title"] = "Modificar Usuario";
 }
 
-<h2>Modificar Usuario</h2>
+<h2 class="text-center mb-4">Perfil de Usuario</h2>
 
-<div class="row">
+<div class="row justify-content-center">
     <div class="col-md-6">
 
-        <div class="mb-3">
-            <label>Avatar actual:</label>
-            <div class="position-relative d-inline-block">
-                <img src="@Model.AvatarUrl" alt="Avatar" class="img-thumbnail"
-                    style="width:150px; height:150px; object-fit:cover;">
+        <!-- Card del perfil -->
+        <div class="card shadow-sm p-4">
 
-                <form asp-action="EliminarAvatar" asp-controller="Usuario" method="post"
-                    style="position:absolute; top:4px; right:4px;">
+            <!-- Avatar y nombre de usuario -->
+            <div class="text-center mb-4">
+                <img src="@Model.AvatarUrl" alt="Avatar" class="rounded-circle img-thumbnail mb-2"
+                     style="width:150px; height:150px; object-fit:cover;">
+                <h4 class="mt-2">@Model.NombreUsuario</h4>
+
+                <!-- Rol decorado con badge -->
+                <span class="badge @(
+                    Model.Rol.ToString() == "Administrador" ? "bg-danger" : 
+                    Model.Rol.ToString() == "Empleado" ? "bg-primary" : "bg-secondary")">
+                    @Model.Rol
+                </span>
+
+                <form asp-action="EliminarAvatar" asp-controller="Usuario" method="post" class="d-inline-block mt-2">
                     <input type="hidden" name="IdUsuario" value="@Model.IdUsuario" />
-                    <button type="submit" class="btn btn-sm btn-danger rounded-circle" title="Eliminar avatar"
-                        style="width:26px; height:26px; line-height:10px; padding:0; border:none;">
-                        &times;
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-x-circle"></i> Eliminar Avatar
                     </button>
                 </form>
             </div>
+
+            <!-- Cambiar avatar -->
+            <form asp-action="CambiarAvatar" asp-controller="Usuario" method="post" enctype="multipart/form-data" class="mb-4">
+                <div class="mb-3">
+                    <label for="AvatarFile" class="form-label">Nuevo Avatar</label>
+                    <input type="file" class="form-control" name="AvatarFile" id="AvatarFile" accept="image/*" required />
+                </div>
+                <input type="hidden" name="IdUsuario" value="@Model.IdUsuario" />
+                <button type="submit" class="btn btn-primary w-100">Actualizar Avatar</button>
+            </form>
+
+            <hr />
+
+            <!-- Cambiar contraseña -->
+            <form id="formCambiarContrasena" asp-action="CambiarContrasena" asp-controller="Usuario" method="post"
+                  onsubmit="return validarContrasenas()">
+                <div class="mb-3">
+                    <label for="NuevaContrasena" class="form-label">Nueva Contraseña</label>
+                    <input type="password" class="form-control" name="NuevaContrasena" id="NuevaContrasena" required />
+                </div>
+
+                <div class="mb-3">
+                    <label for="ConfirmarContrasena" class="form-label">Confirmar Nueva Contraseña</label>
+                    <input type="password" class="form-control" id="ConfirmarContrasena" required />
+                </div>
+
+                <input type="hidden" name="IdUsuario" value="@Model.IdUsuario" />
+                <button type="submit" class="btn btn-warning w-100">Cambiar Contraseña</button>
+            </form>
+
         </div>
-
-        <form asp-action="CambiarAvatar" asp-controller="Usuario" method="post" enctype="multipart/form-data">
-            <div class="mb-3">
-                <label for="AvatarFile" class="form-label">Nuevo Avatar</label>
-                <input type="file" class="form-control" name="AvatarFile" id="AvatarFile" accept="image/*" required />
-            </div>
-            <input type="hidden" name="IdUsuario" value="@Model.IdUsuario" />
-            <button type="submit" class="btn btn-primary">Actualizar Avatar</button>
-        </form>
-
-        <hr />
-
-        <form id="formCambiarContrasena" asp-action="CambiarContrasena" asp-controller="Usuario" method="post"
-            onsubmit="return validarContrasenas()">
-            <div class="mb-3">
-                <label for="NuevaContrasena" class="form-label">Nueva Contraseña</label>
-                <input type="password" class="form-control" name="NuevaContrasena" id="NuevaContrasena" required />
-            </div>
-
-            <div class="mb-3">
-                <label for="ConfirmarContrasena" class="form-label">Confirmar Nueva Contraseña</label>
-                <input type="password" class="form-control" id="ConfirmarContrasena" required />
-            </div>
-
-            <input type="hidden" name="IdUsuario" value="@Model.IdUsuario" />
-            <button type="submit" class="btn btn-warning">Cambiar Contraseña</button>
-        </form>
-
     </div>
 </div>
 
