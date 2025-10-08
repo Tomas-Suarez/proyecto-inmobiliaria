@@ -10,8 +10,20 @@
     <div class="col-md-6">
 
         <div class="mb-3">
-            <label>Avatar actual:</label><br />
-            <img src="@Model.AvatarUrl" alt="Avatar" class="img-thumbnail" style="width:150px; height:150px;" />
+            <label>Avatar actual:</label>
+            <div class="position-relative d-inline-block">
+                <img src="@Model.AvatarUrl" alt="Avatar" class="img-thumbnail"
+                    style="width:150px; height:150px; object-fit:cover;">
+
+                <form asp-action="EliminarAvatar" asp-controller="Usuario" method="post"
+                    style="position:absolute; top:4px; right:4px;">
+                    <input type="hidden" name="IdUsuario" value="@Model.IdUsuario" />
+                    <button type="submit" class="btn btn-sm btn-danger rounded-circle" title="Eliminar avatar"
+                        style="width:26px; height:26px; line-height:10px; padding:0; border:none;">
+                        &times;
+                    </button>
+                </form>
+            </div>
         </div>
 
         <form asp-action="CambiarAvatar" asp-controller="Usuario" method="post" enctype="multipart/form-data">
@@ -25,14 +37,68 @@
 
         <hr />
 
-        <form asp-action="CambiarContrasena" asp-controller="Usuario" method="post">
+        <form id="formCambiarContrasena" asp-action="CambiarContrasena" asp-controller="Usuario" method="post"
+            onsubmit="return validarContrasenas()">
             <div class="mb-3">
                 <label for="NuevaContrasena" class="form-label">Nueva Contraseña</label>
                 <input type="password" class="form-control" name="NuevaContrasena" id="NuevaContrasena" required />
             </div>
+
+            <div class="mb-3">
+                <label for="ConfirmarContrasena" class="form-label">Confirmar Nueva Contraseña</label>
+                <input type="password" class="form-control" id="ConfirmarContrasena" required />
+            </div>
+
             <input type="hidden" name="IdUsuario" value="@Model.IdUsuario" />
             <button type="submit" class="btn btn-warning">Cambiar Contraseña</button>
         </form>
 
     </div>
 </div>
+
+@await Html.PartialAsync("_ModalConfirmacion", ("", "", ""))
+@await Html.PartialAsync("_ModalMensaje", TempData["ErrorMensaje"] as string)
+@await Html.PartialAsync("_ModalMensaje", TempData["ExitoMensaje"] as string)
+
+<script src="~/js/modalReutilizable.js"></script>
+
+<script>
+    function validarContrasenas() {
+        const nueva = document.getElementById('NuevaContrasena').value;
+        const confirmar = document.getElementById('ConfirmarContrasena').value;
+
+        if (nueva !== confirmar) {
+            mostrarModalMensaje('Las contraseñas no coinciden. Por favor, inténtalo de nuevo.');
+            return false;
+        }
+        return true;
+    }
+
+    function mostrarModalMensaje(mensaje) {
+        const modalHtml = `
+            <div class="modal fade" id="mensajeModal" tabindex="-1" aria-labelledby="mensajeModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="mensajeModalLabel">Mensaje</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p>${mensaje}</p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                  </div>
+                </div>
+              </div>
+            </div>`;
+
+        const existente = document.getElementById('mensajeModal');
+        if (existente) existente.remove();
+
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        const modal = new bootstrap.Modal(document.getElementById('mensajeModal'));
+        modal.show();
+    }
+</script>

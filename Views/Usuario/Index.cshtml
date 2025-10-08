@@ -28,6 +28,7 @@
     <tbody>
         @foreach (var usuario in Model)
         {
+            var formId = $"formEliminar_{usuario.IdUsuario}";
             <tr>
                 <td>@usuario.IdUsuario</td>
                 <td>@usuario.NombreUsuario</td>
@@ -35,19 +36,21 @@
                 <td>@usuario.Rol</td>
                 <td>
                     <div class="btn-group" role="group">
-                        <a class="btn btn-primary" asp-action="Modificar" asp-route-id="@usuario.IdUsuario" title="Editar">
+                        <a class="btn btn-primary" asp-action="ModificarUsuario" asp-route-idUsuario="@usuario.IdUsuario" title="Editar">
                             <i class="fa-solid fa-pen"></i> Editar
                         </a>
 
-                        <form asp-action="Eliminar" method="post" class="d-inline">
-                            <input type="hidden" name="id" value="@usuario.IdUsuario" />
-                            <button type="submit" class="btn btn-danger" title="Eliminar"
-                                onclick="return confirm('¿Seguro que querés eliminar este usuario?');">
+                        <form asp-action="Baja" method="post" class="d-inline" id="@formId">
+                            <input type="hidden" name="idUsuario" value="@usuario.IdUsuario" />
+                            <button type="button" class="btn btn-danger" title="Eliminar"
+                                    onclick="mostrarModalConfirmacion('Confirmar eliminación',
+                                    '¿Seguro que querés eliminar al usuario @usuario.NombreUsuario?',
+                                    '@formId')">
                                 <i class="fa-solid fa-trash-can"></i> Eliminar
                             </button>
                         </form>
 
-                        <a class="btn btn-info" asp-action="Detalles" asp-route-id="@usuario.IdUsuario" title="Ver detalles">
+                        <a class="btn btn-info" asp-action="Perfil" asp-route-idUsuario="@usuario.IdUsuario" title="Ver detalles">
                             <i class="fa-solid fa-eye"></i> Detalles
                         </a>
                     </div>
@@ -75,3 +78,7 @@
         </li>
     </ul>
 </nav>
+
+@await Html.PartialAsync("_ModalConfirmacion", ("", "", ""))
+@await Html.PartialAsync("_ModalMensaje", TempData["ErrorMensaje"] as string)
+<script src="~/js/modalReutilizable.js"></script>

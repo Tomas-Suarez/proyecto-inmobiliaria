@@ -14,7 +14,7 @@ namespace proyecto_inmobiliaria.Jwt
             _config = config;
         }
 
-        public string GenerateToken(string idUsuario, string email, string nombreUsuario, string rol)
+        public string GenerateToken(string idUsuario, string email, string nombreUsuario, string rol, string avatarUrl)
         {
             var claims = new[]
             {
@@ -22,6 +22,7 @@ namespace proyecto_inmobiliaria.Jwt
                 new Claim(JwtRegisteredClaimNames.Email, email),
                 new Claim(ClaimTypes.Name, nombreUsuario),
                 new Claim(ClaimTypes.Role, rol),
+                new Claim("avatar", avatarUrl ?? "/img/avatar-default.jpg"),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

@@ -19,7 +19,7 @@ namespace proyecto_inmobiliaria.Dtos.request
 
         ERol Rol,
 
-        IFormFile AvatarFile,
+        IFormFile? AvatarFile,
         string? AvatarUrl
     );
 }

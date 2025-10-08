@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using proyecto_inmobiliaria.Constants;
 using System.Security.Claims;
 
-
 namespace proyecto_inmobiliaria.Controllers
 {
     public class UsuarioController : Controller
@@ -35,6 +34,17 @@ namespace proyecto_inmobiliaria.Controllers
             return View(usuarios);
         }
 
+        [HttpPost]
+        [Authorize(Roles = Roles.Administrador)]
+        [ValidateAntiForgeryToken]
+        public IActionResult Baja(int idUsuario)
+        {
+            _usuarioService.BajaUsuario(idUsuario);
+            TempData["ExitoMensaje"] = "Usuario eliminado correctamente.";
+
+            return RedirectToAction("Index");
+        }
+
         [AllowAnonymous]
         [HttpGet]
         public IActionResult Login()
@@ -53,33 +63,25 @@ namespace proyecto_inmobiliaria.Controllers
                 TempData["ErrorMensaje"] = "Usuario y contraseña son obligatorios.";
                 return View();
             }
+            var usuario = _usuarioService.Login(nombreUsuario, contrasena);
 
-            try
+            var token = _jwtTokenGenerator.GenerateToken(
+                usuario.IdUsuario.ToString(),
+                usuario.Email,
+                usuario.NombreUsuario,
+                usuario.Rol.ToString(),
+                usuario.AvatarUrl!
+            );
+
+            Response.Cookies.Append("token", token, new CookieOptions
             {
-                var usuario = _usuarioService.Login(nombreUsuario, contrasena);
+                HttpOnly = true,
+                Secure = false,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddMinutes(120)
+            });
 
-                var token = _jwtTokenGenerator.GenerateToken(
-                    usuario.IdUsuario.ToString(),
-                    usuario.Email,
-                    usuario.NombreUsuario,
-                    usuario.Rol.ToString()
-                );
-
-                Response.Cookies.Append("token", token, new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = false,
-                    SameSite = SameSiteMode.Strict,
-                    Expires = DateTime.UtcNow.AddMinutes(120)
-                });
-
-                return RedirectToAction("Index", "Home");
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                TempData["ErrorMensaje"] = ex.Message;
-                return View();
-            }
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]
@@ -99,19 +101,12 @@ namespace proyecto_inmobiliaria.Controllers
             {
                 return View(dto);
             }
-            try
-            {
+
                 var nuevoUsuario = _usuarioService.AltaUsuario(dto);
 
                 TempData["ExitoMensaje"] = $"Usuario '{nuevoUsuario.NombreUsuario}' creado correctamente.";
 
                 return RedirectToAction("Index");
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMensaje"] = ex.Message;
-                return View(dto);
-            }
         }
 
         [HttpGet]
@@ -143,19 +138,29 @@ namespace proyecto_inmobiliaria.Controllers
                 TempData["ErrorMensaje"] = "Debe seleccionar un archivo válido.";
                 return RedirectToAction("Perfil", new { idUsuario });
             }
-
-            try
-            {
                 var usuario = _usuarioService.CambiarAvatar(idUsuario, AvatarFile);
                 TempData["ExitoMensaje"] = "Avatar actualizado correctamente.";
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMensaje"] = ex.Message;
-            }
+
+                var token = _jwtTokenGenerator.GenerateToken(
+                    usuario.IdUsuario.ToString(),
+                    usuario.Email,
+                    usuario.NombreUsuario,
+                    usuario.Rol.ToString(),
+                    usuario.AvatarUrl!
+                );
+
+                Response.Cookies.Append("token", token, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.UtcNow.AddMinutes(120)
+                });
+            
 
             return RedirectToAction("Perfil", new { idUsuario });
         }
+
 
         [HttpPost]
         [Authorize]
@@ -167,17 +172,8 @@ namespace proyecto_inmobiliaria.Controllers
                 TempData["ErrorMensaje"] = "La nueva contraseña no puede estar vacía.";
                 return RedirectToAction("Perfil", new { idUsuario });
             }
-
-            try
-            {
-                _usuarioService.CambiarContrasena(idUsuario, NuevaContrasena);
-                TempData["ExitoMensaje"] = "Contraseña actualizada correctamente.";
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMensaje"] = ex.Message;
-            }
-
+            _usuarioService.CambiarContrasena(idUsuario, NuevaContrasena);
+            TempData["ExitoMensaje"] = "Contraseña actualizada correctamente.";
             return RedirectToAction("Perfil", new { idUsuario });
         }
 
@@ -193,5 +189,32 @@ namespace proyecto_inmobiliaria.Controllers
             return View("Perfil", usuario);
         }
 
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public IActionResult EliminarAvatar(int idUsuario)
+        {
+            var usuario = _usuarioService.ObtenerPorId(idUsuario);
+            _usuarioService.EliminarAvatar(idUsuario);
+            TempData["ExitoMensaje"] = "Avatar restablecido al predeterminado.";
+
+            var token = _jwtTokenGenerator.GenerateToken(
+                usuario.IdUsuario.ToString(),
+                usuario.Email,
+                usuario.NombreUsuario,
+                usuario.Rol.ToString(),
+                "/img/avatar-default.jpg"
+            );
+
+            Response.Cookies.Append("token", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = false,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddMinutes(120)
+            });
+
+            return RedirectToAction("Perfil", new { idUsuario });
+        }
     }
 }

@@ -185,7 +185,7 @@ namespace proyecto_inmobiliaria.Repository.imp
             {
                 connection.Open();
 
-                string query = @"SELECT id_usuario, nombre_usuario, rol, contrasena, email
+                string query = @"SELECT id_usuario, nombre_usuario, rol, contrasena, email, avatar_url
                          FROM usuario
                          WHERE nombre_usuario = @valor OR email = @valor
                          LIMIT 1;";
@@ -198,21 +198,23 @@ namespace proyecto_inmobiliaria.Repository.imp
                     {
                         if (reader.Read())
                         {
+                            int avatarIndex = reader.GetOrdinal("avatar_url");
+
                             return new Usuario
                             {
                                 IdUsuario = reader.GetInt32("id_usuario"),
                                 NombreUsuario = reader.GetString("nombre_usuario"),
                                 Rol = System.Enum.Parse<ERol>(reader.GetString("rol"), true),
                                 Contrasena = reader.GetString("contrasena"),
-                                Email = reader.GetString("email")
+                                Email = reader.GetString("email"),
+                                Avatar_url = reader.IsDBNull(avatarIndex) ? null : reader.GetString(avatarIndex)
                             };
                         }
                     }
                 }
             }
 
-            return null; // si no lo encuentra
+            return null;
         }
-
     }
 }
