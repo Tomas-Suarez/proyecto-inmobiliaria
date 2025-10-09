@@ -10,10 +10,11 @@ namespace proyecto_inmobiliaria.Dtos.request
         int IdInquilino,
 
         [Required(ErrorMessage = "El inmueble es obligatorio")]
+        [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un inmueble válido.")]
         int IdInmueble,
 
         [Required(ErrorMessage = "El monto es obligatorio")]
-        [Range(1, double.MaxValue, ErrorMessage = "El monto debe ser mayor a 0")]
+        [Range(0.01, 99999999.99, ErrorMessage = "El monto está fuera del rango permitido.")]
         decimal Monto,
 
         DateTime FechaDesde,

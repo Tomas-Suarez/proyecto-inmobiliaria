@@ -85,11 +85,23 @@ namespace proyecto_inmobiliaria.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Crear(InmuebleRequestDTO dto)
         {
+
+            if (_service.DireccionExiste(dto.Direccion, 0))
+            {
+                ModelState.AddModelError("Direccion", "La dirección ya está registrada en otro inmueble.");
+            }
+
             if (!ModelState.IsValid)
             {
+                if (dto.IdPropietario == 0)
+                {
+                    TempData["ErrorMensaje"] = "Debe buscar y seleccionar un propietario antes de guardar.";
+                }
+
                 CargarLista();
                 return View("formCrearModificar", dto);
             }
+
             _service.AltaInmueble(dto);
             return RedirectToAction(nameof(Index));
         }
@@ -100,6 +112,14 @@ namespace proyecto_inmobiliaria.Controllers
             var dto = _service.ObtenerRequestPorId(IdInmueble);
 
             CargarLista();
+
+            var propietario = _propietarioRepo.ObtenerPorId(dto.IdPropietario);
+
+            if (propietario != null)
+            {
+                ViewBag.NombrePropietario = $"{propietario.Nombre} {propietario.Apellido}";
+            }
+
             return View("formCrearModificar", dto);
         }
 
@@ -107,6 +127,12 @@ namespace proyecto_inmobiliaria.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Modificar(InmuebleRequestDTO dto)
         {
+
+            if (_service.DireccionExiste(dto.Direccion, dto.IdInmueble))
+            {
+                ModelState.AddModelError("Direccion", "La dirección ya está registrada en otro inmueble.");
+            }
+            
             if (!ModelState.IsValid)
             {
                 CargarLista();

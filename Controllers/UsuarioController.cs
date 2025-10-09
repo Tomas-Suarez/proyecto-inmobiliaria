@@ -23,6 +23,7 @@ namespace proyecto_inmobiliaria.Controllers
         [Authorize(Roles = Roles.Administrador)]
         public IActionResult Index(int paginaNro = 1, int tamPagina = 10)
         {
+            ViewData["ActivePage"] = "Usuario";
             var usuarios = _usuarioService.TodosLosUsuariosPaginados(paginaNro, tamPagina);
 
             int totalUsuarios = _usuarioService.CantidadUsuario();
@@ -61,27 +62,37 @@ namespace proyecto_inmobiliaria.Controllers
             if (string.IsNullOrWhiteSpace(nombreUsuario) || string.IsNullOrWhiteSpace(contrasena))
             {
                 TempData["ErrorMensaje"] = "Usuario y contraseña son obligatorios.";
-                return View();
+                return View("Login");
             }
-            var usuario = _usuarioService.Login(nombreUsuario, contrasena);
 
-            var token = _jwtTokenGenerator.GenerateToken(
-                usuario.IdUsuario.ToString(),
-                usuario.Email,
-                usuario.NombreUsuario,
-                usuario.Rol.ToString(),
-                usuario.AvatarUrl!
-            );
-
-            Response.Cookies.Append("token", token, new CookieOptions
+            try
             {
-                HttpOnly = true,
-                Secure = false,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTime.UtcNow.AddMinutes(120)
-            });
+                var usuario = _usuarioService.Login(nombreUsuario, contrasena);
 
-            return RedirectToAction("Index", "Home");
+                var token = _jwtTokenGenerator.GenerateToken(
+                    usuario.IdUsuario.ToString(),
+                    usuario.Email,
+                    usuario.NombreUsuario,
+                    usuario.Rol.ToString(),
+                    usuario.AvatarUrl!
+                );
+
+                Response.Cookies.Append("token", token, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.UtcNow.AddMinutes(120)
+                });
+
+                return RedirectToAction("Index", "Home");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                TempData["ErrorMensaje"] = ex.Message;
+
+                return View("Login");
+            }
         }
 
         [HttpGet]

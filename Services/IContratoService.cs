@@ -18,5 +18,6 @@ namespace proyecto_inmobiliaria.Services
         void MarcarContratoComoFinalizado(int idContrato, int idUsuario, bool anticipado);
         int CantidadContratosVigentesPorFecha(DateTime fechaDesde, DateTime fechaHasta);
         IList<ContratoResponseDTO> ObtenerContratosVigentesPorFecha(DateTime fechaDesde, DateTime fechaHasta, int paginaNro, int tamPagina);
+        public bool ExisteSuperposicion(int idInmueble, DateTime fechaDesde, DateTime fechaHasta, int? idContratoExcluir = null);
     }
 }

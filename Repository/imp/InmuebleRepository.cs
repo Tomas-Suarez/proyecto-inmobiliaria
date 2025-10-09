@@ -125,6 +125,28 @@ namespace proyecto_inmobiliaria.Repository.imp
             }
         }
 
+public bool DireccionExiste(string direccion, int idInmuebleExcluido)
+{
+    using (var connection = new MySqlConnection(_connectionString))
+    {
+        connection.Open();
+
+        string query = @"SELECT COUNT(1) 
+                         FROM Inmueble 
+                         WHERE direccion = @direccion AND id_inmueble != @idInmuebleExcluido;";
+
+        using (var command = new MySqlCommand(query, connection))
+        {
+            command.Parameters.AddWithValue("@direccion", direccion);
+            command.Parameters.AddWithValue("@idInmuebleExcluido", idInmuebleExcluido);
+
+            var count = Convert.ToInt32(command.ExecuteScalar());
+            
+            return count > 0;
+        }
+    }
+}
+
         public Inmueble Modificar(Inmueble inmueble)
         {
             using (var connection = new MySqlConnection(_connectionString))

@@ -15,46 +15,62 @@
     </div>
 </h1>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Rol</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var usuario in Model)
-        {
-            var formId = $"formEliminar_{usuario.IdUsuario}";
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
             <tr>
-                <td>@usuario.IdUsuario</td>
-                <td>@usuario.NombreUsuario</td>
-                <td>@usuario.Email</td>
-                <td>@usuario.Rol</td>
-                <td>
-                    <div class="btn-group" role="group">
-                        <a class="btn btn-primary" asp-action="Perfil" asp-route-idUsuario="@usuario.IdUsuario" title="Editar">
-                            <i class="fa-solid fa-pen"></i> Editar
-                        </a>
-
-                        <form asp-action="Baja" method="post" class="d-inline" id="@formId">
-                            <input type="hidden" name="idUsuario" value="@usuario.IdUsuario" />
-                            <button type="button" class="btn btn-danger" title="Eliminar"
-                                    onclick="mostrarModalConfirmacion('Confirmar eliminación',
-                                    '¿Seguro que querés eliminar al usuario @usuario.NombreUsuario?',
-                                    '@formId')">
-                                <i class="fa-solid fa-trash-can"></i> Eliminar
-                            </button>
-                        </form>
-                    </div>
-                </td>
+                <th class="text-center">Id</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th class="text-center">Acciones</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var usuario in Model)
+            {
+                var formId = $"formEliminar_{usuario.IdUsuario}";
+                <tr>
+                    <td class="text-center">@usuario.IdUsuario</td>
+                    <td>@usuario.NombreUsuario</td>
+                    <td>@usuario.Email</td>
+                    <td>
+                        @{
+                            string claseBadge = "bg-secondary";
+                            switch (usuario.Rol.ToString())
+                            {
+                                case "Administrador":
+                                    claseBadge = "bg-danger";
+                                    break;
+                                case "Empleado":
+                                    claseBadge = "bg-primary";
+                                    break;
+                            }
+                        }
+                        <span class="badge @claseBadge fs-6">@usuario.Rol</span>
+                    </td>
+                    <td class="text-center">
+                        <div class="btn-group" role="group">
+                            <a class="btn btn-sm btn-primary" asp-action="Perfil" asp-route-idUsuario="@usuario.IdUsuario" title="Editar">
+                                <i class="fa-solid fa-pen"></i> Editar
+                            </a>
+
+                            <form asp-action="Baja" method="post" class="d-inline" id="@formId">
+                                <input type="hidden" name="idUsuario" value="@usuario.IdUsuario" />
+                                <button type="button" class="btn btn-sm btn-danger" title="Eliminar"
+                                        onclick="mostrarModalConfirmacion('Confirmar eliminación',
+                                        '¿Seguro que querés eliminar al usuario @usuario.NombreUsuario?',
+                                        '@formId')">
+                                    <i class="fa-solid fa-trash-can"></i> Eliminar
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
 <nav aria-label="Paginación">
     <ul class="pagination justify-content-center">

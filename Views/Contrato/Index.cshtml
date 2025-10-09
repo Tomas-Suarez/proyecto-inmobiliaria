@@ -1,7 +1,6 @@
 @model IEnumerable<proyecto_inmobiliaria.Dtos.response.ContratoResponseDTO>
 @using proyecto_inmobiliaria.Enum
 
-
 @{
     ViewData["Title"] = "Contrato";
     int paginaActual = ViewData["PaginaActual"] != null ? (int)ViewData["PaginaActual"]! : 1;
@@ -14,84 +13,123 @@
         <a class="btn btn-primary" asp-action="Crear" title="Crear">
             <i class="fa-solid fa-plus"></i> Crear
         </a>
-
         <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalFiltrosContrato">
             <i class="fa-solid fa-filter"></i> Filtros
         </button>
     </div>
 </h1>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Tipo inmueble</th>
-            <th>Dirección</th>
-            <th>Nombre inquilino</th>
-            <th>Monto</th>
-            <th>Fecha inicial</th>
-            <th>Fecha fin</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var contrato in Model)
-        {
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
             <tr>
-                <td>@contrato.IdContrato</td>
-                <td>@contrato.TipoInmueble</td>
-                <td>@contrato.DireccionInmueble</td>
-                <td>@contrato.NombreCompletoInquilino</td>
-                <td>$@contrato.Monto</td>
-                <td>@contrato.FechaDesde.ToString("dd/MM/yyyy")</td>
-                <td>@contrato.FechaHasta.ToString("dd/MM/yyyy")</td>
-                <td>
-                    <div class="btn-group" role="group">
-                        <a class="btn btn-primary" asp-action="Modificar" asp-route-IdContrato="@contrato.IdContrato"
-                            title="Editar">
-                            <i class="fa-solid fa-pen"></i> Editar
-                        </a>
-
-                        @if (User.IsInRole(Enum.GetName(typeof(ERol), ERol.Administrador)!))
-                        {
-                            <form id="formEliminar-@contrato.IdContrato" asp-action="Eliminar" method="post" class="d-inline">
-                                <input type="hidden" name="id" value="@contrato.IdContrato" />
-                                <button type="button" class="btn btn-danger"
-                                    onclick="mostrarModalConfirmacion('Eliminar contrato', '¿Seguro que querés eliminar este contrato de forma PERMANENTE?', 'formEliminar-@contrato.IdContrato')">
-                                    <i class="fa-solid fa-trash-can"></i> Eliminar
-                                </button>
-                            </form>
-                        }
-
-                        <a class="btn btn-warning" asp-action="Detalles" asp-route-IdContrato="@contrato.IdContrato"
-                            title="Ver detalles">
-                            <i class="fa-solid fa-eye"></i> Detalles
-                        </a>
-
-                        <a class="btn btn-info" asp-controller="Pago" asp-action="Index"
-                            asp-route-idContrato="@contrato.IdContrato" title="Pagos">
-                            <i class="fa-solid fa-dollar-sign"></i> Pagos
-                        </a>
-
-                        <form id="formFinalizar-@contrato.IdContrato" asp-action="FinalizarContratoAnticipado" method="post"
-                            class="d-inline">
-                            <input type="hidden" name="idContrato" value="@contrato.IdContrato" />
-                            <button type="button" class="btn btn-danger"
-                                onclick="mostrarModalConfirmacion('Finalizar contrato', '¿Seguro que querés finalizar este contrato antes de tiempo? Se calculará la multa correspondiente.', 'formFinalizar-@contrato.IdContrato')">
-                                <i class="fa-solid fa-hourglass-end"></i> Finalizar Anticipado
-                            </button>
-                        </form>
-
-                        <a class="btn btn-success" asp-action="Renovar" asp-route-idContrato="@contrato.IdContrato"
-                            title="Renovar contrato">
-                            <i class="fa-solid fa-arrow-rotate-right"></i> Renovar
-                        </a>
-                    </div>
-                </td>
+                <th class="text-center">Id</th>
+                <th>Tipo inmueble</th>
+                <th>Dirección</th>
+                <th>Nombre inquilino</th>
+                <th class="text-end">Monto</th>
+                <th class="text-center">Fecha inicial</th>
+                <th class="text-center">Fecha fin</th>
+                <th class="text-center">Estado</th>
+                <th class="text-center">Acciones</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var contrato in Model)
+            {
+                <tr>
+                    <td class="text-center">@contrato.IdContrato</td>
+                    <td>@contrato.TipoInmueble</td>
+                    <td>@contrato.DireccionInmueble</td>
+                    <td>@contrato.NombreCompletoInquilino</td>
+                    <td class="text-end">@contrato.Monto.ToString("C")</td>
+                    <td class="text-center">@contrato.FechaDesde.ToString("dd/MM/yyyy")</td>
+                    <td class="text-center">@contrato.FechaHasta.ToString("dd/MM/yyyy")</td>
+                    
+                    <td class="text-center">
+                        @{
+                            string estadoTexto = "";
+                            string claseBadge = "";
+
+                            if (contrato.Finalizado)
+                            {
+                                estadoTexto = "Finalizado";
+                                claseBadge = "bg-secondary";
+                            }
+                            else if (DateTime.Today >= contrato.FechaDesde && DateTime.Today <= contrato.FechaHasta)
+                            {
+                                estadoTexto = "En Vigencia";
+                                claseBadge = "bg-success";
+                            }
+                            else if (DateTime.Today < contrato.FechaDesde)
+                            {
+                                estadoTexto = "Próximo";
+                                claseBadge = "bg-info text-dark";
+                            }
+                            else
+                            {
+                                estadoTexto = "Expirado";
+                                claseBadge = "bg-danger";
+                            }
+                        }
+                        <span class="badge @claseBadge fs-6">@estadoTexto</span>
+                    </td>
+
+                    <td class="text-center">
+                        <div class="btn-group" role="group">
+                            <a class="btn btn-sm btn-primary" asp-action="Modificar" asp-route-IdContrato="@contrato.IdContrato"
+                               title="Editar">
+                                <i class="fa-solid fa-pen"></i> Editar
+                            </a>
+
+                            @if (User.IsInRole(Enum.GetName(typeof(ERol), ERol.Administrador)!))
+                            {
+                                var formId = $"formEliminar-{contrato.IdContrato}";
+                                <form id="@formId" asp-action="Eliminar" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@contrato.IdContrato" />
+                                    <button type="button" class="btn btn-sm btn-danger" title="Eliminar"
+                                            onclick="mostrarModalConfirmacion('Eliminar contrato', '¿Seguro que querés eliminar este contrato de forma PERMANENTE?', '@formId')">
+                                        <i class="fa-solid fa-trash-can"></i> Eliminar
+                                    </button>
+                                </form>
+                            }
+
+                            <a class="btn btn-sm btn-warning" asp-action="Detalles" asp-route-IdContrato="@contrato.IdContrato"
+                               title="Ver detalles">
+                                <i class="fa-solid fa-eye"></i> Detalles
+                            </a>
+
+                            <a class="btn btn-sm btn-info" asp-controller="Pago" asp-action="Index"
+                               asp-route-idContrato="@contrato.IdContrato" title="Pagos">
+                                <i class="fa-solid fa-dollar-sign"></i> Pagos
+                            </a>
+                            
+                            @if (!contrato.Finalizado)
+                            {
+                                var formIdFinalizar = $"formFinalizar-{contrato.IdContrato}";
+                                <form id="@formIdFinalizar" asp-action="FinalizarContratoAnticipado" method="post"
+                                      class="d-inline">
+                                    <input type="hidden" name="idContrato" value="@contrato.IdContrato" />
+                                    <button type="button" class="btn btn-sm btn-danger" title="Finalizar contrato antes de tiempo"
+                                            onclick="mostrarModalConfirmacion('Finalizar contrato', '¿Seguro que querés finalizar este contrato antes de tiempo? Se calculará la multa correspondiente.', '@formIdFinalizar')">
+                                        <i class="fa-solid fa-hourglass-end"></i> Finalizar Anticipado
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <a class="btn btn-sm btn-success" asp-action="Renovar" asp-route-idContrato="@contrato.IdContrato"
+                                   title="Renovar contrato">
+                                    <i class="fa-solid fa-arrow-rotate-right"></i> Renovar
+                                </a>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
 <nav aria-label="Paginación">
     <ul class="pagination justify-content-center">

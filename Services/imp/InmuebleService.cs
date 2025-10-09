@@ -111,5 +111,10 @@ namespace proyecto_inmobiliaria.Services.imp
         {
             return _repository.ObtenerDisponiblesPorFecha(fechaDesde, fechaHasta, paginaNro, tamPagina);
         }
+
+        public bool DireccionExiste(string direccion, int idInmuebleExcluido)
+        {
+            return _repository.DireccionExiste(direccion, idInmuebleExcluido);
+        }
     }
 }

@@ -18,50 +18,89 @@
 {
     <h4>Mostrando auditorías de: @tipoAuditoria</h4>
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                @if (tipoAuditoria == "Contrato")
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    @if (tipoAuditoria == "Contrato")
+                    {
+                        <th class="text-center">Id Contrato</th>
+                    }
+                    else if (tipoAuditoria == "Pago")
+                    {
+                        <th class="text-center">Núm. Pago</th>
+                        <th class="text-center">Id Contrato</th>
+                    }
+                    <th>Usuario</th>
+                    <th class="text-center">Acción</th>
+                    <th class="text-center">Fecha Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var auditoria in Model)
                 {
-                    <th>Id Contrato</th>
+                    if (tipoAuditoria == "Contrato")
+                    {
+                        var a = auditoria as proyecto_inmobiliaria.Dtos.response.AuditoriaContratoResponseDTO;
+                        <tr>
+                            <td class="text-center">@a!.IdContrato</td>
+                            <td>@a.NombreUsuario</td>
+                            <td class="text-center">
+                                @{
+                                    string claseBadge = "bg-secondary";
+                                    switch (a.Accion.ToString())
+                                    {
+                                        case "CREACION":
+                                            claseBadge = "bg-success";
+                                            break;
+                                        case "MODIFICACION":
+                                            claseBadge = "bg-info text-dark";
+                                            break;
+                                        case "BAJA":
+                                            claseBadge = "bg-danger";
+                                            break;
+                                        case "FINALIZACION":
+                                            claseBadge = "bg-warning text-dark";
+                                            break;
+                                    }
+                                }
+                                <span class="badge @claseBadge fs-6">@a.Accion</span>
+                            </td>
+                            <td class="text-center">@a.FechaAccion.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                    }
+                    else if (tipoAuditoria == "Pago")
+                    {
+                        var p = auditoria as proyecto_inmobiliaria.Dtos.response.AuditoriaPagoResponseDTO;
+                        <tr>
+                            <td class="text-center">@p!.NumeroPago</td>
+                            <td class="text-center">@p.IdContrato</td>
+                            <td>@p.NombreUsuario</td>
+                            <td class="text-center">
+                                @{
+                                    string claseBadgePago = "bg-secondary";
+                                    switch (p.Accion.ToString())
+                                    {
+                                        case "CREACION":
+                                            claseBadgePago = "bg-success";
+                                            break;
+                                        case "MODIFICACION":
+                                            claseBadgePago = "bg-info text-dark";
+                                            break;
+                                        case "BAJA":
+                                            claseBadgePago = "bg-danger";
+                                            break;
+                                    }
+                                }
+                                <span class="badge @claseBadgePago fs-6">@p.Accion</span>
+                            </td>
+                            <td class="text-center">@p.FechaAccion.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                    }
                 }
-                else if (tipoAuditoria == "Pago")
-                {
-                    <th>Número de Pago</th>
-                    <th>Id Contrato</th>
-                }
-                <th>Usuario</th>
-                <th>Acción</th>
-                <th>Fecha Acción</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var auditoria in Model)
-            {
-                if (tipoAuditoria == "Contrato")
-                {
-                    var a = auditoria as proyecto_inmobiliaria.Dtos.response.AuditoriaContratoResponseDTO;
-                    <tr>
-                        <td>@a!.IdContrato</td>
-                        <td>@a.NombreUsuario</td>
-                        <td>@a.Accion</td>
-                        <td>@a.FechaAccion.ToString("dd/MM/yyyy HH:mm")</td>
-                    </tr>
-                }
-                else if (tipoAuditoria == "Pago")
-                {
-                    var p = auditoria as proyecto_inmobiliaria.Dtos.response.AuditoriaPagoResponseDTO;
-                    <tr>
-                        <td>@p!.NumeroPago</td>
-                        <td>@p.IdContrato</td>
-                        <td>@p.NombreUsuario</td>
-                        <td>@p.Accion</td>
-                        <td>@p.FechaAccion.ToString("dd/MM/yyyy HH:mm")</td>
-                    </tr>
-                }
-            }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 
     <nav aria-label="Paginación">
         <ul class="pagination justify-content-center">
@@ -99,5 +138,7 @@
 }
 else
 {
-    <p>Seleccione un tipo de auditoría para visualizar.</p>
+    <div class="alert alert-info" role="alert">
+        Seleccione un tipo de auditoría para visualizar los registros.
+    </div>
 }

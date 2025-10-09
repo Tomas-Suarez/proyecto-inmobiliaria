@@ -8,6 +8,8 @@
 <h2>@ViewData["Title"]</h2>
 
 <form asp-action="@(crearContrato ? "Crear" : "Modificar")" method="post">
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
     <input type="hidden" asp-for="IdContrato" />
 
     @if (crearContrato && ViewData["NombreInquilino"] == null)
@@ -19,16 +21,7 @@
 
         <div class="form-group">
             <label asp-for="IdInmueble" class="control-label">Inmueble</label>
-            <select id="selectInmueble" asp-for="IdInmueble" class="form-control" asp-items="ViewBag.Inmuebles">
-                @if (ViewBag.Inmuebles != null && ViewBag.Inmuebles.Count > 0)
-                {
-                    <option value="@ViewBag.Inmuebles[0].Value" selected>@ViewBag.Inmuebles[0].Text</option>
-                    @for (int i = 1; i < ViewBag.Inmuebles.Count; i++)
-                    {
-                        <option value="@ViewBag.Inmuebles[i].Value">@ViewBag.Inmuebles[i].Text</option>
-                    }
-                }
-            </select>
+            <select id="selectInmueble" asp-for="IdInmueble" class="form-control" asp-items="ViewBag.Inmuebles"></select>
             <span asp-validation-for="IdInmueble" class="text-danger"></span>
         </div>
 
@@ -58,7 +51,6 @@
     }
     else
     {
-        <!-- Editar contrato existente -->
         <input type="hidden" asp-for="IdInquilino" id="idInquilino" value="@Model.IdInquilino" />
         <input type="hidden" asp-for="IdInmueble" id="idInmueble" value="@Model.IdInmueble" />
     }
@@ -98,20 +90,9 @@
 
 @section Scripts {
     <script>
-        const crearContrato = @crearContrato.ToString().ToLower() === "true";
 
-        const form = document.querySelector("form");
         const idInquilinoInput = document.getElementById("idInquilino");
         const errorInquilino = document.getElementById("errorInquilino");
-
-        if (crearContrato) {
-            form.addEventListener("submit", function (e) {
-                if (!idInquilinoInput.value) {
-                    e.preventDefault();
-                    errorInquilino.innerText = "Debe buscar y seleccionar un inquilino antes de guardar.";
-                }
-            });
-        }
 
         // Filtro por dirección
         document.getElementById("filtroDireccion")?.addEventListener("input", function () {
@@ -155,23 +136,31 @@
                 });
         });
 
-        // Fecha desde se agrega apartir de 6 meses
+        // Lógica de fechas
         const fechaDesdeInput = document.getElementById("FechaDesde");
         const fechaHastaInput = document.getElementById("fechaHasta");
 
-        fechaDesdeInput?.addEventListener("change", function () {
-            if (this.value) {
-                const desde = new Date(this.value);
-                desde.setMonth(desde.getMonth() + 6);
+        if (fechaDesdeInput && fechaHastaInput) {
 
-                const minFecha = desde.toISOString().split("T")[0];
-                fechaHastaInput.min = minFecha;
+            function actualizarFechaMinima() {
+                if (fechaDesdeInput.value) {
+                    const desde = new Date(fechaDesdeInput.value + "T00:00:00");
+                    desde.setMonth(desde.getMonth() + 6);
+                    const minFecha = desde.toISOString().split("T")[0];
+                    fechaHastaInput.min = minFecha;
 
-                if (fechaHastaInput.value && fechaHastaInput.value < minFecha) {
-                    fechaHastaInput.value = "";
+                    if (fechaHastaInput.value && fechaHastaInput.value < minFecha) {
+                        fechaHastaInput.value = "";
+                    }
+                } else {
+                    fechaHastaInput.min = "";
                 }
             }
-        });
+
+            fechaDesdeInput.addEventListener("change", actualizarFechaMinima);
+            actualizarFechaMinima();
+        }
+        
     </script>
 }
 @await Html.PartialAsync("_ModalMensaje", TempData["ErrorMensaje"] as string)

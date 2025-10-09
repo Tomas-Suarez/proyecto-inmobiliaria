@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `inmobiliaria` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `inmobiliaria`;
 -- MySQL dump 10.13  Distrib 8.0.41, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: inmobiliaria
@@ -18,6 +16,67 @@ USE `inmobiliaria`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `auditoria_contrato`
+--
+
+DROP TABLE IF EXISTS `auditoria_contrato`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `auditoria_contrato` (
+  `id_auditoria_contrato` int NOT NULL AUTO_INCREMENT,
+  `id_contrato` int NOT NULL,
+  `id_usuario` int NOT NULL,
+  `accion` varchar(100) NOT NULL,
+  `fecha_accion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_auditoria_contrato`),
+  KEY `fk_auditoria_contrato_usuario` (`id_usuario`),
+  KEY `fk_auditoria_contrato` (`id_contrato`),
+  CONSTRAINT `fk_auditoria_contrato` FOREIGN KEY (`id_contrato`) REFERENCES `contrato` (`id_contrato`) ON DELETE CASCADE,
+  CONSTRAINT `fk_auditoria_contrato_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`)
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auditoria_contrato`
+--
+
+LOCK TABLES `auditoria_contrato` WRITE;
+/*!40000 ALTER TABLE `auditoria_contrato` DISABLE KEYS */;
+INSERT INTO `auditoria_contrato` VALUES (30,64,13,'CREAR','2025-10-09 00:33:41'),(31,65,13,'CREAR','2025-10-09 00:40:49');
+/*!40000 ALTER TABLE `auditoria_contrato` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `auditoria_pago`
+--
+
+DROP TABLE IF EXISTS `auditoria_pago`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `auditoria_pago` (
+  `id_auditoria_pago` int NOT NULL AUTO_INCREMENT,
+  `id_pago` int NOT NULL,
+  `id_usuario` int NOT NULL,
+  `accion` varchar(100) NOT NULL,
+  `fecha_accion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_auditoria_pago`),
+  KEY `fk_auditoria_usuario` (`id_usuario`),
+  KEY `fk_auditoria_pago` (`id_pago`),
+  CONSTRAINT `fk_auditoria_pago` FOREIGN KEY (`id_pago`) REFERENCES `pago` (`id_pago`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auditoria_pago`
+--
+
+LOCK TABLES `auditoria_pago` WRITE;
+/*!40000 ALTER TABLE `auditoria_pago` DISABLE KEYS */;
+INSERT INTO `auditoria_pago` VALUES (20,97,13,'CREAR','2025-10-09 00:37:11'),(21,97,13,'ANULAR_PAGO','2025-10-09 00:37:21'),(22,98,13,'CREAR','2025-10-09 00:40:14'),(23,99,13,'CREAR','2025-10-09 00:40:22');
+/*!40000 ALTER TABLE `auditoria_pago` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `contrato`
 --
 
@@ -31,12 +90,14 @@ CREATE TABLE `contrato` (
   `monto` decimal(10,2) NOT NULL,
   `fecha_desde` date NOT NULL,
   `fecha_hasta` date NOT NULL,
+  `fecha_fin_anticipada` date DEFAULT NULL,
+  `finalizado` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id_contrato`),
   KEY `fk_contrato_inquilino` (`id_inquilino`),
   KEY `fk_contrato_inmueble` (`id_inmueble`),
   CONSTRAINT `fk_contrato_inmueble` FOREIGN KEY (`id_inmueble`) REFERENCES `inmueble` (`id_inmueble`) ON DELETE CASCADE,
   CONSTRAINT `fk_contrato_inquilino` FOREIGN KEY (`id_inquilino`) REFERENCES `inquilino` (`id_inquilino`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -45,7 +106,7 @@ CREATE TABLE `contrato` (
 
 LOCK TABLES `contrato` WRITE;
 /*!40000 ALTER TABLE `contrato` DISABLE KEYS */;
-INSERT INTO `contrato` VALUES (1,2,14,50.00,'2025-09-16','2025-09-27'),(3,2,14,600000.00,'2025-09-02','2025-10-11'),(5,2,15,70000.00,'2025-09-02','2025-09-20'),(6,2,16,9000.00,'2025-09-02','2025-10-11'),(7,2,17,70.00,'2025-09-02','2025-10-10'),(9,2,23,70.00,'2025-09-02','2025-10-22');
+INSERT INTO `contrato` VALUES (64,4,36,3333.00,'2025-10-09','2026-04-09',NULL,0),(65,4,37,333344.00,'2025-10-09','2026-04-17',NULL,0);
 /*!40000 ALTER TABLE `contrato` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -69,31 +130,8 @@ CREATE TABLE `estado_inmueble` (
 
 LOCK TABLES `estado_inmueble` WRITE;
 /*!40000 ALTER TABLE `estado_inmueble` DISABLE KEYS */;
-INSERT INTO `estado_inmueble` VALUES (1,'Disponible'),(2,'Alquilado'),(3,'En Mantenimiento'),(4,'Reservado');
+INSERT INTO `estado_inmueble` VALUES (1,'Disponible'),(3,'En Mantenimiento');
 /*!40000 ALTER TABLE `estado_inmueble` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `estado_pago`
---
-
-DROP TABLE IF EXISTS `estado_pago`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `estado_pago` (
-  `id_estado_pago` int NOT NULL AUTO_INCREMENT,
-  `descripcion` varchar(100) NOT NULL,
-  PRIMARY KEY (`id_estado_pago`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `estado_pago`
---
-
-LOCK TABLES `estado_pago` WRITE;
-/*!40000 ALTER TABLE `estado_pago` DISABLE KEYS */;
-/*!40000 ALTER TABLE `estado_pago` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -118,7 +156,7 @@ CREATE TABLE `inmueble` (
   CONSTRAINT `fk_inmueble_estado` FOREIGN KEY (`id_estado_inmueble`) REFERENCES `estado_inmueble` (`id_estado_inmueble`) ON DELETE CASCADE,
   CONSTRAINT `fk_inmueble_propietario` FOREIGN KEY (`id_propietario`) REFERENCES `propietario` (`id_propietario`) ON DELETE CASCADE,
   CONSTRAINT `fk_inmueble_tipo` FOREIGN KEY (`id_tipo_inmueble`) REFERENCES `tipo_inmueble` (`id_tipo_inmueble`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -127,8 +165,37 @@ CREATE TABLE `inmueble` (
 
 LOCK TABLES `inmueble` WRITE;
 /*!40000 ALTER TABLE `inmueble` DISABLE KEYS */;
-INSERT INTO `inmueble` VALUES (14,2,2,6,'Barrio no se',20,110.00),(15,2,3,6,'Santa Rosa 21',2,2.00),(16,2,3,6,'Una direccion',6,6.00),(17,2,2,6,'San Martin 81',30,4000.00),(23,2,1,6,'Av falsa',5,123.00),(24,1,1,6,'Av falsa 83',2,1.00);
+INSERT INTO `inmueble` VALUES (36,1,1,16,'Av Falsa 23',4,230.00),(37,1,2,16,'Otra Av falsa 33',3,322.00);
 /*!40000 ALTER TABLE `inmueble` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `inmueble_imagen`
+--
+
+DROP TABLE IF EXISTS `inmueble_imagen`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `inmueble_imagen` (
+  `id_inmueble_imagen` int NOT NULL AUTO_INCREMENT,
+  `id_inmueble` int NOT NULL,
+  `path` varchar(512) NOT NULL,
+  `content_type` varchar(100) DEFAULT NULL,
+  `es_principal` tinyint(1) NOT NULL DEFAULT '0',
+  `orden` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id_inmueble_imagen`),
+  KEY `fk_inmueble_imagen_inmueble` (`id_inmueble`),
+  CONSTRAINT `fk_inmueble_imagen_inmueble` FOREIGN KEY (`id_inmueble`) REFERENCES `inmueble` (`id_inmueble`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `inmueble_imagen`
+--
+
+LOCK TABLES `inmueble_imagen` WRITE;
+/*!40000 ALTER TABLE `inmueble_imagen` DISABLE KEYS */;
+/*!40000 ALTER TABLE `inmueble_imagen` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -144,7 +211,7 @@ CREATE TABLE `inquilino` (
   PRIMARY KEY (`id_inquilino`),
   KEY `fk_inquilino_persona` (`id_persona`),
   CONSTRAINT `fk_inquilino_persona` FOREIGN KEY (`id_persona`) REFERENCES `persona` (`id_persona`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -153,31 +220,8 @@ CREATE TABLE `inquilino` (
 
 LOCK TABLES `inquilino` WRITE;
 /*!40000 ALTER TABLE `inquilino` DISABLE KEYS */;
-INSERT INTO `inquilino` VALUES (2,9);
+INSERT INTO `inquilino` VALUES (4,22);
 /*!40000 ALTER TABLE `inquilino` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `metodo_pago`
---
-
-DROP TABLE IF EXISTS `metodo_pago`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `metodo_pago` (
-  `id_metodo_pago` int NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(100) NOT NULL,
-  PRIMARY KEY (`id_metodo_pago`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `metodo_pago`
---
-
-LOCK TABLES `metodo_pago` WRITE;
-/*!40000 ALTER TABLE `metodo_pago` DISABLE KEYS */;
-/*!40000 ALTER TABLE `metodo_pago` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -190,18 +234,16 @@ DROP TABLE IF EXISTS `pago`;
 CREATE TABLE `pago` (
   `id_pago` int NOT NULL AUTO_INCREMENT,
   `id_contrato` int NOT NULL,
-  `id_estado_pago` int NOT NULL,
-  `id_metodo_pago` int NOT NULL,
+  `metodo_pago` varchar(100) NOT NULL,
   `fecha_pago` date NOT NULL,
   `monto` decimal(10,2) NOT NULL,
+  `detalle` varchar(255) DEFAULT NULL,
+  `anulado` tinyint(1) NOT NULL DEFAULT '0',
+  `numero_pago` int NOT NULL DEFAULT '1',
   PRIMARY KEY (`id_pago`),
   KEY `fk_pago_contrato` (`id_contrato`),
-  KEY `fk_pago_estado` (`id_estado_pago`),
-  KEY `fk_pago_metodo` (`id_metodo_pago`),
-  CONSTRAINT `fk_pago_contrato` FOREIGN KEY (`id_contrato`) REFERENCES `contrato` (`id_contrato`) ON DELETE CASCADE,
-  CONSTRAINT `fk_pago_estado` FOREIGN KEY (`id_estado_pago`) REFERENCES `estado_pago` (`id_estado_pago`) ON DELETE CASCADE,
-  CONSTRAINT `fk_pago_metodo` FOREIGN KEY (`id_metodo_pago`) REFERENCES `metodo_pago` (`id_metodo_pago`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `fk_pago_contrato` FOREIGN KEY (`id_contrato`) REFERENCES `contrato` (`id_contrato`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -210,6 +252,7 @@ CREATE TABLE `pago` (
 
 LOCK TABLES `pago` WRITE;
 /*!40000 ALTER TABLE `pago` DISABLE KEYS */;
+INSERT INTO `pago` VALUES (97,64,'Efectivo','2025-10-09',3333.00,NULL,1,1),(98,64,'Efectivo','2025-10-09',3333.00,NULL,0,2),(99,64,'Transferencia','2025-10-09',3333.00,NULL,0,3);
 /*!40000 ALTER TABLE `pago` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -231,7 +274,7 @@ CREATE TABLE `persona` (
   `baja` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id_persona`),
   UNIQUE KEY `documento` (`documento`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -240,7 +283,7 @@ CREATE TABLE `persona` (
 
 LOCK TABLES `persona` WRITE;
 /*!40000 ALTER TABLE `persona` DISABLE KEYS */;
-INSERT INTO `persona` VALUES (6,'Agustina','Lana','33432444','2112321312312','QWEQWEQ@ASSAD.CO','mi cas',0),(9,'Tomas','Suarez','44642599','222222222222','traafdsasdf@gmail.com','mi casa',0),(10,'Carlos','Sanchez','2222222','222222','traafdsasdf@gmail.com','mi direccion',0);
+INSERT INTO `persona` VALUES (21,'SoyUnPropietario','Prop','44444444','22222222','propietario@gmail.com','mi casa',0),(22,'SoyUnInquilino','inq','3333333333','212231231231','Inquilino@gmail.com','asdasdsadsa',0);
 /*!40000 ALTER TABLE `persona` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -257,7 +300,7 @@ CREATE TABLE `propietario` (
   PRIMARY KEY (`id_propietario`),
   KEY `fk_propietario_persona` (`id_persona`),
   CONSTRAINT `fk_propietario_persona` FOREIGN KEY (`id_persona`) REFERENCES `persona` (`id_persona`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -266,31 +309,8 @@ CREATE TABLE `propietario` (
 
 LOCK TABLES `propietario` WRITE;
 /*!40000 ALTER TABLE `propietario` DISABLE KEYS */;
-INSERT INTO `propietario` VALUES (6,6),(7,10);
+INSERT INTO `propietario` VALUES (16,21);
 /*!40000 ALTER TABLE `propietario` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `rol`
---
-
-DROP TABLE IF EXISTS `rol`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `rol` (
-  `id_rol` int NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(100) NOT NULL,
-  PRIMARY KEY (`id_rol`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `rol`
---
-
-LOCK TABLES `rol` WRITE;
-/*!40000 ALTER TABLE `rol` DISABLE KEYS */;
-/*!40000 ALTER TABLE `rol` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -326,17 +346,15 @@ DROP TABLE IF EXISTS `usuario`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `usuario` (
   `id_usuario` int NOT NULL AUTO_INCREMENT,
-  `id_persona` int NOT NULL,
-  `id_rol` int NOT NULL,
   `nombre_usuario` varchar(50) NOT NULL,
-  `contraseña` varchar(255) NOT NULL,
+  `rol` varchar(50) NOT NULL,
+  `contrasena` varchar(255) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `avatar_url` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `nombre_usuario` (`nombre_usuario`),
-  KEY `fk_usuario_persona` (`id_persona`),
-  KEY `fk_usuario_rol` (`id_rol`),
-  CONSTRAINT `fk_usuario_persona` FOREIGN KEY (`id_persona`) REFERENCES `persona` (`id_persona`) ON DELETE CASCADE,
-  CONSTRAINT `fk_usuario_rol` FOREIGN KEY (`id_rol`) REFERENCES `rol` (`id_rol`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -345,6 +363,7 @@ CREATE TABLE `usuario` (
 
 LOCK TABLES `usuario` WRITE;
 /*!40000 ALTER TABLE `usuario` DISABLE KEYS */;
+INSERT INTO `usuario` VALUES (10,'Empleado1234','Empleado','C6/5f/cisL5HLB/1oe2r9877CJ0FdXlJdcMAeYkyfvo=','empleadoo@gmail.com','/img/b77b2762-6d11-46f5-8296-542194e4e8d1.jpg'),(13,'ElAdmin','Administrador','jGl25bVBBBW96Qi9Te4V37Fnqchz/Eu4qB9vKrRIqRg=','admin@gmail.com','/img/avatar-default.jpg');
 /*!40000 ALTER TABLE `usuario` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -357,4 +376,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-09-02 21:57:41
+-- Dump completed on 2025-10-09  0:43:11

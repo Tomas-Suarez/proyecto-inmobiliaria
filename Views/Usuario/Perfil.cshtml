@@ -9,16 +9,13 @@
 <div class="row justify-content-center">
     <div class="col-md-6">
 
-        <!-- Card del perfil -->
         <div class="card shadow-sm p-4">
 
-            <!-- Avatar y nombre de usuario -->
             <div class="text-center mb-4">
                 <img src="@Model.AvatarUrl" alt="Avatar" class="rounded-circle img-thumbnail mb-2"
                      style="width:150px; height:150px; object-fit:cover;">
                 <h4 class="mt-2">@Model.NombreUsuario</h4>
 
-                <!-- Rol decorado con badge -->
                 <span class="badge @(
                     Model.Rol.ToString() == "Administrador" ? "bg-danger" : 
                     Model.Rol.ToString() == "Empleado" ? "bg-primary" : "bg-secondary")">
@@ -33,7 +30,6 @@
                 </form>
             </div>
 
-            <!-- Cambiar avatar -->
             <form asp-action="CambiarAvatar" asp-controller="Usuario" method="post" enctype="multipart/form-data" class="mb-4">
                 <div class="mb-3">
                     <label for="AvatarFile" class="form-label">Nuevo Avatar</label>
@@ -45,7 +41,6 @@
 
             <hr />
 
-            <!-- Cambiar contraseña -->
             <form id="formCambiarContrasena" asp-action="CambiarContrasena" asp-controller="Usuario" method="post"
                   onsubmit="return validarContrasenas()">
                 <div class="mb-3">

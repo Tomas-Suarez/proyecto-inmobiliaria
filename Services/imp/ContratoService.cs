@@ -29,10 +29,6 @@ namespace proyecto_inmobiliaria.Services.imp
             var contrato = _mapper.ToEntity(dto);
             contrato.Finalizado = false;
 
-            if (_contratoRepository.ExisteSuperposicion(contrato.IdInmueble, contrato.FechaDesde, contrato.FechaHasta))
-            {
-                throw new ContractOverlapException(CONTRATO_EXISTE_EN_ESAS_FECHAS);
-            }
             contrato = _contratoRepository.Alta(contrato);
 
             _auditoriaService.Registrar(new AuditoriaContratoRequestDTO(
@@ -142,7 +138,17 @@ namespace proyecto_inmobiliaria.Services.imp
             int mesesTranscurridos = ((DateTime.Today.Year - contrato.FechaDesde.Year) * 12) +
                                      ((DateTime.Today.Month - contrato.FechaDesde.Month) + 1);
 
-            int mesesPendientes = mesesTranscurridos - pagosRealizados;
+            int mesesPendientes;
+
+            if (mesesTranscurridos == 1 && pagosRealizados == 0)
+            {
+                mesesPendientes = 1;
+            }
+            else
+            {
+                mesesPendientes = (mesesTranscurridos - 1) - pagosRealizados;
+            }
+
             if (mesesPendientes > 0)
             {
                 throw new PendingPaymentsException(mesesPendientes);
@@ -205,6 +211,11 @@ namespace proyecto_inmobiliaria.Services.imp
         public IList<ContratoResponseDTO> ObtenerContratosVigentesPorFecha(DateTime fechaDesde, DateTime fechaHasta, int paginaNro, int tamPagina)
         {
             return _contratoRepository.ObtenerContratosVigentesPorFecha(fechaDesde, fechaHasta, paginaNro, tamPagina);
+        }
+
+        public bool ExisteSuperposicion(int idInmueble, DateTime fechaDesde, DateTime fechaHasta, int? idContratoExcluir = null)
+        {
+            return _contratoRepository.ExisteSuperposicion(idInmueble, fechaDesde, fechaHasta, idContratoExcluir);
         }
     }
 }

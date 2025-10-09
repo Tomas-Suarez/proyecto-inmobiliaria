@@ -62,13 +62,25 @@ namespace proyecto_inmobiliaria.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Crear(ContratoRequestDTO dto)
         {
-            if (!ModelState.IsValid)
+            if (dto.IdInquilino == 0)
+            {
+                TempData["ErrorMensaje"] = "Faltó buscar y seleccionar el inquilino.";
+
                 return View("formCrearModificar", dto);
+            }
+
+            if (_contratoService.ExisteSuperposicion(dto.IdInmueble, dto.FechaDesde, dto.FechaHasta))
+            {
+                ModelState.AddModelError("", "Las fechas seleccionadas se superponen con un contrato existente para este inmueble.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View("formCrearModificar", dto);
+            }
 
             var claimSub = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
-
             int idUsuario = int.Parse(claimSub!.Value);
-
             _contratoService.AltaContrato(dto, idUsuario);
 
             return RedirectToAction(nameof(Index));
@@ -86,6 +98,12 @@ namespace proyecto_inmobiliaria.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Modificar(ContratoRequestDTO dto)
         {
+
+            if (_contratoService.ExisteSuperposicion(dto.IdInmueble, dto.FechaDesde, dto.FechaHasta, dto.IdContrato))
+            {
+                ModelState.AddModelError("", "Las fechas seleccionadas se superponen con un contrato existente para este inmueble.");
+            }
+            
             if (!ModelState.IsValid)
             {
                 return View("formCrearModificar", dto);

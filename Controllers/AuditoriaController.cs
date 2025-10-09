@@ -25,6 +25,7 @@ namespace proyecto_inmobiliaria.Controllers
             int tamPagina = 10)
         {
             ViewData["TipoAuditoria"] = tipoAuditoria;
+            ViewData["ActivePage"] = "Auditoria";
 
             IList<object> auditorias;
             int totalAuditorias;

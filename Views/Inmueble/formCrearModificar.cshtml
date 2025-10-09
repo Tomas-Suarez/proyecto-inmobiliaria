@@ -18,29 +18,41 @@
         <span asp-validation-for="IdTipoInmueble" class="text-danger"></span>
     </div>
 
-        <div class="form-group">
-            <label asp-for="IdEstadoInmueble" class="control-label">Estado</label>
-            <select asp-for="IdEstadoInmueble" class="form-control" asp-items="ViewBag.EstadosInmueble">
-                <option value="">-- Seleccionar Estado --</option>
-            </select>
-            <span asp-validation-for="IdEstadoInmueble" class="text-danger"></span>
-        </div>
-
-    @if (crearInmueble){
     <div class="form-group">
-        <label>Documento Propietario</label>
-        <div class="input-group">
-            <input type="text" id="docPropietario" class="form-control" placeholder="Ingrese documento..." />
-            <button type="button" id="btnBuscar" class="btn btn-outline-primary">Buscar</button>
-        </div>
-        <span class="text-danger" id="errorPropietario"></span>
+        <label asp-for="IdEstadoInmueble" class="control-label">Estado</label>
+        <select asp-for="IdEstadoInmueble" class="form-control" asp-items="ViewBag.EstadosInmueble">
+            <option value="">-- Seleccionar Estado --</option>
+        </select>
+        <span asp-validation-for="IdEstadoInmueble" class="text-danger"></span>
     </div>
-    }
 
-    <div id="propietarioInfo" style="display:none; margin-top:10px;" class="alert alert-info">
-        <p><strong>Propietario encontrado:</strong> <span id="nombrePropietario"></span></p>
+    @if (crearInmueble)
+    {
+        <div class="form-group">
+            <label>Documento Propietario</label>
+            <div class="input-group">
+                <input type="text" id="docPropietario" class="form-control" placeholder="Ingrese documento..." />
+                <button type="button" id="btnBuscar" class="btn btn-outline-primary">Buscar</button>
+            </div>
+            <span class="text-danger" id="errorPropietario"></span>
+        </div>
+
+        <div id="propietarioInfo" style="display:none; margin-top:10px;" class="alert alert-info">
+            <p><strong>Propietario encontrado:</strong> <span id="nombrePropietario"></span></p>
+        </div>
+
         <input type="hidden" asp-for="IdPropietario" id="idPropietario" />
-    </div>
+    }
+    else
+    {
+        <div class="form-group">
+            <label class="control-label">Propietario</label>
+            <div class="alert alert-secondary" role="alert">
+                @ViewBag.NombrePropietario
+            </div>
+        </div>
+        <input type="hidden" asp-for="IdPropietario" />
+    }
 
     <div class="form-group">
         <label asp-for="Direccion" class="control-label"></label>
@@ -60,33 +72,38 @@
         <span asp-validation-for="SuperficieM2" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Guardar</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    <div class="form-group mt-3">
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </div>
 </form>
 
 @section Scripts {
     <script>
-        const form = document.querySelector("form");
         const idPropietarioInput = document.getElementById("idPropietario");
         const errorPropietario = document.getElementById("errorPropietario");
+        const docPropietarioInput = document.getElementById("docPropietario");
+        const btnBuscar = document.getElementById("btnBuscar");
 
-        form.addEventListener("submit", function(e) {
-            if (!idPropietarioInput.value) {
-                e.preventDefault();
-                errorPropietario.innerText = "Debe buscar y seleccionar un propietario antes de guardar.";
+        docPropietarioInput?.addEventListener("input", function () {
+            idPropietarioInput.value = "";
+            document.getElementById("propietarioInfo").style.display = "none";
+            if (docPropietarioInput.value.trim() !== "") {
+                errorPropietario.innerText = "Presione 'Buscar' para validar el documento.";
+            } else {
+                errorPropietario.innerText = "";
             }
         });
 
-        document.getElementById("btnBuscar").addEventListener("click", function () {
-            var documento = document.getElementById("docPropietario").value;
+        btnBuscar?.addEventListener("click", function () {
+            var documento = docPropietarioInput.value;
 
             fetch(`/Propietario/BuscarPorDocumento?documento=${documento}`)
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);
                     if (data.success) {
                         document.getElementById("propietarioInfo").style.display = "block";
-                        document.getElementById("nombrePropietario").innerText = data.data.nombre;
+                        document.getElementById("nombrePropietario").innerText = data.data.nombre + " " + data.data.apellido;
                         idPropietarioInput.value = data.data.idPropietario;
                         errorPropietario.innerText = "";
                     } else {
@@ -96,11 +113,13 @@
                     }
                 })
                 .catch(err => {
+                    console.error("Error en el fetch:", err);
                     document.getElementById("propietarioInfo").style.display = "none";
                     idPropietarioInput.value = "";
-                    errorPropietario.innerText = "Error al buscar propietario.";
+                    errorPropietario.innerText = "Error al buscar propietario. Revisa la consola.";
                 });
         });
     </script>
 }
 
+@await Html.PartialAsync("_ModalMensaje", TempData["ErrorMensaje"] as string)

@@ -1,13 +1,11 @@
 @model IEnumerable<proyecto_inmobiliaria.Dtos.response.InmuebleResponseDTO>
 @using proyecto_inmobiliaria.Enum
 
-
 @{
     ViewData["Title"] = "Inmueble";
     int paginaActual = ViewData["PaginaActual"] != null ? (int)ViewData["PaginaActual"]! : 1;
     int totalPaginas = ViewData["TotalPaginas"] != null ? (int)ViewData["TotalPaginas"]! : 1;
     int? estadoSeleccionado = ViewData["EstadoSeleccionado"] as int?;
-
 }
 
 <h1>
@@ -22,85 +20,109 @@
     </div>
 </h1>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Tipo</th>
-            <th>Dirección</th>
-            <th>Ambientes</th>
-            <th>Superficie (m²)</th>
-            <th>Estado</th>
-            <th>Propietario</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var inmueble in Model)
-        {
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
             <tr>
-                <td>@inmueble.IdInmueble</td>
-                <td>@inmueble.TipoInmueble</td>
-                <td>@inmueble.Direccion</td>
-                <td>@inmueble.CantidadAmbientes</td>
-                <td>@inmueble.SuperficieM2</td>
-                <td>@inmueble.EstadoInmueble</td>
-                <td>@inmueble.NombreCompletoPropietario</td>
-                <td>
-                    <div class="btn-group" role="group">
-                        <a class="btn btn-primary" asp-action="Modificar" asp-route-IdInmueble="@inmueble.IdInmueble"
-                            title="Editar">
-                            <i class="fa-solid fa-pen"></i> Editar
-                        </a>
-
-                        @if (User.IsInRole(Enum.GetName(typeof(ERol), ERol.Administrador)!))
-                        {
-                            <form asp-action="Eliminar" method="post" class="d-inline">
-                                <input type="hidden" name="id" value="@inmueble.IdInmueble" />
-                                <button type="submit" class="btn btn-danger" title="Eliminar"
-                                    onclick="return confirm('¿Seguro que querés eliminar de forma PERMANENTE este inmueble?');">
-                                    <i class="fa-solid fa-trash-can"></i> Eliminar
-                                </button>
-                            </form>
-                        }
-
-                        <a class="btn btn-warning" asp-action="Detalles" asp-route-IdInmueble="@inmueble.IdInmueble"
-                            title="Ver detalles">
-                            <i class="fa-solid fa-eye"></i> Detalles
-                        </a>
-
-                        <a class="btn btn-info" asp-controller="Contrato" asp-action="PorInmueble"
-                            asp-route-IdInmueble="@inmueble.IdInmueble">
-                            <i class="fa-solid fa-file-contract"></i> Contratos
-                        </a>
-
-                    </div>
-                </td>
+                <th>Id</th>
+                <th>Tipo</th>
+                <th>Dirección</th>
+                <th>Ambientes</th>
+                <th>Superficie (m²)</th>
+                <th>Estado</th>
+                <th>Propietario</th>
+                <th class="text-center">Acciones</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var inmueble in Model)
+            {
+                <tr>
+                    <td>@inmueble.IdInmueble</td>
+                    <td>@inmueble.TipoInmueble</td>
+                    <td>@inmueble.Direccion</td>
+                    <td>@inmueble.CantidadAmbientes</td>
+                    <td>@inmueble.SuperficieM2</td>
+                    <td>
+                        @{
+                            string claseBadge = "bg-secondary";
+                            switch (inmueble.EstadoInmueble)
+                            {
+                                case "Disponible":
+                                    claseBadge = "bg-success";
+                                    break;
+                                case "Alquilado":
+                                    claseBadge = "bg-warning text-dark";
+                                    break;
+                                case "Mantenimiento":
+                                    claseBadge = "bg-info text-dark";
+                                    break;
+                            }
+                        }
+                        <span class="badge @claseBadge fs-6">@inmueble.EstadoInmueble</span>
+                    </td>
+                    <td>@inmueble.NombreCompletoPropietario</td>
+                    <td class="text-center">
+                        <div class="btn-group" role="group">
+                            <a class="btn btn-sm btn-primary" asp-action="Modificar" asp-route-IdInmueble="@inmueble.IdInmueble"
+                               title="Editar">
+                                <i class="fa-solid fa-pen"></i> Editar
+                            </a>
+
+                            @if (User.IsInRole(Enum.GetName(typeof(ERol), ERol.Administrador)!))
+                            {
+                                var formId = $"formEliminar-{inmueble.IdInmueble}";
+
+                                <form asp-action="Eliminar" method="post" class="d-inline" id="@formId">
+                                    <input type="hidden" name="id" value="@inmueble.IdInmueble" />
+                                    <button type="button" class="btn btn-sm btn-danger" title="Eliminar"
+                                            onclick="mostrarModalConfirmacion('Eliminar Inmueble', '¿Seguro que querés eliminar el inmueble de la dirección @inmueble.Direccion?', '@formId')">
+                                        <i class="fa-solid fa-trash-can"></i> Eliminar
+                                    </button>
+                                </form>
+                            }
+
+                            <a class="btn btn-sm btn-warning" asp-action="Detalles" asp-route-IdInmueble="@inmueble.IdInmueble"
+                               title="Ver detalles">
+                                <i class="fa-solid fa-eye"></i> Detalles
+                            </a>
+
+                            <a class="btn btn-sm btn-info" asp-controller="Contrato" asp-action="PorInmueble"
+                               asp-route-IdInmueble="@inmueble.IdInmueble" title="Ver Contratos">
+                                <i class="fa-solid fa-file-contract"></i> Contratos
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
 <nav aria-label="Paginación">
     <ul class="pagination justify-content-center">
         <li class="page-item @(paginaActual == 1 ? "disabled" : "")">
             <a class="page-link" asp-action="Index" asp-route-paginaNro="@(paginaActual - 1)"
-                asp-route-estado="@estadoSeleccionado">Anterior</a>
+               asp-route-estado="@estadoSeleccionado">Anterior</a>
         </li>
 
         @for (int i = 1; i <= totalPaginas; i++)
         {
             <li class="page-item @(i == paginaActual ? "active" : "")">
                 <a class="page-link" asp-action="Index" asp-route-paginaNro="@i"
-                    asp-route-estado="@estadoSeleccionado">@i</a>
+                   asp-route-estado="@estadoSeleccionado">@i</a>
             </li>
         }
 
         <li class="page-item @(paginaActual == totalPaginas ? "disabled" : "")">
             <a class="page-link" asp-action="Index" asp-route-paginaNro="@(paginaActual + 1)"
-                asp-route-estado="@estadoSeleccionado">Siguiente</a>
+               asp-route-estado="@estadoSeleccionado">Siguiente</a>
         </li>
     </ul>
 </nav>
 
 @await Html.PartialAsync("_ModalFiltros")
+
+@await Html.PartialAsync("_ModalConfirmacion", ("", "", ""))
+@await Html.PartialAsync("_ModalMensaje", TempData["ErrorMensaje"] as string)
+<script src="~/js/modalReutilizable.js"></script>
